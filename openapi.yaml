@@ -1,0 +1,858 @@
+openapi: 3.0.3
+info:
+  title: Word Learning App API
+  description: API for a language word learning application with spaced repetition
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Topics
+  - name: Subtopics
+  - name: Learning
+  - name: Recall
+  - name: Vocabulary
+  - name: Stats
+
+paths:
+
+  # ─── AUTH ───────────────────────────────────────────────
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, username]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  example: secret123
+                username:
+                  type: string
+                  example: alex
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/guest:
+    post:
+      tags: [Auth]
+      summary: Create a guest session
+      description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
+      responses:
+        '201':
+          description: Guest session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current user
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logged out successfully
+
+  # ─── USERS ──────────────────────────────────────────────
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags: [Users]
+      summary: Update current user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: alex
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                color_theme:
+                  type: string
+                  enum: [light, dark, system]
+                  example: dark
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/settings:
+    put:
+      tags: [Users]
+      summary: Update user settings
+      description: Used during onboarding and in profile settings.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                daily_goal_minutes:
+                  type: integer
+                  example: 10
+                notifications_enabled:
+                  type: boolean
+                  example: true
+                interface_language_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/stats:
+    get:
+      tags: [Stats]
+      summary: Get current user stats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── TOPICS ─────────────────────────────────────────────
+
+  /topics:
+    get:
+      tags: [Topics]
+      summary: Get all topics with user progress
+      description: Returns topics list. For guests returns only the first topic.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  topics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TopicSummary'
+                  current_position:
+                    description: Computed from user_subtopic_mechanic_progress — last in_progress entry
+                    $ref: '#/components/schemas/CurrentPosition'
+
+  /topics/{topicId}:
+    get:
+      tags: [Topics]
+      summary: Get topic details with subtopics list
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      responses:
+        '200':
+          description: Topic with subtopics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── SUBTOPICS ──────────────────────────────────────────
+
+  /subtopics/{subtopicId}:
+    get:
+      tags: [Subtopics]
+      summary: Get subtopic details with levels and their statuses
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '200':
+          description: Subtopic with levels progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubtopicDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /subtopics/{subtopicId}/words:
+    get:
+      tags: [Subtopics]
+      summary: Get all words in subtopic (shown before learning starts)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '200':
+          description: List of words in subtopic
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WordPreview'
+
+  # ─── LEARNING SESSION ────────────────────────────────────
+
+  /subtopics/{subtopicId}/session:
+    get:
+      tags: [Learning]
+      summary: Get words for current mechanic session
+      description: Returns words and mechanic type for the current level. Mechanic order is fixed — mnemonic_cards → flashcards → matching → filling_gaps → word_builder.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '200':
+          description: Session data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionData'
+        '403':
+          description: Level is locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subtopics/{subtopicId}/session/answer:
+    post:
+      tags: [Learning]
+      summary: Submit answer for a word in current session
+      description: Used in matching, filling_gaps, word_builder mechanics.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [translation_id, user_answer, mechanic_type]
+              properties:
+                translation_id:
+                  type: string
+                  format: uuid
+                mechanic_type:
+                  type: string
+                  enum: [matching, filling_gaps, word_builder]
+                user_answer:
+                  type: string
+                  example: plato
+      responses:
+        '200':
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /subtopics/{subtopicId}/session/complete:
+    post:
+      tags: [Learning]
+      summary: Complete current level
+      description: Marks level as completed, awards gems, unlocks next level.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mechanic_type]
+              properties:
+                mechanic_type:
+                  type: string
+                  enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+      responses:
+        '200':
+          description: Level completion result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelCompleteResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── RECALL ─────────────────────────────────────────────
+
+  /recall:
+    get:
+      tags: [Recall]
+      summary: Get words scheduled for review today
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Words due for recall today
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 12
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecallWord'
+
+  /recall/answer:
+    post:
+      tags: [Recall]
+      summary: Submit recall answer for a word
+      description: Updates user_translation_state — schedules next interval or resets on failure.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [translation_id, user_answer]
+              properties:
+                translation_id:
+                  type: string
+                  format: uuid
+                user_answer:
+                  type: string
+                  example: plato
+      responses:
+        '200':
+          description: Recall answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /recall/complete:
+    post:
+      tags: [Recall]
+      summary: Complete recall session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Recall session summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_words:
+                    type: integer
+                    example: 12
+                  correct:
+                    type: integer
+                    example: 10
+                  failed:
+                    type: integer
+                    example: 2
+                  gems_earned:
+                    type: integer
+                    example: 5
+
+  # ─── VOCABULARY ─────────────────────────────────────────
+
+  /vocabulary:
+    get:
+      tags: [Vocabulary]
+      summary: Get user vocabulary (all words they started learning)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [learning, memorized]
+          description: Filter by word status
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: User vocabulary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 120
+                  page:
+                    type: integer
+                    example: 1
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VocabularyWord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+# ─── COMPONENTS ─────────────────────────────────────────────
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    topicId:
+      name: topicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    subtopicId:
+      name: subtopicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: NOT_FOUND
+        message:
+          type: string
+          example: Resource not found
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9...
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        is_guest:
+          type: boolean
+        color_theme:
+          type: string
+          enum: [light, dark, system]
+        created_at:
+          type: string
+          format: date-time
+
+    UserSettings:
+      type: object
+      properties:
+        daily_goal_minutes:
+          type: integer
+          example: 10
+        notifications_enabled:
+          type: boolean
+        interface_language_id:
+          type: string
+          format: uuid
+
+    UserStats:
+      type: object
+      properties:
+        gems:
+          type: integer
+          example: 340
+        streak_current:
+          type: integer
+          example: 7
+        streak_last_date:
+          type: string
+          format: date
+        total_words_learned:
+          type: integer
+          example: 120
+        recall_success_rate:
+          type: number
+          format: float
+          description: Percentage of correct recall answers
+          example: 0.84
+
+    CurrentPosition:
+      type: object
+      description: Where the user currently is — computed from user_subtopic_mechanic_progress
+      properties:
+        subtopic_id:
+          type: string
+          format: uuid
+        mechanic_type:
+          type: string
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+
+    TopicSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Food
+        subtopics_total:
+          type: integer
+          example: 6
+        subtopics_completed:
+          type: integer
+          example: 2
+
+    TopicDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        subtopics:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubtopicSummary'
+
+    SubtopicSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Fruits
+        words_count:
+          type: integer
+          example: 15
+        status:
+          type: string
+          enum: [locked, available, in_progress, completed]
+
+    SubtopicDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        words_count:
+          type: integer
+        levels:
+          type: array
+          items:
+            $ref: '#/components/schemas/LevelProgress'
+
+    LevelProgress:
+      type: object
+      properties:
+        mechanic_type:
+          type: string
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+        order:
+          type: integer
+          description: Display order (0 = mnemonic_cards, 1 = flashcards, etc.)
+          example: 0
+        status:
+          type: string
+          enum: [locked, available, in_progress, completed]
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    WordPreview:
+      type: object
+      properties:
+        translation_id:
+          type: string
+          format: uuid
+        foreign_word:
+          type: string
+          example: plate
+        translation:
+          type: string
+          example: тарелка
+        transcription:
+          type: string
+          example: pleɪt
+        has_mnemonic:
+          type: boolean
+
+    SessionData:
+      type: object
+      properties:
+        subtopic_id:
+          type: string
+          format: uuid
+        mechanic_type:
+          type: string
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionWord'
+
+    SessionWord:
+      type: object
+      properties:
+        translation_id:
+          type: string
+          format: uuid
+        foreign_word:
+          type: string
+          example: plate
+        translation:
+          type: string
+          example: тарелка
+        transcription:
+          type: string
+          example: pleɪt
+        audio_url:
+          type: string
+          example: https://cdn.example.com/audio/plate.mp3
+        image_url:
+          type: string
+          nullable: true
+        mnemonic_text:
+          type: string
+          nullable: true
+          description: Only present for mnemonic_cards mechanic
+        usage_example:
+          type: string
+          nullable: true
+          example: Put the plate on the table.
+
+    AnswerResult:
+      type: object
+      properties:
+        translation_id:
+          type: string
+          format: uuid
+        is_correct:
+          type: boolean
+        correct_answer:
+          type: string
+          example: plate
+
+    LevelCompleteResult:
+      type: object
+      properties:
+        mechanic_type:
+          type: string
+        gems_earned:
+          type: integer
+          example: 10
+        next_mechanic:
+          type: string
+          nullable: true
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+          description: Next available mechanic, null if subtopic is fully completed
+        subtopic_completed:
+          type: boolean
+
+    RecallWord:
+      type: object
+      properties:
+        translation_id:
+          type: string
+          format: uuid
+        foreign_word:
+          type: string
+          example: plate
+        translation:
+          type: string
+          example: тарелка
+        transcription:
+          type: string
+        audio_url:
+          type: string
+        times_failed:
+          type: integer
+          description: How many times user failed this word previously
+
+    VocabularyWord:
+      type: object
+      properties:
+        translation_id:
+          type: string
+          format: uuid
+        foreign_word:
+          type: string
+        translation:
+          type: string
+        transcription:
+          type: string
+        audio_url:
+          type: string
+        status:
+          type: string
+          enum: [learning, memorized]
+        next_review_at:
+          type: string
+          format: date-time
+          nullable: true
