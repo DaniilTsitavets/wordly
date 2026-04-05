@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Word Learning App API
   description: API for a language word learning application with spaced repetition
-  version: 1.0.0
+  version: 1.1.0
 
 servers:
   - url: http://localhost:8080/api/v1
@@ -16,7 +16,6 @@ tags:
   - name: Learning
   - name: Recall
   - name: Vocabulary
-  - name: Stats
 
 paths:
 
@@ -32,8 +31,14 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email, password, username]
+              required: [name, surname, email, password]
               properties:
+                name:
+                  type: string
+                  example: Alex
+                surname:
+                  type: string
+                  example: Smith
                 email:
                   type: string
                   format: email
@@ -42,9 +47,6 @@ paths:
                   type: string
                   minLength: 6
                   example: secret123
-                username:
-                  type: string
-                  example: alex
       responses:
         '201':
           description: User registered successfully
@@ -135,7 +137,8 @@ paths:
 
     put:
       tags: [Users]
-      summary: Update current user profile
+      summary: Update current user profile and settings
+      description: Updates name, surname, email, password, interface language, daily goal, notifications, color theme.
       security:
         - bearerAuth: []
       requestBody:
@@ -145,19 +148,29 @@ paths:
             schema:
               type: object
               properties:
-                username:
+                name:
                   type: string
-                  example: alex
+                  example: Alex
+                surname:
+                  type: string
+                  example: Smith
                 email:
                   type: string
                   format: email
                 password:
                   type: string
                   minLength: 6
+                interface_language:
+                  type: string
+                  example: ru
+                daily_goal_min:
+                  type: integer
+                  example: 10
+                notifications_enabled:
+                  type: boolean
                 color_theme:
                   type: string
                   enum: [light, dark, system]
-                  example: dark
       responses:
         '200':
           description: Profile updated
@@ -168,62 +181,13 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /users/me/settings:
-    put:
-      tags: [Users]
-      summary: Update user settings
-      description: Used during onboarding and in profile settings.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                daily_goal_minutes:
-                  type: integer
-                  example: 10
-                notifications_enabled:
-                  type: boolean
-                  example: true
-                interface_language_id:
-                  type: string
-                  format: uuid
-      responses:
-        '200':
-          description: Settings updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserSettings'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /users/me/stats:
-    get:
-      tags: [Stats]
-      summary: Get current user stats
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: User statistics
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserStats'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
   # ─── TOPICS ─────────────────────────────────────────────
 
   /topics:
     get:
       tags: [Topics]
       summary: Get all topics with user progress
-      description: Returns topics list. For guests returns only the first topic.
+      description: For guests returns only the first topic.
       security:
         - bearerAuth: []
       responses:
@@ -239,13 +203,14 @@ paths:
                     items:
                       $ref: '#/components/schemas/TopicSummary'
                   current_position:
-                    description: Computed from user_subtopic_mechanic_progress — last in_progress entry
-                    $ref: '#/components/schemas/CurrentPosition'
+                    allOf:
+                      - $ref: '#/components/schemas/CurrentPosition'
+                    description: Computed from user_subtopic_level_mechanic_progress — last in_progress entry
 
   /topics/{topicId}:
     get:
       tags: [Topics]
-      summary: Get topic details with subtopics list
+      summary: Get topic with its subtopics list
       security:
         - bearerAuth: []
       parameters:
@@ -265,14 +230,14 @@ paths:
   /subtopics/{subtopicId}:
     get:
       tags: [Subtopics]
-      summary: Get subtopic details with levels and their statuses
+      summary: Get subtopic with levels and their statuses
       security:
         - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/subtopicId'
       responses:
         '200':
-          description: Subtopic with levels progress
+          description: Subtopic detail with levels
           content:
             application/json:
               schema:
@@ -283,7 +248,7 @@ paths:
   /subtopics/{subtopicId}/words:
     get:
       tags: [Subtopics]
-      summary: Get all words in subtopic (shown before learning starts)
+      summary: Get all words in subtopic (preview before learning starts)
       security:
         - bearerAuth: []
       parameters:
@@ -307,7 +272,10 @@ paths:
     get:
       tags: [Learning]
       summary: Get words for current mechanic session
-      description: Returns words and mechanic type for the current level. Mechanic order is fixed — mnemonic_cards → flashcards → matching → filling_gaps → word_builder.
+      description: |
+        Returns words and mechanic type for the current level.
+        Mechanic order is fixed: mnemonic_cards → flashcards → matching → filling_gaps → word_builder.
+        mnemonic_cards is skipped if it is listed in disabled_mechanics for this subtopic.
       security:
         - bearerAuth: []
       parameters:
@@ -330,7 +298,7 @@ paths:
     post:
       tags: [Learning]
       summary: Submit answer for a word in current session
-      description: Used in matching, filling_gaps, word_builder mechanics.
+      description: Used in matching, filling_gaps, word_builder mechanics. Updates user_word_state.
       security:
         - bearerAuth: []
       parameters:
@@ -341,17 +309,17 @@ paths:
           application/json:
             schema:
               type: object
-              required: [translation_id, user_answer, mechanic_type]
+              required: [word_id, mechanic_type, user_answer]
               properties:
-                translation_id:
-                  type: string
-                  format: uuid
+                word_id:
+                  type: integer
+                  format: int64
                 mechanic_type:
                   type: string
                   enum: [matching, filling_gaps, word_builder]
                 user_answer:
                   type: string
-                  example: plato
+                  example: plate
       responses:
         '200':
           description: Answer result
@@ -366,7 +334,7 @@ paths:
     post:
       tags: [Learning]
       summary: Complete current level
-      description: Marks level as completed, awards gems, unlocks next level.
+      description: Marks level as completed, awards gems, unlocks next level. For flashcards and mnemonic_cards called when user taps "Complete" after viewing all cards.
       security:
         - bearerAuth: []
       parameters:
@@ -397,7 +365,8 @@ paths:
   /recall:
     get:
       tags: [Recall]
-      summary: Get words scheduled for review today
+      summary: Get words scheduled for recall today
+      description: Words where next_recall <= today from user_word_state.
       security:
         - bearerAuth: []
       responses:
@@ -420,7 +389,10 @@ paths:
     post:
       tags: [Recall]
       summary: Submit recall answer for a word
-      description: Updates user_translation_state — schedules next interval or resets on failure.
+      description: |
+        Updates user_word_state.
+        On success: recall_interval advances to next step (1→3→7→14→21→30 days), next_recall = today + interval.
+        On failure: recall_interval resets to 1, next_recall = tomorrow.
       security:
         - bearerAuth: []
       requestBody:
@@ -429,14 +401,14 @@ paths:
           application/json:
             schema:
               type: object
-              required: [translation_id, user_answer]
+              required: [word_id, user_answer]
               properties:
-                translation_id:
-                  type: string
-                  format: uuid
+                word_id:
+                  type: integer
+                  format: int64
                 user_answer:
                   type: string
-                  example: plato
+                  example: plate
       responses:
         '200':
           description: Recall answer result
@@ -479,7 +451,8 @@ paths:
   /vocabulary:
     get:
       tags: [Vocabulary]
-      summary: Get user vocabulary (all words they started learning)
+      summary: Get user vocabulary
+      description: All words where user_word_state exists (user started learning them).
       security:
         - bearerAuth: []
       parameters:
@@ -487,7 +460,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [learning, memorized]
+            enum: [new, learning, recalling, long_term_memory]
           description: Filter by word status
         - name: page
           in: query
@@ -536,15 +509,15 @@ components:
       in: path
       required: true
       schema:
-        type: string
-        format: uuid
+        type: integer
+        format: int64
     subtopicId:
       name: subtopicId
       in: path
       required: true
       schema:
-        type: string
-        format: uuid
+        type: integer
+        format: int64
 
   responses:
     Unauthorized:
@@ -585,62 +558,47 @@ components:
       type: object
       properties:
         id:
+          type: integer
+          format: int64
+        name:
           type: string
-          format: uuid
+          example: Alex
+        surname:
+          type: string
+          example: Smith
         email:
           type: string
           format: email
-        username:
-          type: string
         is_guest:
           type: boolean
-        color_theme:
+        interface_language:
           type: string
-          enum: [light, dark, system]
-        created_at:
-          type: string
-          format: date-time
-
-    UserSettings:
-      type: object
-      properties:
-        daily_goal_minutes:
+          example: ru
+        daily_goal_min:
           type: integer
           example: 10
         notifications_enabled:
           type: boolean
-        interface_language_id:
-          type: string
-          format: uuid
-
-    UserStats:
-      type: object
-      properties:
+        streak:
+          type: integer
+          example: 7
         gems:
           type: integer
           example: 340
-        streak_current:
-          type: integer
-          example: 7
-        streak_last_date:
+        last_active_date:
           type: string
           format: date
-        total_words_learned:
-          type: integer
-          example: 120
-        recall_success_rate:
-          type: number
-          format: float
-          description: Percentage of correct recall answers
-          example: 0.84
+        created_at:
+          type: string
+          format: date-time
 
     CurrentPosition:
       type: object
-      description: Where the user currently is — computed from user_subtopic_mechanic_progress
+      description: Where the user currently is — computed from user_subtopic_level_mechanic_progress
       properties:
         subtopic_id:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
         mechanic_type:
           type: string
           enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
@@ -649,11 +607,17 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
         name:
           type: string
           example: Food
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
         subtopics_total:
           type: integer
           example: 6
@@ -665,11 +629,13 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
         name:
           type: string
         description:
+          type: string
+        image_url:
           type: string
         subtopics:
           type: array
@@ -680,28 +646,49 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
         name:
           type: string
           example: Fruits
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
         words_count:
           type: integer
           example: 15
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+            enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+          example: ["mnemonic_cards"]
         status:
           type: string
-          enum: [locked, available, in_progress, completed]
+          enum: [locked, unblocked, in_progress, completed]
 
     SubtopicDetail:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
         name:
+          type: string
+        description:
+          type: string
+        image_url:
           type: string
         words_count:
           type: integer
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+          example: ["mnemonic_cards"]
         levels:
           type: array
           items:
@@ -713,33 +700,46 @@ components:
         mechanic_type:
           type: string
           enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
-        order:
-          type: integer
-          description: Display order (0 = mnemonic_cards, 1 = flashcards, etc.)
-          example: 0
         status:
           type: string
-          enum: [locked, available, in_progress, completed]
+          enum: [locked, unblocked, in_progress, completed]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
         completed_at:
           type: string
           format: date-time
           nullable: true
 
+    Mnemonic:
+      type: object
+      nullable: true
+      properties:
+        image_url:
+          type: string
+          example: https://cdn.example.com/mnemonics/plate.jpg
+        mnemo_text:
+          type: string
+          example: Представьте тарелку, которая плетёт корзину...
+
     WordPreview:
       type: object
       properties:
-        translation_id:
-          type: string
-          format: uuid
-        foreign_word:
+        id:
+          type: integer
+          format: int64
+        word_en:
           type: string
           example: plate
-        translation:
-          type: string
-          example: тарелка
-        transcription:
+        transcription_en:
           type: string
           example: pleɪt
+        translation_ru:
+          type: string
+          example: тарелка
+        image_url:
+          type: string
         has_mnemonic:
           type: boolean
 
@@ -747,8 +747,8 @@ components:
       type: object
       properties:
         subtopic_id:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
         mechanic_type:
           type: string
           enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
@@ -760,39 +760,39 @@ components:
     SessionWord:
       type: object
       properties:
-        translation_id:
-          type: string
-          format: uuid
-        foreign_word:
+        id:
+          type: integer
+          format: int64
+        word_en:
           type: string
           example: plate
-        translation:
-          type: string
-          example: тарелка
-        transcription:
+        transcription_en:
           type: string
           example: pleɪt
-        audio_url:
+        translation_ru:
           type: string
-          example: https://cdn.example.com/audio/plate.mp3
+          example: тарелка
         image_url:
           type: string
-          nullable: true
-        mnemonic_text:
+          example: https://cdn.example.com/images/plate.jpg
+        usage_example_en:
           type: string
-          nullable: true
-          description: Only present for mnemonic_cards mechanic
-        usage_example:
-          type: string
-          nullable: true
           example: Put the plate on the table.
+        usage_example_en_translation_ru:
+          type: string
+          example: Поставь тарелку на стол.
+        mnemonic:
+          allOf:
+            - $ref: '#/components/schemas/Mnemonic'
+          description: Only present when mechanic_type is mnemonic_cards
+          nullable: true
 
     AnswerResult:
       type: object
       properties:
-        translation_id:
-          type: string
-          format: uuid
+        word_id:
+          type: integer
+          format: int64
         is_correct:
           type: boolean
         correct_answer:
@@ -811,48 +811,51 @@ components:
           type: string
           nullable: true
           enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
-          description: Next available mechanic, null if subtopic is fully completed
+          description: Next available mechanic. null if subtopic is fully completed.
         subtopic_completed:
           type: boolean
 
     RecallWord:
       type: object
       properties:
-        translation_id:
-          type: string
-          format: uuid
-        foreign_word:
+        id:
+          type: integer
+          format: int64
+        word_en:
           type: string
           example: plate
-        translation:
+        translation_ru:
           type: string
           example: тарелка
-        transcription:
+        transcription_en:
           type: string
-        audio_url:
-          type: string
-        times_failed:
+          example: pleɪt
+        recall_interval:
           type: integer
-          description: How many times user failed this word previously
+          description: Current interval step in days (1/3/7/14/21/30)
+          example: 7
 
     VocabularyWord:
       type: object
       properties:
-        translation_id:
+        id:
+          type: integer
+          format: int64
+        word_en:
           type: string
-          format: uuid
-        foreign_word:
+          example: plate
+        transcription_en:
           type: string
-        translation:
+          example: pleɪt
+        translation_ru:
           type: string
-        transcription:
-          type: string
-        audio_url:
+          example: тарелка
+        image_url:
           type: string
         status:
           type: string
-          enum: [learning, memorized]
-        next_review_at:
+          enum: [new, learning, recalling, long_term_memory]
+        next_recall:
           type: string
-          format: date-time
+          format: date
           nullable: true
