@@ -14,7 +14,8 @@
 
 **Репозиторий:** https://github.com/DaniilTsitavets/esdc_team_project_2026#
 **Канал Teams:** https://teams.microsoft.com/l/chat/19:4b10461a5e514440bf00107aa89ba546@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D
-**Figma:** https://www.figma.com/design/2trRgFXdUL1XpRqWw6ihwt/Wordly?node-id=0-1&t=TxCL8mUEGsHl4pi3-1
+**Figma UI:** https://www.figma.com/design/6BMtZklYEVAf2kwbxYIDjE/UI-Lang-App?node-id=38-1610&p=f&t=Cvkefo6x3rOlCRuK-0
+**FigJam:** https://www.figma.com/board/x2iFYMD7FVyv7FuWgmNM7S/Language-App?t=ZmOi4AVTFZ36NnTF-0
 
 ---
 
