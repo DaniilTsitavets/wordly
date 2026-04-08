@@ -1,0 +1,86 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: 2px;
+  }
+
+  &.sm {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+  &.md {
+    height: 68px;
+    padding: 0 24px;
+    font-size: 16px;
+  }
+  &.lg {
+    height: 56px;
+    padding: 0 32px;
+    font-size: 18px;
+  }
+
+  &.primary {
+    background: #6631db;
+    color: #fff;
+    &:hover {
+      background: #5526c0;
+    }
+    &:active {
+      background: #441ba5;
+    }
+  }
+
+  &.secondary {
+    background: transparent;
+    color: #6631db;
+    border: 1px solid #6631db;
+    &:hover {
+      background: rgba(102, 49, 219, 0.1);
+    }
+    &:active {
+      background: rgba(102, 49, 219, 0.2);
+    }
+  }
+
+  &.ghost {
+    background: transparent;
+    color: #6631db;
+    &:hover {
+      background: rgba(102, 49, 219, 0.1);
+    }
+    &:active {
+      background: rgba(102, 49, 219, 0.2);
+    }
+  }
+
+  &.gradient {
+    background: linear-gradient(90deg, #6631db 0%, #ff6bb5 100%);
+    color: #fff;
+    &:hover {
+      opacity: 0.9;
+    }
+    &:active {
+      opacity: 0.8;
+    }
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}

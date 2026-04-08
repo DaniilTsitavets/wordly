@@ -1,0 +1,79 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  position: relative;
+  width: 480px;
+  min-height: 622.8px;
+  background: #ffffff;
+  border-radius: 32px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.decorTop {
+  position: absolute;
+  top: -32px;
+  right: -32px;
+  width: 128px;
+  height: 128px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a268ff, #ff6ea9);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.decorBottom {
+  position: absolute;
+  bottom: -32px;
+  left: -32px;
+  width: 128px;
+  height: 128px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a268ff, #ff6ea9);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: background 0.2s;
+  z-index: 1;
+
+  &:hover {
+    background: rgba(107, 78, 255, 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: 2px;
+  }
+}
+
+.content {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
