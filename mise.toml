@@ -11,6 +11,7 @@
 #   mise run down:volumes      # остановить + удалить данные БД
 #   mise run rebuild:backend   # пересобрать и перезапустить бекенд
 #   mise run logs:backend      # логи бекенда
+#   mise run up:db             # поднять только БД и накатить миграции
 #   mise run health            # проверить /health
 
 [tasks.build]
@@ -24,6 +25,17 @@ run = "docker compose build backend"
 [tasks.up]
 description = "Start all services in detached mode"
 run = "docker compose up -d"
+
+[tasks."up:db"]
+description = "Start only the database and apply migrations"
+run = """
+docker compose up -d db
+docker compose exec db sh -c 'until pg_isready -U postgres; do sleep 1; done'
+for f in $(ls backend/src/main/resources/db/migration/V*.sql | sort); do
+  echo "Applying $f..."
+  docker compose exec -T db psql -U postgres -d wordly -f - < "$f"
+done
+"""
 
 [tasks."up:backend"]
 description = "Start only the backend (and its dependencies)"
