@@ -1,5 +1,81 @@
 @use './reset';
 
+// ============================================================================
+// COLOR VARIABLES - Design System
+// ============================================================================
+
+// Primary Colors
+$color-primary-dark: #4b00cc;
+$color-primary-500: #6631db;
+$color-primary-400: #7d2eff;
+$color-primary-300: #a239ff;
+$color-primary-light: #cebfff;
+$color-primary-bg-light: #0cbe4f;
+
+// Secondary Colors
+$color-secondary-dark: #830065;
+$color-secondary-pink: #ff7ea9;
+$color-secondary-orange: #ff6900;
+$color-secondary-sky-blue: #0083ff;
+
+// Accent Colors
+$color-accent-gold: #f0b100;
+$color-accent-sky: #0ca5e9;
+$color-accent-emerald: #1db881;
+$color-accent-green: #22c53e;
+$color-accent-lime-green: #5bff50;
+$color-accent-lime: #a50c03;
+
+// Neutral Colors
+$color-neutral-dark: #101828;
+$color-neutral-text-primary: #1a1a1a;
+$color-neutral-text-secondary: #2d3142;
+$color-neutral-text-muted: #6b7280;
+$color-neutral-text-placeholder: #9ca3af;
+$color-neutral-border: #d1d5db;
+$color-neutral-gray: #6b7280;
+$color-neutral-icon: #6a7282;
+$color-neutral-gray-light: #e5e7eb;
+$color-neutral-bg-secondary: #faf8f5;
+$color-neutral-bg-light: #fdfdf0;
+$color-white: #ffffff;
+
+// Status Colors
+$color-status-error: #fb2c36;
+
+// Background Tints
+$color-tint-orange: #fcede3;
+$color-tint-yellow: #fffdf0;
+$color-tint-purple: rgba(207, 212, 255, 0.92);
+$color-tint-cyan: #88e3ec;
+
+// Gradient Overlays
+$color-overlay-dark: rgba(0, 0, 0, 0.4);
+$color-overlay-primary-light: rgba(102, 49, 219, 0.1);
+$color-overlay-primary-medium: rgba(102, 49, 219, 0.2);
+$color-overlay-primary-purple: rgba(107, 78, 255, 0.1);
+$color-overlay-progress-bg: rgba(107, 142, 127, 0.2);
+
+// ============================================================================
+// ALIASES - Semantic color usage
+// ============================================================================
+
+$color-primary: $color-primary-500;
+$color-primary-hover: #5526c0;
+$color-primary-active: #441ba5;
+$color-text: $color-neutral-text-primary;
+$color-text-secondary: $color-neutral-text-muted;
+$color-border: $color-neutral-border;
+$color-bg: $color-white;
+$color-error: $color-status-error;
+
+// ============================================================================
+// Gradients
+// ============================================================================
+
+$gradient-primary: linear-gradient(90deg, $color-primary 0%, #ff6bb5 100%);
+$gradient-accent: linear-gradient(135deg, $color-primary-300, $color-secondary-pink);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

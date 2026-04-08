@@ -1,3 +1,5 @@
+@use '../../../styles/index' as *;
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -8,7 +10,7 @@
 .label {
   font-size: 14px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: $color-text;
 }
 
 .inputWrapper {
@@ -22,23 +24,23 @@
   height: 49.6px;
   padding: 12px 16px;
   border-radius: 10px;
-  border: 0.8px solid #d1d5db;
-  background: #ffffff;
+  border: 0.8px solid $color-border;
+  background: $color-bg;
   font-size: 14px;
-  color: #1a1a1a;
+  color: $color-text;
   outline: none;
   transition: border-color 0.2s;
 
   &::placeholder {
-    color: #9ca3af;
+    color: $color-neutral-text-placeholder;
   }
 
   &:focus {
-    border-color: #6631db;
+    border-color: $color-primary;
   }
 
   &.error {
-    border-color: #fb2c36;
+    border-color: $color-error;
   }
 
   &.withIcon {
@@ -57,20 +59,20 @@
   justify-content: center;
   padding: 4px;
   border-radius: 4px;
-  color: #6a7282;
+  color: $color-neutral-icon;
 
   &:focus-visible {
-    outline: 2px solid #6631db;
+    outline: 2px solid $color-primary;
     outline-offset: 2px;
   }
 }
 
 .helperText {
   font-size: 12px;
-  color: #6b7280;
+  color: $color-text-secondary;
 }
 
 .errorText {
   font-size: 12px;
-  color: #fb2c36;
+  color: $color-error;
 }

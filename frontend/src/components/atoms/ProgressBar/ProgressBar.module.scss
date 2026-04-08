@@ -1,6 +1,8 @@
+@use '../../../styles/index' as *;
+
 .container {
   width: 100%;
-  background: rgba(107, 142, 127, 0.2);
+  background: $color-overlay-progress-bg;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -22,14 +24,14 @@
 }
 
 .purple {
-  background: #6631db;
+  background: $color-primary;
 }
 .green {
-  background: #59ee50;
+  background: $color-accent-lime-green;
 }
 .orange {
-  background: #ff6600;
+  background: $color-secondary-orange;
 }
 .pink {
-  background: #ff6ea9;
+  background: $color-secondary-pink;
 }

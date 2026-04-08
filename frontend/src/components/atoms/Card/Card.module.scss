@@ -1,9 +1,11 @@
+@use '../../../styles/index' as *;
+
 .card {
   width: 346.68px;
   height: 119.2px;
   border-radius: 48px;
   padding: 32px;
-  background: #ffffff;
+  background: $color-bg;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -14,7 +16,7 @@
   }
 
   &.outlined {
-    border: 1.6px solid #6631db;
+    border: 1.6px solid $color-primary;
     padding: 33.6px;
   }
 
@@ -33,7 +35,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: rgba(102, 49, 219, 0.1);
+  background: $color-overlay-primary-light;
 }
 
 .content {
@@ -45,10 +47,10 @@
 .title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: $color-text;
 }
 
 .description {
   font-size: 14px;
-  color: #6b7280;
+  color: $color-text-secondary;
 }

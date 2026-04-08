@@ -1,3 +1,5 @@
+@use '../../../styles/index' as *;
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -16,7 +18,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #6631db;
+    outline: 2px solid $color-primary;
     outline-offset: 2px;
   }
 
@@ -37,42 +39,42 @@
   }
 
   &.primary {
-    background: #6631db;
-    color: #fff;
+    background: $color-primary;
+    color: $color-white;
     &:hover {
-      background: #5526c0;
+      background: $color-primary-hover;
     }
     &:active {
-      background: #441ba5;
+      background: $color-primary-active;
     }
   }
 
   &.secondary {
     background: transparent;
-    color: #6631db;
-    border: 1px solid #6631db;
+    color: $color-primary;
+    border: 1px solid $color-primary;
     &:hover {
-      background: rgba(102, 49, 219, 0.1);
+      background: $color-overlay-primary-light;
     }
     &:active {
-      background: rgba(102, 49, 219, 0.2);
+      background: $color-overlay-primary-medium;
     }
   }
 
   &.ghost {
     background: transparent;
-    color: #6631db;
+    color: $color-primary;
     &:hover {
-      background: rgba(102, 49, 219, 0.1);
+      background: $color-overlay-primary-light;
     }
     &:active {
-      background: rgba(102, 49, 219, 0.2);
+      background: $color-overlay-primary-medium;
     }
   }
 
   &.gradient {
-    background: linear-gradient(90deg, #6631db 0%, #ff6bb5 100%);
-    color: #fff;
+    background: $gradient-primary;
+    color: $color-white;
     &:hover {
       opacity: 0.9;
     }
