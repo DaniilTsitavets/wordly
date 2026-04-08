@@ -1,13 +1,13 @@
 import { ArrowRight, Heart, Volume2, Lock } from 'lucide-react'
-import { Button } from './components/atoms/Button'
-import { IconButton } from './components/atoms/IconButton'
-import { Card } from './components/atoms/Card'
-import { StarIcon, TrophyIcon, TrendingIcon } from './assets/icons'
-import { ProgressBar } from './components/atoms/ProgressBar'
-import { Input } from './components/atoms/Input'
+import { Button } from '@/components/atoms/Button'
+import { IconButton } from '@/components/atoms/IconButton'
+import { Card } from '@/components/atoms/Card'
+import { StarIcon, TrophyIcon, TrendingIcon } from '@/assets/icons'
+import { ProgressBar } from '@/components/atoms/ProgressBar'
+import { Input } from '@/components/atoms/Input'
 import { useState } from 'react'
-import { Modal } from './components/atoms/Modal'
-import { RewardModal } from './components/molecules/RewardModal'
+import { Modal } from '@/components/atoms/Modal'
+import { RewardModal } from '@/components/molecules/RewardModal'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)

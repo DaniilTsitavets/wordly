@@ -1,5 +1,5 @@
-import { Modal } from '../../atoms/Modal'
-import { TrophyIcon, DiamondIcon, SparklesIcon } from '../../../assets/icons'
+import { Modal } from '@/components/atoms/Modal'
+import { TrophyIcon, DiamondIcon, SparklesIcon } from '@/assets/icons'
 import styles from './RewardModal.module.scss'
 
 interface RewardModalProps {
