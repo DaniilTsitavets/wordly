@@ -1,14 +1,13 @@
-import { ArrowRight, Heart, Volume2, Lock } from 'lucide-react'
 import { Button } from '@/components/atoms/Button'
 import { IconButton } from '@/components/atoms/IconButton'
 import { Card } from '@/components/atoms/Card'
-import { StarIcon, TrophyIcon, TrendingIcon } from '@/assets/icons'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { Input } from '@/components/atoms/Input'
 import { useState } from 'react'
 import { Modal } from '@/components/atoms/Modal'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { Spinner } from '@/components/atoms/Spinner'
+import { IconFont } from '@/components/atoms/IconFont'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -28,7 +27,10 @@ function App() {
       <section>
         <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Buttons</h2>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
-          <Button variant="primary" rightIcon={<ArrowRight size={18} />}>
+          <Button
+            variant="primary"
+            rightIcon={<IconFont name="arrow-right" size={18} decorative />}
+          >
             Primary Button
           </Button>
           <Button variant="secondary">Secondary Button</Button>
@@ -60,9 +62,21 @@ function App() {
       <section>
         <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Icon Buttons</h2>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
-          <IconButton icon={<Heart size={18} />} variant="primary" aria-label="Like" />
-          <IconButton icon={<Volume2 size={18} />} variant="ghost" aria-label="Volume" />
-          <IconButton icon={<Lock size={18} />} variant="ghost" aria-label="Lock" />
+          <IconButton
+            icon={<IconFont name="like" size={18} color="currentColor" decorative />}
+            variant="primary"
+            aria-label="Like"
+          />
+          <IconButton
+            icon={<IconFont name="progress" size={18} color="currentColor" decorative />}
+            variant="ghost"
+            aria-label="Volume"
+          />
+          <IconButton
+            icon={<IconFont name="lock" size={18} color="currentColor" decorative />}
+            variant="ghost"
+            aria-label="Lock"
+          />
         </div>
 
         <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '24px 0 16px' }}>
@@ -70,23 +84,31 @@ function App() {
         </h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
           <IconButton
-            icon={<Heart size={14} />}
+            icon={<IconFont name="like" size={14} color="currentColor" decorative />}
             size="sm"
             variant="primary"
             aria-label="Small like"
           />
           <IconButton
-            icon={<Heart size={18} />}
+            icon={<IconFont name="like" size={18} color="currentColor" decorative />}
             size="md"
             variant="primary"
             aria-label="Medium like"
           />
           <IconButton
-            icon={<Heart size={22} />}
+            icon={<IconFont name="like" size={22} color="currentColor" decorative />}
             size="lg"
             variant="primary"
             aria-label="Large like"
           />
+        </div>
+
+        <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '24px 0 16px' }}>Icomoon Font</h3>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', color: '#6631db' }}>
+          <IconFont name="diamond" size={32} ariaLabel="Diamond icon" />
+          <IconFont name="fire" size={32} ariaLabel="Fire icon" />
+          <IconFont name="star" size={32} ariaLabel="Star icon" />
+          <IconFont name="target" size={32} ariaLabel="Target icon" />
         </div>
       </section>
       <section>
@@ -94,19 +116,19 @@ function App() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
           <Card
             variant="default"
-            icon={<StarIcon />}
+            icon={<IconFont name="star" size={24} color="#6631db" decorative />}
             title="Default Card"
             description="Basic card with default styling"
           />
           <Card
             variant="outlined"
-            icon={<TrophyIcon />}
+            icon={<IconFont name="target" size={24} color="#6631db" decorative />}
             title="Outlined Card"
             description="Card with prominent border"
           />
           <Card
             variant="elevated"
-            icon={<TrendingIcon />}
+            icon={<IconFont name="progress" size={24} color="#6631db" decorative />}
             title="Elevated Card"
             description="Card with shadow elevation"
           />

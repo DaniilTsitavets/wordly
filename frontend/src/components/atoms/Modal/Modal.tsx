@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { IconFont } from '@/components/atoms/IconFont'
 import styles from './Modal.module.scss'
 
 interface ModalProps {
@@ -8,12 +9,6 @@ interface ModalProps {
   children?: ReactNode
   ariaLabel?: string
 }
-
-const CloseIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 4L4 12M4 4L12 12" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-)
 
 export const Modal = ({ isOpen, onClose, children, ariaLabel = 'Modal' }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null)
@@ -61,7 +56,7 @@ export const Modal = ({ isOpen, onClose, children, ariaLabel = 'Modal' }: ModalP
           onClick={onClose}
           aria-label="Закрыть модальное окно"
         >
-          <CloseIcon />
+          <IconFont name="cross2" size={16} color="#6B7280" decorative />
         </button>
 
         <div className={styles.content}>{children}</div>
