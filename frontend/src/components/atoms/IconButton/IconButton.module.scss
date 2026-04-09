@@ -4,7 +4,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   cursor: pointer;
   transition: background-color 0.2s;
 
@@ -14,21 +14,21 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 0.125rem;
   }
 
   &.sm {
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
   }
   &.md {
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
   }
   &.lg {
-    width: 56px;
-    height: 56px;
+    width: 3.5rem;
+    height: 3.5rem;
   }
 
   &.primary {

@@ -3,24 +3,24 @@
 .container {
   width: 100%;
   background: $color-overlay-progress-bg;
-  border-radius: 999px;
+  border-radius: 62.4375rem;
   overflow: hidden;
 }
 
 .bar {
   height: 100%;
-  border-radius: 999px;
+  border-radius: 62.4375rem;
   transition: width 0.4s ease;
 }
 .xs {
-  height: 4px;
+  height: 0.25rem;
 }
 
 .sm {
-  height: 8px;
+  height: 0.5rem;
 }
 .md {
-  height: 12px;
+  height: 0.75rem;
 }
 
 .purple {

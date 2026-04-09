@@ -4,9 +4,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0.5rem;
   font-weight: 500;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   cursor: pointer;
   transition:
     background-color 0.2s,
@@ -18,24 +18,24 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 0.125rem;
   }
 
   &.sm {
-    height: 36px;
-    padding: 0 16px;
-    font-size: 14px;
+    height: 2.25rem;
+    padding: 0 1rem;
+    font-size: 0.875rem;
   }
   &.md {
-    height: 68px;
-    padding: 0 24px;
-    font-size: 16px;
+    height: 4.25rem;
+    padding: 0 1.5rem;
+    font-size: 1rem;
   }
   &.lg {
-    height: 56px;
-    padding: 0 32px;
-    font-size: 18px;
+    height: 3.5rem;
+    padding: 0 2rem;
+    font-size: 1.125rem;
   }
 
   &.primary {
@@ -52,7 +52,7 @@
   &.secondary {
     background: transparent;
     color: $color-primary;
-    border: 1px solid $color-primary;
+    border: 0.0625rem solid $color-primary;
     &:hover {
       background: $color-overlay-primary-light;
     }

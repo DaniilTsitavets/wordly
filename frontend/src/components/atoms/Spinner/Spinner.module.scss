@@ -1,7 +1,7 @@
 @use '../../../styles/index' as *;
 .circle {
   fill: #572c2c00;
-  stroke-width: var(--spinner-stroke, 10px);
+  stroke-width: var(--spinner-stroke, 0.46875rem);
   stroke-linecap: round;
   stroke-dasharray: 170 94;
   stroke-dashoffset: 8;
@@ -15,25 +15,25 @@
   &.xs {
     width: 1.5rem;
     height: 1.5rem;
-    --spinner-stroke: 2px;
+    --spinner-stroke: 0.09375rem;
   }
 
   &.sm {
     width: 7.6875rem;
     height: 7.625rem;
-    --spinner-stroke: 11.2px;
+    --spinner-stroke: 0.5rem;
   }
 
   &.md {
     width: 12.75438rem;
     height: 10.98906rem;
-    --spinner-stroke: 14px;
+    --spinner-stroke: 0.625rem;
   }
 
   &.lg {
     width: 12.6rem;
     height: 12.6rem;
-    --spinner-stroke: 16px;
+    --spinner-stroke: 0.75rem;
   }
 }
 
@@ -54,10 +54,10 @@
 
 .visuallyHidden {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: 0.0625rem;
+  height: 0.0625rem;
   padding: 0;
-  margin: -1px;
+  margin: -0.0625rem;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;

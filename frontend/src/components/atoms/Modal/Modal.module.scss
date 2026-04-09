@@ -12,11 +12,11 @@
 
 .modal {
   position: relative;
-  width: 480px;
-  min-height: 622.8px;
+  width: 30rem;
+  min-height: 38.925rem;
   background: $color-bg;
-  border-radius: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 2rem;
+  box-shadow: 0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -24,11 +24,11 @@
 
 .decorTop {
   position: absolute;
-  top: -32px;
-  right: -32px;
-  width: 128px;
-  height: 128px;
-  border-radius: 999px;
+  top: -2rem;
+  right: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 62.4375rem;
   background: $gradient-accent;
   opacity: 0.08;
   pointer-events: none;
@@ -36,11 +36,11 @@
 
 .decorBottom {
   position: absolute;
-  bottom: -32px;
-  left: -32px;
-  width: 128px;
-  height: 128px;
-  border-radius: 999px;
+  bottom: -2rem;
+  left: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 62.4375rem;
   background: $gradient-accent;
   opacity: 0.08;
   pointer-events: none;
@@ -48,11 +48,11 @@
 
 .closeButton {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 62.4375rem;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -68,13 +68,13 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 0.125rem;
   }
 }
 
 .content {
-  padding: 48px;
+  padding: 3rem;
   display: flex;
   flex-direction: column;
   flex: 1;
