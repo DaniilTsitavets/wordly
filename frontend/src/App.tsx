@@ -63,7 +63,7 @@ function App() {
         <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Icon Buttons</h2>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
           <IconButton
-            icon={<IconFont name="like" size={18} color="currentColor" decorative />}
+            icon={<IconFont name="heart" size={18} color="currentColor" decorative />}
             variant="primary"
             aria-label="Like"
           />
@@ -84,19 +84,19 @@ function App() {
         </h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
           <IconButton
-            icon={<IconFont name="like" size={14} color="currentColor" decorative />}
+            icon={<IconFont name="heart" size={14} color="currentColor" decorative />}
             size="sm"
             variant="primary"
             aria-label="Small like"
           />
           <IconButton
-            icon={<IconFont name="like" size={18} color="currentColor" decorative />}
+            icon={<IconFont name="heart" size={18} color="currentColor" decorative />}
             size="md"
             variant="primary"
             aria-label="Medium like"
           />
           <IconButton
-            icon={<IconFont name="like" size={22} color="currentColor" decorative />}
+            icon={<IconFont name="heart" size={22} color="currentColor" decorative />}
             size="lg"
             variant="primary"
             aria-label="Large like"
