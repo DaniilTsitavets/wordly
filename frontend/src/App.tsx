@@ -1,4 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
+import { NavLinks } from '@/app/components/molecules/NavLinks/NavLinks'
+
+function App() {
+  return <Layout />
+}
 
 function HomePage() {
   return (
@@ -17,29 +22,22 @@ function HomePage() {
   )
 }
 
-function NotFoundPage() {
+function Layout() {
   return (
-    <main
+    <div
       style={{
-        minHeight: '100vh',
-        background: '#f9fafb',
-        padding: '40px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '40px',
+        minHeight: '100vh',
       }}
     >
-      404 - Page not found
-    </main>
-  )
-}
-
-function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      <div style={{ flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+      </div>
+      <NavLinks />
+    </div>
   )
 }
 
