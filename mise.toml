@@ -13,6 +13,7 @@
 #   mise run logs:backend      # логи бекенда
 #   mise run up:db             # поднять только БД и накатить миграции
 #   mise run health            # проверить /health
+#   mise run up:backend:prod   # поднять бекенд без dev-профиля (с Security)
 
 [tasks.build]
 description = "Build all Docker images"
@@ -40,6 +41,10 @@ done
 [tasks."up:backend"]
 description = "Start only the backend (and its dependencies)"
 run = "docker compose up -d backend"
+
+[tasks."up:backend:prod"]
+description = "Start backend without dev profile (Security enabled, 401 on missing token)"
+run = "SPRING_PROFILES_ACTIVE= docker compose up -d backend"
 
 [tasks.down]
 description = "Stop and remove all containers"
