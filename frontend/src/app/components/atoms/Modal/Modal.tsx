@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
-import { IconFont } from '@/components/atoms/IconFont'
+import { IconFont } from '@/app/components/atoms/IconFont'
 import styles from './Modal.module.scss'
 
 interface ModalProps {
