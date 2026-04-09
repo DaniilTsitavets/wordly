@@ -8,8 +8,16 @@ RUN ./mvnw dependency:go-offline -q
 COPY src/ src/
 RUN ./mvnw package -DskipTests -q
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jdk-alpine AS extract
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=extract /app/dependencies/ ./
+COPY --from=extract /app/spring-boot-loader/ ./
+COPY --from=extract /app/snapshot-dependencies/ ./
+COPY --from=extract /app/application/ ./
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
