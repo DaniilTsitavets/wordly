@@ -8,6 +8,7 @@ import { Input } from '@/components/atoms/Input'
 import { useState } from 'react'
 import { Modal } from '@/components/atoms/Modal'
 import { RewardModal } from '@/components/molecules/RewardModal'
+import { Spinner } from '@/components/atoms/Spinner'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -168,6 +169,14 @@ function App() {
           level={1}
           reward="+10 Gems"
         />
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Spinner</h2>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <Spinner />
+          <Spinner size="sm" />
+          <Spinner size="lg" />
+        </div>
       </section>
     </main>
   )

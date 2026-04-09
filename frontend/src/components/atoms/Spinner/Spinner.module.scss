@@ -1,0 +1,71 @@
+@use '../../../styles/index' as *;
+.circle {
+  fill: #572c2c00;
+  stroke-width: var(--spinner-stroke, 10px);
+  stroke-linecap: round;
+  stroke-dasharray: 170 94;
+  stroke-dashoffset: 8;
+}
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &.xs {
+    width: 1.5rem;
+    height: 1.5rem;
+    --spinner-stroke: 2px;
+  }
+
+  &.sm {
+    width: 7.6875rem;
+    height: 7.625rem;
+    --spinner-stroke: 11.2px;
+  }
+
+  &.md {
+    width: 12.75438rem;
+    height: 10.98906rem;
+    --spinner-stroke: 14px;
+  }
+
+  &.lg {
+    width: 12.6rem;
+    height: 12.6rem;
+    --spinner-stroke: 16px;
+  }
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: spin 1s linear infinite;
+}
+
+.stopStart {
+  stop-color: $color-primary-300;
+}
+
+.stopEnd {
+  stop-color: $color-secondary-pink;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
