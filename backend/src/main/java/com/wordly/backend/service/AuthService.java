@@ -3,6 +3,7 @@ package com.wordly.backend.service;
 import com.wordly.backend.dto.AuthResponse;
 import com.wordly.backend.dto.LoginRequest;
 import com.wordly.backend.dto.RegisterRequest;
+import com.wordly.backend.dto.UserProfileResponse;
 import com.wordly.backend.entity.User;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.repository.UserRepository;
@@ -19,6 +20,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -34,7 +36,7 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(user);
-        return new AuthResponse(saved.getId(), jwtService.generateToken(saved.getId(), false));
+        return toAuthResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -47,7 +49,7 @@ public class AuthService {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        return new AuthResponse(user.getId(), jwtService.generateToken(user.getId(), false));
+        return toAuthResponse(user);
     }
 
     @Transactional
@@ -57,6 +59,15 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(guest);
-        return new AuthResponse(saved.getId(), jwtService.generateToken(saved.getId(), true));
+        return toAuthResponse(saved);
+    }
+
+    public void logout(String token) {
+        tokenBlacklistService.revoke(token);
+    }
+
+    private AuthResponse toAuthResponse(User user) {
+        String token = jwtService.generateToken(user.getId(), user.isGuest());
+        return new AuthResponse(token, UserProfileResponse.from(user));
     }
 }

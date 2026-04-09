@@ -44,7 +44,7 @@ run = "docker compose up -d backend"
 
 [tasks."up:backend:prod"]
 description = "Start backend without dev profile (Security enabled, 401 on missing token)"
-run = "SPRING_PROFILES_ACTIVE= docker compose up -d backend"
+run = "SPRING_PROFILES_ACTIVE=prod docker compose up -d --force-recreate backend"
 
 [tasks.down]
 description = "Stop and remove all containers"
