@@ -1,6 +1,7 @@
 package com.wordly.backend.config;
 
 import com.wordly.backend.service.JwtService;
+import com.wordly.backend.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -37,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        if (jwtService.isTokenValid(token)) {
+        if (jwtService.isTokenValid(token) && !tokenBlacklistService.isRevoked(token)) {
             Long userId = jwtService.extractUserId(token);
             boolean isGuest = jwtService.extractIsGuest(token);
             String role = isGuest ? "ROLE_GUEST" : "ROLE_USER";
