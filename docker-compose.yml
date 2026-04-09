@@ -29,5 +29,12 @@ services:
       db:
         condition: service_healthy
 
+  mock:
+    build:
+      context: ./mock
+    ports:
+      - "4010:4010"
+    profiles: ["mock"]
+
 volumes:
   postgres_data:
