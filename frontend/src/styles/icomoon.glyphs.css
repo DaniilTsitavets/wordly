@@ -1,0 +1,59 @@
+.icon::before {
+  display: inline-block;
+}
+.icon-diamond:before { content: '\f000'; }
+.icon-diamond-white {
+  color: #ffffff;
+  font-palette: --paletteWhite;
+}
+.icon-diamond-white:before { content: '\f000'; }
+.icon-fire:before { content: '\f001'; }
+.icon-book-colored:before { content: '\f002'; }
+.icon-planet:before { content: '\f003'; }
+.icon-increase:before { content: '\f004'; }
+.icon-trophey:before { content: '\f005'; }
+.icon-lighting2:before { content: '\f006'; }
+.icon-star:before { content: '\f007'; }
+.icon-brain:before { content: '\f008'; }
+.icon-sparkle:before { content: '\f009'; }
+.icon-player-colored:before { content: '\f00b'; }
+.icon-heart:before { content: '\f00c'; }
+.icon-lock3:before { content: '\f00d'; }
+.icon-arrow-right:before { content: '\f00e'; }
+.icon-eye:before { content: '\f00f'; }
+.icon-cross2:before { content: '\f010'; }
+.icon-clock:before { content: '\f011'; }
+.icon-calendar:before { content: '\f012'; }
+.icon-lock2:before { content: '\f013'; }
+.icon-attention:before { content: '\f014'; }
+.icon-tick3:before { content: '\f015'; }
+.icon-joystick:before { content: '\f016'; }
+.icon-info:before { content: '\f017'; }
+.icon-google:before { content: '\f018'; }
+.icon-github:before { content: '\f019'; }
+.icon-stars:before { content: '\f01a'; }
+.icon-timer:before { content: '\f01b'; }
+.icon-lightning:before { content: '\f01c'; }
+.icon-dumbbell:before { content: '\f01d'; }
+.icon-coffe:before { content: '\f01e'; }
+.icon-next:before { content: '\f01f'; }
+.icon-play:before { content: '\f020'; }
+.icon-image:before { content: '\f021'; }
+.icon-filled-tick:before { content: '\f022'; }
+.icon-puzzle:before { content: '\f023'; }
+.icon-lock:before { content: '\f024'; }
+.icon-hierarchy:before { content: '\f025'; }
+.icon-reload:before { content: '\f026'; }
+.icon-user:before { content: '\f027'; }
+.icon-progress:before { content: '\f028'; }
+.icon-settings:before { content: '\f029'; }
+.icon-exit:before { content: '\f02a'; }
+.icon-arrow-back2:before { content: '\f02b'; }
+.icon-arrow-back:before { content: '\f02c'; }
+.icon-player:before { content: '\f02d'; }
+.icon-cross:before { content: '\f02e'; }
+.icon-tick2:before { content: '\f02f'; }
+.icon-book:before { content: '\f030'; }
+.icon-tick1:before { content: '\f031'; }
+.icon-edit:before { content: '\f032'; }
+.icon-target:before { content: '\f033'; }

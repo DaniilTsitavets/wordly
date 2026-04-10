@@ -1,0 +1,81 @@
+@use '../../../styles/index' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: $color-overlay-dark;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  position: relative;
+  width: 30rem;
+  min-height: 38.925rem;
+  background: $color-bg;
+  border-radius: 2rem;
+  box-shadow: 0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.decorTop {
+  position: absolute;
+  top: -2rem;
+  right: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 62.4375rem;
+  background: $gradient-accent;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.decorBottom {
+  position: absolute;
+  bottom: -2rem;
+  left: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 62.4375rem;
+  background: $gradient-accent;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 62.4375rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  transition: background 0.2s;
+  z-index: 1;
+
+  &:hover {
+    background: $color-overlay-primary-purple;
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 0.125rem;
+  }
+}
+
+.content {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}

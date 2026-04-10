@@ -1,0 +1,55 @@
+@use '../../../styles/index' as *;
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 0.125rem;
+  }
+
+  &.sm {
+    width: 2rem;
+    height: 2rem;
+  }
+  &.md {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  &.lg {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  &.primary {
+    background: $color-primary;
+    color: $color-white;
+    &:hover {
+      background: $color-primary-hover;
+    }
+    &:active {
+      background: $color-primary-active;
+    }
+  }
+
+  &.ghost {
+    background: transparent;
+    color: $color-primary;
+    &:hover {
+      background: $color-overlay-primary-light;
+    }
+    &:active {
+      background: $color-overlay-primary-medium;
+    }
+  }
+}
