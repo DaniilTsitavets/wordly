@@ -2,7 +2,7 @@ import { ArrowRight, Heart, Volume2, Lock } from 'lucide-react'
 import { Button } from './components/atoms/Button'
 import { IconButton } from './components/atoms/IconButton'
 import { Card } from './components/atoms/Card'
-import { StarIcon, TrophyIcon, TrendingIcon } from './assets/icons'
+import { IconFont } from './components/atoms/IconFont'
 import { ProgressBar } from './components/atoms/ProgressBar'
 import { Input } from './components/atoms/Input'
 import { useState } from 'react'
@@ -14,19 +14,23 @@ import { PaginationDots } from './components/atoms/PaginationDots'
 import { StatsDisplay } from './components/molecules/StatsDisplay'
 import { NavIconButton } from './components/atoms/NavIconButton'
 import { StatButton } from './components/atoms/StatButton'
-import { BookIcon, GlobeIcon, LightningIcon, FireIcon } from './assets/icons'
 import { Header } from './components/organisms/Header'
 import { Avatar } from './components/atoms/Avatar'
 import { LetterTile } from './components/atoms/LetterTile'
 import { MatchCard } from './components/atoms/MatchCard'
 import { Route, Routes } from 'react-router-dom'
-import { NavLinks } from '@/app/components/molecules/NavLinks/NavLinks'
+import { NavLinks } from './components/molecules/NavLinks/NavLinks'
+import { AuthModal } from '@/components/organisms/AuthModal'
 
 function App() {
   return <Layout />
 }
 
 function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isRewardOpen, setIsRewardOpen] = useState(false)
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login')
   return (
     <main
       style={{
@@ -109,19 +113,19 @@ function HomePage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
           <Card
             variant="default"
-            icon={<StarIcon />}
+            icon={<IconFont name="star" />}
             title="Default Card"
             description="Basic card with default styling"
           />
           <Card
             variant="outlined"
-            icon={<TrophyIcon />}
+            icon={<IconFont name="trophey" />}
             title="Outlined Card"
             description="Card with prominent border"
           />
           <Card
             variant="elevated"
-            icon={<TrendingIcon />}
+            icon={<IconFont name="increase" />}
             title="Elevated Card"
             description="Card with shadow elevation"
           />
@@ -237,11 +241,11 @@ function HomePage() {
           <div>
             <p style={{ fontWeight: '600', marginBottom: '12px' }}>Navigation Icon Buttons</p>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <NavIconButton icon={<BookIcon />} aria-label="Books" />
-              <NavIconButton icon={<GlobeIcon />} aria-label="Globe" />
-              <NavIconButton icon={<TrendingIcon />} aria-label="Trending" />
+              <NavIconButton icon={<IconFont name="book-colored" />} aria-label="Books" />
+              <NavIconButton icon={<IconFont name="planet" />} aria-label="Globe" />
+              <NavIconButton icon={<IconFont name="increase" />} aria-label="Trending" />
               <NavIconButton
-                icon={<TrophyIcon color="#F0B100" size={20} />}
+                icon={<IconFont name="trophey" size={20} color="#F0B100" />}
                 aria-label="Trophy"
                 isActive
               />
@@ -251,14 +255,14 @@ function HomePage() {
           <div>
             <p style={{ fontWeight: '600', marginBottom: '12px' }}>Stat Buttons</p>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <StatButton icon={<FireIcon />} value={0} background="#FCEDE3" />
+              <StatButton icon={<IconFont name="fire" />} value={0} background="#FCEDE3" />
               <StatButton
-                icon={<TrophyIcon color="#F0B100" size={16} />}
+                icon={<IconFont name="trophey" size={16} color="#F0B100" />}
                 value={50}
                 background="#FFFDF0"
               />
-              <StatButton icon={<LightningIcon />} value={120} background="#F3F4F6" />
-              <StatButton icon={<StarIcon />} value={5} isActive />
+              <StatButton icon={<IconFont name="lightning" />} value={120} background="#F3F4F6" />
+              <StatButton icon={<IconFont name="star" />} value={5} isActive />
             </div>
           </div>
         </div>
@@ -300,19 +304,37 @@ function HomePage() {
           </div>
         </div>
       </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Auth Modal</h2>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setAuthTab('login')
+              setIsAuthOpen(true)
+            }}
+          >
+            Open Login
+          </Button>
+          <Button
+            variant="gradient"
+            onClick={() => {
+              setAuthTab('signup')
+              setIsAuthOpen(true)
+            }}
+          >
+            Open Sign Up
+          </Button>
+        </div>
+        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} defaultTab={authTab} />
+      </section>
     </main>
   )
 }
 
 function Layout() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-      }}
-    >
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <div style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />

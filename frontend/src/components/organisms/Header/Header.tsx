@@ -1,13 +1,7 @@
 import { Avatar } from '../../atoms/Avatar'
 import { StatButton } from '../../atoms/StatButton'
-import {
-  WordlyLogo,
-  FireIcon,
-  TrophyIcon,
-  BookIcon,
-  BrainIcon,
-  TrendingIcon,
-} from '../../../assets/icons'
+import { WordlyLogo } from '../../../assets/icons'
+import { IconFont } from '../../atoms/IconFont'
 import styles from './Header.module.scss'
 
 interface HeaderProps {
@@ -34,9 +28,10 @@ export const Header = ({
       <div className={styles.center}>
         <div className={styles.tooltipWrapper}>
           <StatButton
-            icon={<FireIcon />}
+            icon={<IconFont name="fire" />}
             value={streak}
-            background="#FCEDE3"
+            background="transparent"
+            className={styles.statBtnFire}
             aria-label={`Daily streak: ${streak}`}
           />
           <span className={styles.tooltip}>Daily Streak</span>
@@ -44,9 +39,10 @@ export const Header = ({
 
         <div className={styles.tooltipWrapper}>
           <StatButton
-            icon={<TrophyIcon color="#F0B100" size={18} />}
+            icon={<IconFont name="diamond" size={18} color="#ff68e3" />}
             value={points}
-            background="#FFFDF0"
+            background="transparent"
+            className={styles.statBtnDiamond}
             aria-label={`Total points: ${points}`}
           />
           <span className={styles.tooltip}>Total Points</span>
@@ -56,15 +52,15 @@ export const Header = ({
 
         <div className={styles.navIcons}>
           <button className={styles.navBtn} aria-label="Books">
-            <BookIcon />
+            <IconFont name="book-colored" />
             <span className={styles.tooltip}>Books</span>
           </button>
           <button className={styles.navBtn} aria-label="Recall">
-            <BrainIcon />
+            <IconFont name="brain" />
             <span className={styles.tooltip}>Recall</span>
           </button>
           <button className={styles.navBtn} aria-label="Progress">
-            <TrendingIcon />
+            <IconFont name="increase" />
             <span className={styles.tooltip}>Progress</span>
           </button>
         </div>

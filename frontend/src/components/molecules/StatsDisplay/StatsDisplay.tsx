@@ -1,44 +1,17 @@
 import { StatItem } from '../../atoms/StatItem'
-import { TrophyIcon } from '../../../assets/icons'
+import { IconFont } from '../../atoms/IconFont'
 import styles from './StatsDisplay.module.scss'
-
-const FireIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M11.3334 19.3333C12.2174 19.3333 13.0653 18.9821 13.6904 18.357C14.3155 17.7319 14.6667 16.8841 14.6667 16C14.6667 14.16 14 13.3333 13.3334 12C11.904 9.14267 13.0347 6.59467 16 4C16.6667 7.33333 18.6667 10.5333 21.3334 12.6667C24 14.8 25.3334 17.3333 25.3334 20C25.3334 21.2257 25.0919 22.4393 24.6229 23.5717C24.1539 24.7041 23.4664 25.733 22.5997 26.5997C21.733 27.4663 20.7041 28.1538 19.5717 28.6229C18.4394 29.0919 17.2257 29.3333 16 29.3333C14.7743 29.3333 13.5607 29.0919 12.4283 28.6229C11.2959 28.1538 10.267 27.4663 9.40036 26.5997C8.53368 25.733 7.84619 24.7041 7.37714 23.5717C6.9081 22.4393 6.66669 21.2257 6.66669 20C6.66669 18.4627 7.24402 16.9413 8.00002 16C8.00002 16.8841 8.35121 17.7319 8.97633 18.357C9.60145 18.9821 10.4493 19.3333 11.3334 19.3333Z"
-      stroke="#FF6900"
-      strokeWidth="2.66667"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const BookIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M16 9.3335V28.0002"
-      stroke="#AD46FF"
-      strokeWidth="2.66667"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M3.99996 24C3.64634 24 3.3072 23.8595 3.05715 23.6095C2.8071 23.3594 2.66663 23.0203 2.66663 22.6667V5.33333C2.66663 4.97971 2.8071 4.64057 3.05715 4.39052C3.3072 4.14048 3.64634 4 3.99996 4H10.6666C12.0811 4 13.4377 4.5619 14.4379 5.5621C15.4381 6.56229 16 7.91885 16 9.33333C16 7.91885 16.5619 6.56229 17.5621 5.5621C18.5623 4.5619 19.9188 4 21.3333 4H28C28.3536 4 28.6927 4.14048 28.9428 4.39052C29.1928 4.64057 29.3333 4.97971 29.3333 5.33333V22.6667C29.3333 23.0203 29.1928 23.3594 28.9428 23.6095C28.6927 23.8595 28.3536 24 28 24H20C18.9391 24 17.9217 24.4214 17.1715 25.1716C16.4214 25.9217 16 26.9391 16 28C16 26.9391 15.5785 25.9217 14.8284 25.1716C14.0782 24.4214 13.0608 24 12 24H3.99996Z"
-      stroke="#AD46FF"
-      strokeWidth="2.66667"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 export const StatsDisplay = () => {
   return (
     <div className={styles.wrapper} role="region" aria-label="Statistics">
-      <StatItem icon={<TrophyIcon color="#F0B100" size={32} />} value={120} label="Points" />
-      <StatItem icon={<FireIcon />} value={7} label="Day Streak" />
-      <StatItem icon={<BookIcon />} value={30} label="Words" />
+      <StatItem
+        icon={<IconFont name="trophey" size={32} color="#F0B100" />}
+        value={120}
+        label="Points"
+      />
+      <StatItem icon={<IconFont name="fire" size={32} />} value={7} label="Day Streak" />
+      <StatItem icon={<IconFont name="book-colored" size={32} />} value={30} label="Words" />
     </div>
   )
 }
