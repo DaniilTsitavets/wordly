@@ -15,7 +15,7 @@ public record UpdateUserProfileRequest(
         @Email(message = "Email must be valid")
         String email,
 
-        @Size(min = 6, message = "Password must be at least 6 characters")
+        @Size(min = 8, message = "Password must be at least 8 characters")
         String password,
 
         @JsonProperty("interface_language")
