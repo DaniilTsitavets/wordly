@@ -1,5 +1,6 @@
 package com.wordly.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -11,7 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Replace with DB or Redis-backed store before production.
  */
 @Service
+@RequiredArgsConstructor
 public class TokenBlacklistService {
+
+    private final JwtService jwtService;
 
     private final Set<String> revokedTokens = ConcurrentHashMap.newKeySet();
 
@@ -20,6 +24,13 @@ public class TokenBlacklistService {
     }
 
     public boolean isRevoked(String token) {
-        return revokedTokens.contains(token);
+        if (!revokedTokens.contains(token)) {
+            return false;
+        }
+        if (!jwtService.isTokenValid(token)) {
+            revokedTokens.remove(token);
+            return false;
+        }
+        return true;
     }
 }
