@@ -85,6 +85,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred");
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN) 
     @ExceptionHandler(GuestOperationNotAllowedException.class)
     public ErrorResponse handleGuestForbidden(GuestOperationNotAllowedException ex) {
         return new ErrorResponse("FORBIDDEN", ex.getMessage());
