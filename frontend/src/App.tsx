@@ -8,6 +8,17 @@ import { Input } from './components/atoms/Input'
 import { useState } from 'react'
 import { Modal } from './components/atoms/Modal'
 import { RewardModal } from './components/molecules/RewardModal'
+import { Tabs } from './components/molecules/Tabs'
+import { Spinner } from './components/atoms/Spinner'
+import { PaginationDots } from './components/atoms/PaginationDots'
+import { StatsDisplay } from './components/molecules/StatsDisplay'
+import { NavIconButton } from './components/atoms/NavIconButton'
+import { StatButton } from './components/atoms/StatButton'
+import { BookIcon, GlobeIcon, LightningIcon, FireIcon } from './assets/icons'
+import { Header } from './components/organisms/Header'
+import { Avatar } from './components/atoms/Avatar'
+import { LetterTile } from './components/atoms/LetterTile'
+import { MatchCard } from './components/atoms/MatchCard'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -23,6 +34,7 @@ function App() {
         gap: '40px',
       }}
     >
+      <Header streak={0} points={50} onAvatarClick={() => console.log('profile clicked')} />
       {/* Buttons */}
       <section>
         <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Buttons</h2>
@@ -168,6 +180,121 @@ function App() {
           level={1}
           reward="+10 Gems"
         />
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Tabs</h2>
+        <Tabs
+          tabs={[
+            {
+              id: 'personal',
+              label: 'Personal info',
+              content:
+                'This is the overview tab content. Tabs provide a way to organize related content and make it easy to switch between different views.',
+            },
+            { id: 'statistics', label: 'My statistics', content: 'Statistics content goes here.' },
+          ]}
+        />
+      </section>
+
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+          Loading Spinner
+        </h2>
+        <div style={{ display: 'flex', gap: '48px', alignItems: 'center' }}>
+          <Spinner size="sm" label="Small" />
+          <Spinner size="md" label="Medium" />
+          <Spinner size="lg" label="Large" />
+        </div>
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+          Pagination Dots
+        </h2>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}
+        >
+          <PaginationDots total={3} color="mixed" label="Mixed Colors" />
+          <PaginationDots total={3} color="purple" label="Purple" />
+          <PaginationDots total={3} color="pink" label="Pink" />
+        </div>
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+          Statistics Display
+        </h2>
+        <StatsDisplay />
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+          Navigation Components
+        </h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div>
+            <p style={{ fontWeight: '600', marginBottom: '12px' }}>Navigation Icon Buttons</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <NavIconButton icon={<BookIcon />} aria-label="Books" />
+              <NavIconButton icon={<GlobeIcon />} aria-label="Globe" />
+              <NavIconButton icon={<TrendingIcon />} aria-label="Trending" />
+              <NavIconButton
+                icon={<TrophyIcon color="#F0B100" size={20} />}
+                aria-label="Trophy"
+                isActive
+              />
+            </div>
+          </div>
+
+          <div>
+            <p style={{ fontWeight: '600', marginBottom: '12px' }}>Stat Buttons</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <StatButton icon={<FireIcon />} value={0} background="#FCEDE3" />
+              <StatButton
+                icon={<TrophyIcon color="#F0B100" size={16} />}
+                value={50}
+                background="#FFFDF0"
+              />
+              <StatButton icon={<LightningIcon />} value={120} background="#F3F4F6" />
+              <StatButton icon={<StarIcon />} value={5} isActive />
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Avatar</h2>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <Avatar size="sm" fallback="JD" />
+          <Avatar size="md" fallback="AB" />
+          <Avatar size="lg" fallback="CD" />
+          <Avatar size="xl" fallback="EF" />
+        </div>
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+          Game Components
+        </h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div>
+            <p style={{ fontWeight: '600', marginBottom: '12px' }}>Letter Tiles</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <LetterTile letter="H" state="default" />
+              <LetterTile letter="e" state="default" />
+              <LetterTile letter="l" state="correct" />
+              <LetterTile letter="l" state="incorrect" />
+              <LetterTile letter="e" state="default" />
+            </div>
+          </div>
+
+          <div>
+            <p style={{ fontWeight: '600', marginBottom: '12px' }}>Match Cards</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <MatchCard state="correct">Please</MatchCard>
+              <MatchCard state="default">Please</MatchCard>
+              <MatchCard state="default">Пожалуйста</MatchCard>
+              <MatchCard state="incorrect">Please</MatchCard>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   )

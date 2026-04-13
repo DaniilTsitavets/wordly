@@ -1,0 +1,44 @@
+.card {
+  width: 416px;
+  height: 69.6px;
+  border-radius: 16px;
+  border: 0.8px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    opacity 0.2s;
+  background: none;
+
+  &:hover {
+    transform: scale(1.01);
+  }
+  &:active {
+    transform: scale(0.99);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: 2px;
+  }
+
+  &.default {
+    background: #ffffff;
+    border-color: #e5e7eb;
+  }
+
+  &.correct {
+    background: #dcfce7;
+    border-color: #a5efc1;
+  }
+
+  &.incorrect {
+    background: #ffadb1;
+    border-color: #b30065;
+  }
+}
