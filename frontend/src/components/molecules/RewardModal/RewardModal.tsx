@@ -1,5 +1,5 @@
-import { Modal } from '@/app/components/atoms/Modal'
-import { IconFont } from '@/app/components/atoms/IconFont'
+import { Modal } from '@/components/atoms/Modal'
+import { IconFont } from '@/components/atoms/IconFont'
 import styles from './RewardModal.module.scss'
 
 interface RewardModalProps {

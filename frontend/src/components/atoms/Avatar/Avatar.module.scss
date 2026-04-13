@@ -1,0 +1,72 @@
+.avatar {
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+
+  &:hover {
+    border-color: #a268ff;
+    box-shadow: 0 0 0 3px rgba(162, 104, 255, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: 2px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.sm {
+  width: 32px;
+  height: 32px;
+}
+.md {
+  width: 48px;
+  height: 48px;
+}
+.lg {
+  width: 64px;
+  height: 64px;
+}
+.xl {
+  width: 80px;
+  height: 80px;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: #cfd4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #6631db;
+}
+
+.sm .placeholder {
+  font-size: 11px;
+}
+.md .placeholder {
+  font-size: 16px;
+}
+.lg .placeholder {
+  font-size: 22px;
+}
+.xl .placeholder {
+  font-size: 28px;
+}

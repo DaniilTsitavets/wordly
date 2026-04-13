@@ -14,6 +14,7 @@
 #   mise run up:db             # поднять только БД и накатить миграции
 #   mise run health            # проверить /health
 #   mise run up:backend:prod   # поднять бекенд без dev-профиля (с Security)
+#   mise run mock              # поднять mock-сервер для фронтенда (порт 4010)
 
 [tasks.build]
 description = "Build all Docker images"
@@ -85,6 +86,14 @@ run = "docker compose logs -f db"
 [tasks.ps]
 description = "Show running containers and their status"
 run = "docker compose ps"
+
+[tasks.mock]
+description = "Build and start mock server for frontend (port 4010)"
+run = "docker compose --profile mock up --build -d mock"
+
+[tasks."mock:down"]
+description = "Stop mock server"
+run = "docker compose --profile mock down mock"
 
 [tasks.health]
 description = "Check backend health endpoint"
