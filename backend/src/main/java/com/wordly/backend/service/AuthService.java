@@ -8,11 +8,13 @@ import com.wordly.backend.entity.User;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -24,31 +26,43 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new EmailAlreadyExistsException("Email already registered: " + request.email());
+        String normalizedEmail = request.email().trim().toLowerCase();
+
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            log.warn("Registration attempt with already registered email: {}", normalizedEmail);
+            throw new EmailAlreadyExistsException("Email already registered: " + normalizedEmail);
         }
 
         User user = User.builder()
-                .name(request.name())
-                .email(request.email())
+                .name(request.name().trim())
+                .surname(request.surname().trim())
+                .email(normalizedEmail)
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .guest(false)
                 .build();
 
         User saved = userRepository.save(user);
+        log.info("User registered: id={}", saved.getId());
         return toAuthResponse(saved);
     }
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
+        String normalizedEmail = request.email().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(normalizedEmail)
                 .filter(u -> !u.isGuest())
-                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+                .orElseThrow(() -> {
+                    log.warn("Login failed — user not found: {}", normalizedEmail);
+                    return new BadCredentialsException("Invalid credentials");
+                });
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            log.warn("Login failed — wrong password: userId={}", user.getId());
             throw new BadCredentialsException("Invalid credentials");
         }
 
+        log.info("User logged in: id={}", user.getId());
         return toAuthResponse(user);
     }
 
@@ -59,11 +73,13 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(guest);
+        log.info("Guest session created: id={}", saved.getId());
         return toAuthResponse(saved);
     }
 
     public void logout(String token) {
         tokenBlacklistService.revoke(token);
+        log.info("Token revoked");
     }
 
     private AuthResponse toAuthResponse(User user) {
