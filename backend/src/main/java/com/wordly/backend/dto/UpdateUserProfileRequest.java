@@ -1,6 +1,7 @@
 package com.wordly.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wordly.backend.entity.enums.ColorTheme;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -29,6 +30,5 @@ public record UpdateUserProfileRequest(
         Boolean notificationsEnabled,
 
         @JsonProperty("color_theme")
-        @Pattern(regexp = "light|dark|system", message = "Color theme must be one of: light, dark, system")
-        String colorTheme
+        ColorTheme colorTheme
 ) {}
