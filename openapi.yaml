@@ -579,6 +579,9 @@ components:
           example: 10
         notifications_enabled:
           type: boolean
+        color_theme:
+          type: string
+          example: system
         streak:
           type: integer
           example: 7
