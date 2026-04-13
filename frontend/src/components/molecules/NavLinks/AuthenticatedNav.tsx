@@ -1,6 +1,6 @@
 import styles from './NavLinks.module.scss'
 import { Link } from 'react-router-dom'
-import { IconFont } from '@/app/components/atoms/IconFont'
+import { IconFont } from '@/components/atoms/IconFont'
 
 interface AuthenticatedNavProps {
   stats?: {

@@ -57,9 +57,11 @@
   cursor: pointer;
   transition: background 0.2s;
 
-  svg {
+  svg,
+  [class^='icon'] {
     width: 26px;
     height: 26px;
+    font-size: 26px;
   }
 
   &:hover {
@@ -95,6 +97,22 @@
     opacity 0.15s,
     transform 0.15s;
   z-index: 10;
+}
+
+.statBtnFire {
+  background: transparent !important;
+
+  &:hover {
+    background: #fcede3 !important;
+  }
+}
+
+.statBtnDiamond {
+  background: transparent !important;
+
+  &:hover {
+    background: #ffe9fc !important;
+  }
 }
 
 .right {

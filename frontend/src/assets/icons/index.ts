@@ -1,8 +1,3 @@
-export { StarIcon } from './StarIcon'
-export { TrophyIcon } from './TrophyIcon'
-export { TrendingIcon } from './TrendingIcon'
-export { DiamondIcon } from './DiamondIcon'
-export { SparklesIcon } from './SparklesIcon'
 export { BookIcon } from './BookIcon'
 export { GlobeIcon } from './GlobeIcon'
 export { LightningIcon } from './LightningIcon'
