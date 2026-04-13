@@ -19,14 +19,21 @@ import { Header } from './components/organisms/Header'
 import { Avatar } from './components/atoms/Avatar'
 import { LetterTile } from './components/atoms/LetterTile'
 import { MatchCard } from './components/atoms/MatchCard'
-import { Route, Routes } from 'react-router-dom'
-import { NavLinks } from '@/app/components/molecules/NavLinks/NavLinks'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { NavLinks } from './components/molecules/NavLinks/NavLinks'
 
 function App() {
-  return <Layout />
+  return (
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
+  )
 }
 
 function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isRewardOpen, setIsRewardOpen] = useState(false)
+
   return (
     <main
       style={{
@@ -306,13 +313,7 @@ function HomePage() {
 
 function Layout() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-      }}
-    >
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <div style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />

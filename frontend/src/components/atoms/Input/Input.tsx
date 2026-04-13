@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { InputHTMLAttributes } from 'react'
-import { IconFont } from '@/app/components/atoms/IconFont'
+import { IconFont } from '@/components/atoms/IconFont'
 import styles from './Input.module.scss'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
