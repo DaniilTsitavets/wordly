@@ -1,0 +1,184 @@
+@use '../../../styles/index' as *;
+
+.container {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.step {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: $color-primary;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  line-height: 1.2;
+}
+
+.timerCircle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid $color-primary-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #a8e63d, #7ed321);
+  border-radius: 999px;
+}
+
+.recommendedCard {
+  border: 1.5px solid $color-primary-light;
+  border-radius: 20px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  background: #ffffff;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.cardSelected {
+  border-color: $color-primary !important;
+}
+
+.recommendedLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $color-primary;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.time {
+  font-size: 16px;
+  font-weight: 500;
+  color: $color-neutral-dark;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.timeNumber {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.timeLabel {
+  font-size: 14px;
+  color: $color-neutral-text-muted;
+}
+
+.lightningCircle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.optionCard {
+  background: #e8f4ff;
+  border-radius: 20px;
+  padding: 16px 20px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  .time {
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+
+  .timeNumber {
+    font-size: 32px;
+  }
+}
+
+.quote {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f0faf4;
+  border-left: 3px solid $color-primary;
+  border-radius: 8px;
+  padding: 16px;
+
+  p {
+    font-size: 14px;
+    color: $color-neutral-text-secondary;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  [class^='icon'] {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.startBtn {
+  width: 100%;
+  border-radius: 999px !important;
+  font-size: 17px !important;
+}

@@ -21,6 +21,7 @@ import { MatchCard } from './components/atoms/MatchCard'
 import { Route, Routes } from 'react-router-dom'
 import { NavLinks } from './components/molecules/NavLinks/NavLinks'
 import { AuthModal } from '@/components/organisms/AuthModal'
+import { DailyGoal } from '@/components/organisms/DailyGoal'
 
 function App() {
   return <Layout />
@@ -327,6 +328,10 @@ function HomePage() {
           </Button>
         </div>
         <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} defaultTab={authTab} />
+      </section>
+      <section>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Daily Goal</h2>
+        <DailyGoal onStart={(goal) => console.log('Selected goal:', goal)} />
       </section>
     </main>
   )
