@@ -1,0 +1,103 @@
+.header {
+  width: 100%;
+  height: 105px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #e5e7eb;
+  margin: 0 4px;
+}
+
+.navIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+
+  &:hover .tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+}
+
+.navBtn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  &:hover {
+    background: rgba(102, 49, 219, 0.08);
+
+    .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: 2px;
+  }
+}
+
+.tooltip {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  z-index: 10;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}

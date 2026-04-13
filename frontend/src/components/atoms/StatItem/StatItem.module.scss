@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 41.42px;
+}
+
+.value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.label {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
