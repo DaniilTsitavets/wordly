@@ -1,0 +1,39 @@
+@font-face {
+    font-family: "WordlyIcons";
+    src: url("/fonts/WordlyIcons.woff2") format("woff2"),
+        url("/fonts/WordlyIcons.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-palette-values --palette0 {
+    font-family: "WordlyIcons";
+    base-palette: 0
+}
+
+@font-palette-values --paletteWhite {
+    font-family: "WordlyIcons";
+    override-colors:
+        0 #ffffff,
+        1 #ffffff,
+        2 #ffffff,
+        3 #ffffff,
+        4 #ffffff;
+}
+.icon {
+    /* Use !important to prevent extensions from overriding this font. */
+    font-family: "WordlyIcons" !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.palette0 {
+    font-palette: --palette0;
+    color: currentColor;
+}
