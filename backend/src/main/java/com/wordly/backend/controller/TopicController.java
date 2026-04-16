@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import static com.wordly.backend.util.AuthUtils.isGuest;
 
 @RestController
 @RequestMapping("/topics")
@@ -30,10 +31,5 @@ public class TopicController {
             Authentication authentication
     ) {
         return topicService.getTopicDetail(topicId, userId, isGuest(authentication));
-    }
-
-    private boolean isGuest(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_GUEST".equals(a.getAuthority()));
     }
 }
