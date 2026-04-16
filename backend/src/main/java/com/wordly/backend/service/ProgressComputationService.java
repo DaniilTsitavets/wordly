@@ -96,8 +96,8 @@ public class ProgressComputationService {
 
             if (progress != null) {
                 result.add(new LevelProgressResponse(
-                        mechanic.getValue(),
-                        progress.getStatus().getValue(),
+                        mechanic,
+                        progress.getStatus(),
                         progress.getStartedAt(),
                         progress.getCompletedAt()
                 ));
