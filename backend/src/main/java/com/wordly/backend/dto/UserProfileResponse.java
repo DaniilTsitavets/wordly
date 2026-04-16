@@ -24,7 +24,7 @@ public record UserProfileResponse(
         Boolean notificationsEnabled,
 
         @JsonProperty("color_theme")
-        String colorTheme,
+        ColorTheme colorTheme,
 
         Integer streak,
         Integer gems,
