@@ -39,7 +39,7 @@ public class TopicService {
 
             int completedCount = 0;
             for (Subtopic subtopic : subtopics) {
-                if (progressComputationService.isSubtopicCompleted(subtopic, progress, userId)) {
+                if (progressComputationService.isSubtopicCompleted(subtopic, progress)) {
                     completedCount++;
                 }
             }

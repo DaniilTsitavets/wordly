@@ -55,8 +55,7 @@ public class ProgressComputationService {
 
     public boolean isSubtopicCompleted(
             Subtopic subtopic,
-            List<UserSubtopicLevelMechanicProgress> allUserProgress,
-            Long userId
+            List<UserSubtopicLevelMechanicProgress> allUserProgress
     ) {
         List<MechanicType> activeMechanics = getActiveMechanics(subtopic);
 
