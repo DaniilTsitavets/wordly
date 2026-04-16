@@ -8,7 +8,7 @@ public record LevelProgressResponse(
         @JsonProperty("mechanic_type")
         MechanicType mechanicType,,
 
-        String status,
+        ProgressStatus status,
 
         @JsonProperty("started_at")
         LocalDateTime startedAt,
