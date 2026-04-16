@@ -24,13 +24,16 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new EmailAlreadyExistsException("Email already registered: " + request.email());
+        String normalizedEmail = request.email().trim().toLowerCase();
+
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new EmailAlreadyExistsException("Email already registered: " + normalizedEmail);
         }
 
         User user = User.builder()
-                .name(request.name())
-                .email(request.email())
+                .name(request.name().trim())
+                .surname(request.surname().trim())
+                .email(normalizedEmail)
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .guest(false)
                 .build();
@@ -41,7 +44,9 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
+        String normalizedEmail = request.email().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(normalizedEmail)
                 .filter(u -> !u.isGuest())
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 

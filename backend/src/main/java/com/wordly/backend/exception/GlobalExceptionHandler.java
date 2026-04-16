@@ -3,6 +3,7 @@ package com.wordly.backend.exception;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -28,10 +29,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
-        log.warn("Email conflict: {}", ex.getMessage());
-        return new ErrorResponse("EMAIL_ALREADY_EXISTS", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleEmailExists(EmailAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("EMAIL_ALREADY_EXISTS", ex.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -83,5 +83,11 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleGeneral(Exception ex) {
         log.error("Unhandled exception [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
         return new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred");
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN) 
+    @ExceptionHandler(GuestOperationNotAllowedException.class)
+    public ErrorResponse handleGuestForbidden(GuestOperationNotAllowedException ex) {
+        return new ErrorResponse("FORBIDDEN", ex.getMessage());
     }
 }
