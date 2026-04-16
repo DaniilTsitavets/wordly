@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public record LevelProgressResponse(
         @JsonProperty("mechanic_type")
-        String mechanicType,
+        MechanicType mechanicType,,
 
         String status,
 
