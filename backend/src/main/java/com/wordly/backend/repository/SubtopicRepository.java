@@ -16,4 +16,6 @@ public interface SubtopicRepository extends JpaRepository<Subtopic, Long> {
     Optional<Subtopic> findFirstByTopicOrderBySortOrderAscIdAsc(Topic topic);
 
     List<Subtopic> findAllByTopicIdOrderBySortOrderAscIdAsc(Long topicId);
+
+    List<Subtopic> findAllByTopic_IdInOrderByTopic_IdAscSortOrderAscIdAsc(List<Long> topicIds);
 }

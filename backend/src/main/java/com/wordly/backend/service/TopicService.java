@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +33,25 @@ public class TopicService {
                 ? topicRepository.findFirstByOrderBySortOrderAscIdAsc().stream().toList()
                 : topicRepository.findAllByOrderBySortOrderAscIdAsc();
 
+        if (topics.isEmpty()) {
+            return new TopicsResponse(List.of(), null);
+        }
+
         List<UserSubtopicLevelMechanicProgress> progress = progressRepository.findByUserId(userId);
+
+        List<Long> topicIds = topics.stream()
+                .map(Topic::getId)
+                .toList();
+
+        List<Subtopic> allSubtopics = subtopicRepository
+                .findAllByTopic_IdInOrderByTopic_IdAscSortOrderAscIdAsc(topicIds);
+
+        Map<Long, List<Subtopic>> subtopicsByTopicId = allSubtopics.stream()
+                .collect(Collectors.groupingBy(subtopic -> subtopic.getTopic().getId()));
 
         List<TopicSummaryResponse> topicResponses = new ArrayList<>();
         for (Topic topic : topics) {
-            List<Subtopic> subtopics = subtopicRepository.findByTopicOrderBySortOrderAscIdAsc(topic);
+            List<Subtopic> subtopics = subtopicsByTopicId.getOrDefault(topic.getId(), List.of());
 
             int completedCount = 0;
             for (Subtopic subtopic : subtopics) {
