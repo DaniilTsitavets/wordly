@@ -105,7 +105,7 @@ public class ProgressComputationService {
             } else {
                 String inferredStatus = previousCompleted ? "unblocked" : "locked";
                 result.add(new LevelProgressResponse(
-                        mechanic.getValue(),
+                        mechanic,
                         inferredStatus,
                         null,
                         null
