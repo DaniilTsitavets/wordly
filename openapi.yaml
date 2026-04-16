@@ -582,6 +582,7 @@ components:
         color_theme:
           type: string
           example: system
+          enum: [light, dark, system]
         streak:
           type: integer
           example: 7
