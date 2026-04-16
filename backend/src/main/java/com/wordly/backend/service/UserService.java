@@ -67,7 +67,7 @@ public class UserService {
         }
 
         if (request.colorTheme() != null) {
-            user.setColorTheme(request.colorTheme());
+            user.setColorTheme(request.colorTheme().getValue());
         }
 
         User saved = userRepository.save(user);
