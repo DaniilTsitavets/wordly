@@ -21,5 +21,5 @@ public record SubtopicSummaryResponse(
         @JsonProperty("disabled_mechanics")
         List<String> disabledMechanics,
 
-        String status
+        ProgressStatus status
 ) {}
