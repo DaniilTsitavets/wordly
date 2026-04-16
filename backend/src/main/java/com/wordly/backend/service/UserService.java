@@ -70,8 +70,7 @@ public class UserService {
             user.setColorTheme(request.colorTheme().getValue());
         }
 
-        User saved = userRepository.save(user);
-        return UserProfileResponse.from(saved);
+        return UserProfileResponse.from(user);
     }
 
     private User getUserOrThrow(Long userId) {
