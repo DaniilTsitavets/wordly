@@ -67,7 +67,7 @@ public class SubtopicService {
         return new SubtopicWordsResponse(wordResponses);
     }
 
-    private Subtopic getAccessibleSubtopic(Long subtopicId, boolean isGuest) {
+    Subtopic getAccessibleSubtopic(Long subtopicId, boolean isGuest) {
         Subtopic subtopic = subtopicRepository.findById(subtopicId)
                 .orElseThrow(() -> new NotFoundException("Subtopic not found: " + subtopicId));
 

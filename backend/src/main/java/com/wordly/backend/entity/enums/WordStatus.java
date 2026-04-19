@@ -3,15 +3,15 @@ package com.wordly.backend.entity.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum ProgressStatus {
-    LOCKED("locked"),
-    UNBLOCKED("unblocked"),
-    IN_PROGRESS("in_progress"),
-    COMPLETED("completed");
+public enum WordStatus {
+    NEW("new"),
+    LEARNING("learning"),
+    RECALLING("recalling"),
+    LONG_TERM_MEMORY("long_term_memory");
 
     private final String value;
 
-    ProgressStatus(String value) {
+    WordStatus(String value) {
         this.value = value;
     }
 
@@ -21,12 +21,12 @@ public enum ProgressStatus {
     }
 
     @JsonCreator
-    public static ProgressStatus fromValue(String value) {
-        for (ProgressStatus status : values()) {
+    public static WordStatus fromValue(String value) {
+        for (WordStatus status : values()) {
             if (status.value.equalsIgnoreCase(value)) {
                 return status;
             }
         }
-        throw new IllegalArgumentException("Unknown progress status: " + value);
+        throw new IllegalArgumentException("Unknown word status: " + value);
     }
 }

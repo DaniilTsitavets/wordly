@@ -2,6 +2,7 @@ package com.wordly.backend.dto;
 
 import com.wordly.backend.entity.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wordly.backend.entity.enums.ColorTheme;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +46,7 @@ public record UserProfileResponse(
                 user.getInterfaceLanguage(),
                 user.getDailyGoalMin(),
                 user.getNotificationsEnabled(),
-                user.getColorTheme(),
+                ColorTheme.fromValue(user.getColorTheme()),
                 user.getStreak(),
                 user.getGems(),
                 user.getLastActiveDate(),

@@ -1,6 +1,7 @@
 package com.wordly.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wordly.backend.entity.enums.ProgressStatus;
 
 import java.util.List;
 
