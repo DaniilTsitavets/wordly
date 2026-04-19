@@ -6,15 +6,14 @@
   justify-content: center;
   flex-direction: row;
   gap: 0.5rem;
-  &__bar{
-      width: 100%;
-  background: $color-overlay-progress-bg;
-  border-radius: 62.4375rem;
-  overflow: hidden;
+  &__bar {
+    width: 100%;
+    background: $color-overlay-progress-bg;
+    border-radius: 62.4375rem;
+    overflow: hidden;
   }
-
 }
-.label{
+.label {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -22,7 +21,7 @@
   font-size: 0.875rem;
   color: #1a1a1a;
 }
-.label__container{
+.label__container {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -55,5 +54,3 @@
 .pink {
   background: $color-secondary-pink;
 }
-
-

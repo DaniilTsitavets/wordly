@@ -23,7 +23,6 @@ export const ProgressBar = ({
 
   return (
     <div className={styles.container}>
-
       <div
         className={`${styles.container__bar} ${styles[size]}`}
         role="progressbar"
@@ -34,7 +33,7 @@ export const ProgressBar = ({
       >
         <div className={`${styles.bar} ${styles[color]}`} style={{ width: `${clamped}%` }} />
       </div>
-            {(label || showValue) && (
+      {(label || showValue) && (
         <div className={styles.label}>
           {label && <span>{label}</span>}
           {showValue && <span>{clamped}%</span>}

@@ -83,20 +83,20 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 1rem ;
+  gap: 1rem;
   color: $color-neutral-text-tertiary;
 }
 
-.icon__container{
-background-color: $color-white;
-border-radius: 0.625rem;
-display: flex;
-padding: 0.25rem;
-justify-content: center;
-align-items: center;
-flex-shrink: 0;
+.icon__container {
+  background-color: $color-white;
+  border-radius: 0.625rem;
+  display: flex;
+  padding: 0.25rem;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
 }
-.word__count{
+.word__count {
   text-wrap: nowrap;
   text-align: center;
   font-family: 'Be Vietnam Pro';
