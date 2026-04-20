@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.wordly.backend.util.AuthUtils.isGuest;
 
 @RestController
@@ -18,6 +20,14 @@ public class SubtopicController {
 
     private final SubtopicService subtopicService;
     private final LearningService learningService;
+
+    @PostMapping("/batch")
+    public List<SubtopicSummaryResponse> getSubtopicsByIds(
+            @Valid @RequestBody SubtopicsBatchRequest request,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return subtopicService.getSubtopicsByIds(request.ids(), userId);
+    }
 
     @GetMapping("/{subtopicId}")
     public SubtopicDetailResponse getSubtopicDetail(

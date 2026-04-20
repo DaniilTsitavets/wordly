@@ -48,6 +48,13 @@ public class SubtopicService {
     }
 
     @Transactional(readOnly = true)
+    public List<SubtopicSummaryResponse> getSubtopicsByIds(List<Long> ids, Long userId) {
+        List<Subtopic> subtopics = subtopicRepository.findAllById(ids);
+        List<UserSubtopicLevelMechanicProgress> progress = progressRepository.findByUserId(userId);
+        return progressComputationService.buildSubtopicSummaries(subtopics, progress, userId);
+    }
+
+    @Transactional(readOnly = true)
     public SubtopicWordsResponse getSubtopicWords(Long subtopicId, Long userId, boolean isGuest) {
         Subtopic subtopic = getAccessibleSubtopic(subtopicId, isGuest);
 

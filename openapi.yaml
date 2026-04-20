@@ -210,14 +210,14 @@ paths:
   /topics/{topicId}:
     get:
       tags: [Topics]
-      summary: Get topic with its subtopics list
+      summary: Get topic with its subtopic IDs
       security:
         - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/topicId'
       responses:
         '200':
-          description: Topic with subtopics
+          description: Topic with subtopic IDs
           content:
             application/json:
               schema:
@@ -226,6 +226,38 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   # ─── SUBTOPICS ──────────────────────────────────────────
+
+  /subtopics/batch:
+    post:
+      tags: [Subtopics]
+      summary: Get subtopics data by a list of IDs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  example: [1, 2, 3]
+      responses:
+        '200':
+          description: List of subtopics with progress status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubtopicSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /subtopics/{subtopicId}:
     get:
@@ -641,10 +673,12 @@ components:
           type: string
         image_url:
           type: string
-        subtopics:
+        subtopic_ids:
           type: array
           items:
-            $ref: '#/components/schemas/SubtopicSummary'
+            type: integer
+            format: int64
+          example: [1, 2, 3]
 
     SubtopicSummary:
       type: object
