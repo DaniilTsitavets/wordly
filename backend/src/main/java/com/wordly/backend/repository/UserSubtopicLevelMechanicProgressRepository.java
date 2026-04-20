@@ -1,6 +1,7 @@
 package com.wordly.backend.repository;
 
 import com.wordly.backend.entity.UserSubtopicLevelMechanicProgress;
+import com.wordly.backend.entity.enums.MechanicType;
 import com.wordly.backend.entity.enums.ProgressStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,5 +18,11 @@ public interface UserSubtopicLevelMechanicProgressRepository
     Optional<UserSubtopicLevelMechanicProgress> findFirstByUserIdAndStatusOrderByStartedAtDescIdDesc(
             Long userId,
             ProgressStatus status
+    );
+
+    Optional<UserSubtopicLevelMechanicProgress> findByUserIdAndSubtopicIdAndMechanicType(
+            Long userId,
+            Long subtopicId,
+            MechanicType mechanicType
     );
 }

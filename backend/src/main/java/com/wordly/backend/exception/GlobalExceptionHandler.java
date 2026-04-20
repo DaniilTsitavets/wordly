@@ -85,9 +85,15 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred");
     }
 
-    @ResponseStatus(HttpStatus.FORBIDDEN) 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(GuestOperationNotAllowedException.class)
     public ErrorResponse handleGuestForbidden(GuestOperationNotAllowedException ex) {
         return new ErrorResponse("FORBIDDEN", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(LevelLockedException.class)
+    public ErrorResponse handleLevelLocked(LevelLockedException ex) {
+        return new ErrorResponse("LEVEL_LOCKED", ex.getMessage());
     }
 }

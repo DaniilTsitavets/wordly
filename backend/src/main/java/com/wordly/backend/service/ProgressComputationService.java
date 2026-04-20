@@ -35,7 +35,7 @@ public class ProgressComputationService {
         for (int i = 0; i < subtopics.size(); i++) {
             Subtopic subtopic = subtopics.get(i);
 
-            String status = computeSubtopicStatus(subtopic, allUserProgress, previousCompleted);
+            ProgressStatus status = computeSubtopicStatus(subtopic, allUserProgress, previousCompleted);
             result.add(new SubtopicSummaryResponse(
                     subtopic.getId(),
                     subtopic.getName(),
@@ -47,7 +47,7 @@ public class ProgressComputationService {
                     status
             ));
 
-            previousCompleted = "completed".equals(status);
+            previousCompleted = status == ProgressStatus.COMPLETED;
         }
 
         return result;
@@ -103,7 +103,7 @@ public class ProgressComputationService {
                 ));
                 previousCompleted = progress.getStatus() == ProgressStatus.COMPLETED;
             } else {
-                String inferredStatus = previousCompleted ? "unblocked" : "locked";
+                ProgressStatus inferredStatus = previousCompleted ? ProgressStatus.UNBLOCKED : ProgressStatus.LOCKED;
                 result.add(new LevelProgressResponse(
                         mechanic,
                         inferredStatus,
@@ -117,7 +117,7 @@ public class ProgressComputationService {
         return result;
     }
 
-    private String computeSubtopicStatus(
+    private ProgressStatus computeSubtopicStatus(
             Subtopic subtopic,
             List<UserSubtopicLevelMechanicProgress> allUserProgress,
             boolean previousSubtopicCompleted
@@ -137,7 +137,7 @@ public class ProgressComputationService {
                 .anyMatch(p -> p.getStatus() == ProgressStatus.IN_PROGRESS);
 
         if (hasInProgress) {
-            return "in_progress";
+            return ProgressStatus.IN_PROGRESS;
         }
 
         boolean allCompleted = activeMechanics.stream().allMatch(mechanic -> {
@@ -146,15 +146,15 @@ public class ProgressComputationService {
         });
 
         if (allCompleted) {
-            return "completed";
+            return ProgressStatus.COMPLETED;
         }
 
         boolean hasAnyProgress = !progressMap.isEmpty();
         if (hasAnyProgress || previousSubtopicCompleted) {
-            return "unblocked";
+            return ProgressStatus.UNBLOCKED;
         }
 
-        return "locked";
+        return ProgressStatus.LOCKED;
     }
 
     public List<MechanicType> getActiveMechanics(Subtopic subtopic) {
