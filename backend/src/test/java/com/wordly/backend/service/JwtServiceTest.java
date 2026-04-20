@@ -1,9 +1,11 @@
 package com.wordly.backend.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JwtServiceTest {
 
@@ -52,5 +54,13 @@ class JwtServiceTest {
         );
         String token = shortLived.generateToken(1L, false);
         assertThat(shortLived.isTokenValid(token)).isFalse();
+    }
+
+    @Test
+    @DisplayName("should throw IllegalStateException when secret is shorter than 32 characters")
+    void shouldRejectShortSecret() {
+        assertThatThrownBy(() -> new JwtService("short-secret", 86400000L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("32");
     }
 }
