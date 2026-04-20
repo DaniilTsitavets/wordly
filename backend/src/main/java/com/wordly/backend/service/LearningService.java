@@ -151,7 +151,7 @@ public class LearningService {
             }
         }
 
-        throw new LevelLockedException("No unlocked level available for subtopic: " + progressMap);
+        throw new LevelLockedException("No unlocked level available for subtopic");
     }
 
     private SessionWordResponse toSessionWord(Word word, MechanicType mechanicType) {
