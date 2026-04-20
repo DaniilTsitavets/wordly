@@ -1,25 +1,21 @@
-import { SubtopicCard } from '@/components/molecules/SubtopicCard'
+import { SubtopicsSection } from '@/components/molecules/SubtopicsSection'
+import styles from './TopicPage.module.scss'
+import { useTopicData } from './useTopicData'
+
+const TOPIC_ID = '1'
 
 export function TopicPage() {
+  const { title, description, subtopics, isLoading, error } = useTopicData(TOPIC_ID)
+
   return (
-    <>
-      <div>TopicPage</div>
-      <SubtopicCard
-        id={1}
-        title="Subtopic 1"
-        imageUrl="src/assets/test_img/pizza.png"
-        description="Lorem ipsum dolor sit amet"
-        wordCount={10}
-        levels={[]}
+    <main className={styles.pageContent}>
+      <SubtopicsSection
+        topicTitle={title}
+        topicDescription={description}
+        subtopics={subtopics}
+        isLoading={isLoading}
+        error={error}
       />
-      <SubtopicCard
-        id={2}
-        title="Subtopic 2"
-        imageUrl="src/assets/test_img/pizza.png"
-        description="Lorem ipsum dolor sit amet"
-        wordCount={10}
-        levels={[]}
-      />
-    </>
+    </main>
   )
 }

@@ -1,12 +1,12 @@
 import { IconFont } from '@/components/atoms/IconFont'
-import styles from './SubtopicCard.module.scss'
-import type { ISubtopic } from './types/types'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
-import { Button } from '@/components/atoms/Button/Button'
+import { Button } from '@/components/atoms/Button'
+import styles from './SubtopicCard.module.scss'
+import type { SubtopicCardData } from './types/types'
 
 type SubtopicTheme = 'orange' | 'skyBlue' | 'pink'
 
-interface SubtopicCardProps extends ISubtopic {
+interface SubtopicCardProps extends SubtopicCardData {
   themeIndex?: number
 }
 
@@ -18,23 +18,21 @@ export function SubtopicCard({
   imageUrl,
   description,
   wordCount,
-  levels,
   themeIndex,
 }: SubtopicCardProps) {
-  const fallbackIndex = id - 1
-  const resolvedThemeIndex = themeIndex ?? fallbackIndex
+  const resolvedThemeIndex = themeIndex ?? id - 1
   const activeTheme =
     CARD_THEMES[
       ((resolvedThemeIndex % CARD_THEMES.length) + CARD_THEMES.length) % CARD_THEMES.length
     ]
-  const completedLevels = levels.filter((level) => level.status === 'completed').length
-  const progressValue = levels.length > 0 ? (completedLevels / levels.length) * 100 : 0
 
   return (
     <section className={`${styles.card} ${styles[`card--${activeTheme}`]}`}>
-      <div className={styles.image__container}>
-        <img src={imageUrl} alt={`${title} illustration`} />
-      </div>
+      {imageUrl && (
+        <div className={styles.image__container}>
+          <img src={imageUrl} alt={`${title} illustration`} loading="lazy" decoding="async" />
+        </div>
+      )}
 
       <div className={styles.content}>
         <div className={styles.text}>
@@ -47,7 +45,7 @@ export function SubtopicCard({
             <IconFont name="star" size="1rem" />
           </div>
           <span className={styles.word__count}>{wordCount} words</span>
-          <ProgressBar value={progressValue} showValue={true} />
+          <ProgressBar value={50} showValue={true} />
         </div>
 
         <Button

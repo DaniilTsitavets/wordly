@@ -1,0 +1,6 @@
+@use '../../../../styles/index' as *;
+
+.pageContent {
+  min-height: calc(100vh - 105px);
+  background-color: $color-white;
+}
