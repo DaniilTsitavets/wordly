@@ -12,5 +12,6 @@ public record TopicDetailResponse(
         @JsonProperty("image_url")
         String imageUrl,
 
-        List<SubtopicSummaryResponse> subtopics
+        @JsonProperty("subtopic_ids")
+        List<Long> subtopicIds
 ) {}

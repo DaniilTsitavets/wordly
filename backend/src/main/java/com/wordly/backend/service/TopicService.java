@@ -96,17 +96,15 @@ public class TopicService {
         }
 
         List<Subtopic> subtopics = subtopicRepository.findByTopicOrderBySortOrderAscIdAsc(topic);
-        List<UserSubtopicLevelMechanicProgress> progress = progressRepository.findByUserId(userId);
 
-        List<SubtopicSummaryResponse> subtopicResponses =
-                progressComputationService.buildSubtopicSummaries(subtopics, progress, userId);
+        List<Long> subtopicIds = subtopics.stream().map(Subtopic::getId).toList();
 
         return new TopicDetailResponse(
                 topic.getId(),
                 topic.getName(),
                 topic.getDescription(),
                 topic.getImageUrl(),
-                subtopicResponses
+                subtopicIds
         );
     }
 }
