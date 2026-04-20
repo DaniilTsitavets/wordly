@@ -55,12 +55,13 @@ public class SubtopicController {
         return learningService.submitAnswer(subtopicId, request, userId);
     }
 
-    @PostMapping("/{subtopicId}/session/complete")
-    public LevelCompleteResultResponse completeLevel(
-            @PathVariable Long subtopicId,
-            @Valid @RequestBody CompleteSessionRequest request,
-            @AuthenticationPrincipal Long userId
-    ) {
-        return learningService.completeLevel(subtopicId, request, userId);
-    }
+  @PostMapping("/{subtopicId}/session/complete")                                                                                                                                                     
+  public LevelCompleteResultResponse completeLevel(
+          @PathVariable Long subtopicId,                                                                                                                                                             
+          @Valid @RequestBody CompleteSessionRequest request,
+          @AuthenticationPrincipal Long userId,                                                                                                                                                      
+          Authentication authentication        
+  ) {                                  
+      return learningService.completeLevel(subtopicId, request, userId, isGuest(authentication));
+  } 
 }
