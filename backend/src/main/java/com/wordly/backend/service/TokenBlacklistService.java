@@ -1,6 +1,7 @@
 package com.wordly.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -24,13 +25,11 @@ public class TokenBlacklistService {
     }
 
     public boolean isRevoked(String token) {
-        if (!revokedTokens.contains(token)) {
-            return false;
-        }
-        if (!jwtService.isTokenValid(token)) {
-            revokedTokens.remove(token);
-            return false;
-        }
-        return true;
+        return revokedTokens.contains(token);
+    }
+
+    @Scheduled(fixedRateString = "${app.token-blacklist.cleanup-interval-ms:3600000}")
+    public void cleanupExpiredTokens() {
+        revokedTokens.removeIf(token -> !jwtService.isTokenValid(token));
     }
 }
