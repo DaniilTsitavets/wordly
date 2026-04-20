@@ -84,13 +84,13 @@ public class LearningService {
 
         UserSubtopicLevelMechanicProgress progress = progressRepository
                 .findByUserIdAndSubtopicIdAndMechanicType(userId, subtopicId, mechanicType)
-                .orElseGet(() -> UserSubtopicLevelMechanicProgress.builder()
-                        .userId(userId)
-                        .subtopic(subtopic)
-                        .mechanicType(mechanicType)
-                        .status(ProgressStatus.IN_PROGRESS)
-                        .startedAt(LocalDateTime.now())
-                        .build());
+                .orElseThrow(() -> new LevelLockedException("Level not unlocked: " + mechanicType));
+
+        if (progress.getStatus() == ProgressStatus.COMPLETED) {
+            throw new IllegalStateException("Level already completed");
+        }
+
+        progress.setStatus(ProgressStatus.COMPLETED);
 
         progress.setStatus(ProgressStatus.COMPLETED);
         progress.setCompletedAt(LocalDateTime.now());
