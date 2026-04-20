@@ -78,8 +78,8 @@ public class LearningService {
     }
 
     @Transactional
-    public LevelCompleteResultResponse completeLevel(Long subtopicId, CompleteSessionRequest request, Long userId) {
-        Subtopic subtopic = subtopicService.getAccessibleSubtopic(subtopicId, false);
+    public LevelCompleteResultResponse completeLevel(Long subtopicId, CompleteSessionRequest request, Long userId, boolean isGuest) {
+        Subtopic subtopic = subtopicService.getAccessibleSubtopic(subtopicId, isGuest);
         MechanicType mechanicType = request.mechanicType();
 
         UserSubtopicLevelMechanicProgress progress = progressRepository
