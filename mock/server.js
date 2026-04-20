@@ -179,18 +179,27 @@ app.get('/api/v1/topics/:id', (req, res) => {
   res.json({
     id: 1, name: 'Food & Kitchen', description: 'Everyday food and kitchen vocabulary',
     image_url: 'https://placehold.co/400x300?text=Food',
-    subtopics: [
-      { id: 1, name: 'Кухонная утварь', description: 'Посуда и кухонные принадлежности',
-        image_url: 'https://placehold.co/400x300?text=Kitchen', sort_order: 1,
-        words_count: 9, disabled_mechanics: [], status: 'in_progress' },
-      { id: 2, name: 'Продукты питания', description: 'Базовые продукты из магазина',
-        image_url: 'https://placehold.co/400x300?text=Groceries', sort_order: 2,
-        words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'locked' },
-    ],
+    subtopic_ids: [1, 2],
   });
 });
 
 // ─── SUBTOPICS ───────────────────────────────────────────────────────────────
+
+const SUBTOPICS_SUMMARY = [
+  { id: 1, name: 'Кухонная утварь', description: 'Посуда и кухонные принадлежности',
+    image_url: 'https://placehold.co/400x300?text=Kitchen', sort_order: 1,
+    words_count: 9, disabled_mechanics: [], status: 'in_progress' },
+  { id: 2, name: 'Продукты питания', description: 'Базовые продукты из магазина',
+    image_url: 'https://placehold.co/400x300?text=Groceries', sort_order: 2,
+    words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'locked' },
+];
+
+app.post('/api/v1/subtopics/batch', (req, res) => {
+  const { ids } = req.body;
+  if (!ids || ids.length === 0) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
+  const result = SUBTOPICS_SUMMARY.filter(s => ids.includes(s.id));
+  res.json(result);
+});
 
 app.get('/api/v1/subtopics/:id', (req, res) => {
   const id = parseInt(req.params.id);
