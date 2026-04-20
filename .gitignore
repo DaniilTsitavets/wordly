@@ -18,6 +18,9 @@ frontend/dist/
 frontend/.env
 frontend/.env.local
 
+### IntelliJ IDEA ###
+*.idea
+
 # Logs
 *.log
 npm-debug.log*
