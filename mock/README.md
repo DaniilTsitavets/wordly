@@ -139,12 +139,20 @@ GET /topics
 
 ```
 GET /topics/1
-→ { id, name, description, image_url, "subtopics": [ ... ] }
+→ { id, name, description, image_url, "subtopic_ids": [1, 2] }
 ```
 
 ---
 
 ### SUBTOPICS
+
+```
+POST /subtopics/batch
+{
+  "ids": [1, 2]
+}
+→ [ { id, name, description, image_url, sort_order, words_count, disabled_mechanics, status } ]
+```
 
 ```
 GET /subtopics/1
