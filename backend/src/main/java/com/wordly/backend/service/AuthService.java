@@ -29,7 +29,7 @@ public class AuthService {
         String normalizedEmail = request.email().trim().toLowerCase();
 
         if (userRepository.existsByEmail(normalizedEmail)) {
-            log.warn("Registration attempt with already registered email: {}", normalizedEmail);
+            log.warn("Registration attempt with already registered email: {}", maskEmail(normalizedEmail));
             throw new EmailAlreadyExistsException("Email already registered: " + normalizedEmail);
         }
 
@@ -53,7 +53,7 @@ public class AuthService {
         User user = userRepository.findByEmail(normalizedEmail)
                 .filter(u -> !u.isGuest())
                 .orElseThrow(() -> {
-                    log.warn("Login failed — user not found: {}", normalizedEmail);
+                    log.warn("Login failed — user not found: {}", maskEmail(normalizedEmail));
                     return new BadCredentialsException("Invalid credentials");
                 });
 
@@ -80,6 +80,12 @@ public class AuthService {
     public void logout(String token) {
         tokenBlacklistService.revoke(token);
         log.info("Token revoked");
+    }
+
+    private static String maskEmail(String email) {
+        int at = email.indexOf('@');
+        if (at <= 1) return "***@" + (at >= 0 ? email.substring(at + 1) : "");
+        return email.charAt(0) + "***@" + email.substring(at + 1);
     }
 
     private AuthResponse toAuthResponse(User user) {
