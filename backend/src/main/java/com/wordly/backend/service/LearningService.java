@@ -65,14 +65,13 @@ public class LearningService {
 
         boolean isCorrect = request.userAnswer().trim().equalsIgnoreCase(word.getWordEn());
 
-        userWordStateRepository.findByUserIdAndWordId(userId, wordId)
-                .orElseGet(() -> userWordStateRepository.save(
-                        UserWordState.builder()
-                                .userId(userId)
-                                .word(word)
-                                .status(WordStatus.LEARNING)
-                                .build()
-                ));
+        if (userWordStateRepository.findByUserIdAndWordId(userId, wordId).isEmpty()) {
+            userWordStateRepository.save(UserWordState.builder()
+                    .userId(userId)
+                    .word(word)
+                    .status(WordStatus.LEARNING)
+                    .build());
+        }
 
         return new AnswerResultResponse(wordId, isCorrect, word.getWordEn());
     }
