@@ -1,1 +1,1 @@
-export { SubtopicsSection } from './SubtopicsSection'
+export { TopicSection } from './TopicSection'

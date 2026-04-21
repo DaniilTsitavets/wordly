@@ -6,12 +6,31 @@ interface SubtopicApiModel {
   words_count: number
 }
 
-interface SubtopicsSectionProps {
+interface TopicSectionProps {
+  topicId: number
   topicTitle: string
   topicDescription: string
-  subtopics: SubtopicApiModel[]
-  isLoading?: boolean
-  error?: string | null
 }
 
-export type { SubtopicApiModel, SubtopicsSectionProps }
+// ─── GET /topics/{topicId} ───────────────────────────────────────────────────
+
+type SubtopicApi = {
+  id: number
+  name: string
+  description: string
+  image_url: string
+  sort_order: number
+  words_count: number
+  disabled_mechanics: string[]
+  status: 'locked' | 'in_progress' | 'completed'
+}
+
+type TopicDetailResponse = {
+  id: number
+  name: string
+  description: string
+  image_url: string
+  subtopics: SubtopicApi[]
+}
+
+export type { SubtopicApiModel, TopicSectionProps, SubtopicApi, TopicDetailResponse }

@@ -1,26 +1,22 @@
 import { useId, useMemo } from 'react'
 import { SubtopicCard } from '@/components/molecules/SubtopicCard'
 import type { SubtopicCardData } from '@/components/molecules/SubtopicCard/types/types'
-import type { SubtopicsSectionProps } from './types/types'
-import styles from './SubtopicsSection.module.scss'
+import { useTopicDetail } from '@/components/molecules/TopicsSection/hooks/useTopicDetail'
+import type { TopicSectionProps } from './types/types'
+import styles from './TopicSection.module.scss'
 
-export function SubtopicsSection({
-  topicTitle,
-  topicDescription,
-  subtopics,
-  isLoading = false,
-  error = null,
-}: SubtopicsSectionProps) {
+export function TopicSection({ topicId, topicTitle, topicDescription }: TopicSectionProps) {
+  const { subtopics, isLoading, error } = useTopicDetail(topicId)
   const sectionId = useId()
 
   const cards: SubtopicCardData[] = useMemo(
     () =>
-      subtopics.map((s) => ({
-        id: s.id,
-        title: s.name,
-        imageUrl: s.image_url,
-        description: s.description,
-        wordCount: s.words_count,
+      (subtopics ?? []).map((subtopic) => ({
+        id: subtopic.id,
+        title: subtopic.name,
+        imageUrl: subtopic.image_url,
+        description: subtopic.description,
+        wordCount: subtopic.words_count,
       })),
     [subtopics]
   )
@@ -40,7 +36,7 @@ export function SubtopicsSection({
 
       {isLoading && (
         <p className={styles.feedback} role="status" aria-live="polite">
-          Загружаем сабтопики...
+          Loading subtopics...
         </p>
       )}
 
@@ -50,9 +46,9 @@ export function SubtopicsSection({
         </p>
       )}
 
-      {!isLoading && !error && subtopics.length === 0 && (
+      {!isLoading && !error && cards.length === 0 && (
         <p className={styles.feedback} role="status" aria-live="polite">
-          Сабтопики пока отсутствуют.
+          No subtopics available.
         </p>
       )}
 
