@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { SubtopicApiModel } from '@/components/molecules/SubtopicsSection/types/types'
+import type { SubtopicApiModel } from '@/components/molecules/TopicsSection/types/types'
 import type { TopicApiResponse } from './types/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4010/api/v1'

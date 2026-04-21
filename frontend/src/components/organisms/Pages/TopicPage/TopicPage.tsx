@@ -1,4 +1,4 @@
-import { SubtopicsSection } from '@/components/molecules/SubtopicsSection'
+import { SubtopicsSection } from '@/components/molecules/TopicsSection'
 import styles from './TopicPage.module.scss'
 import { useTopicData } from './useTopicData'
 

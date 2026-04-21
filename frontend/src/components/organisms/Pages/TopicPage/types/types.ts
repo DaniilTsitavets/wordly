@@ -1,4 +1,4 @@
-import type { SubtopicApiModel } from '@/components/molecules/SubtopicsSection/types/types'
+import type { SubtopicApiModel } from '@/components/molecules/TopicsSection/types/types'
 
 interface TopicApiResponse {
   id: number
