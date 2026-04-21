@@ -1,0 +1,1 @@
+export { SubTopicPage } from './SubTopicPage'

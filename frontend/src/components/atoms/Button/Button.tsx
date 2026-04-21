@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import styles from './Button.module.scss'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'gradient'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'gradient' | 'custom'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,9 +25,11 @@ export const Button = ({
   className = '',
   ...props
 }: ButtonProps) => {
+  const variantClass = variant === 'custom' ? '' : styles[variant]
+
   return (
     <button
-      className={`${styles.button} ${styles[variant]} ${styles[size]} ${className}`}
+      className={`${styles.button} ${variantClass} ${styles[size]} ${className}`}
       disabled={disabled || isLoading}
       aria-busy={isLoading}
       aria-disabled={disabled || isLoading}

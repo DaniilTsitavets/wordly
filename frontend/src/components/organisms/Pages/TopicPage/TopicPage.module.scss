@@ -1,0 +1,15 @@
+@use '../../../../styles/index' as *;
+
+.topicPage {
+  min-height: calc(100vh - 105px);
+  background-color: $color-white;
+  overflow-y: auto;
+}
+
+.centered {
+  min-height: calc(100vh - 105px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-white;
+}

@@ -1,0 +1,131 @@
+@use '../../../styles/index' as *;
+
+.section {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.title {
+  margin: 0;
+  color: $color-neutral-text-dark;
+  text-align: center;
+  font-size: clamp(2rem, 3vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.description {
+  margin: 1rem auto 0;
+  max-width: 48rem;
+  color: $color-neutral-text-tertiary;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.feedback,
+.error {
+  margin: 2rem 0 0;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.feedback {
+  color: $color-neutral-text-tertiary;
+}
+
+.error {
+  color: $color-status-error;
+}
+
+.timeline {
+  position: relative;
+  margin-top: 2.5rem;
+}
+
+.line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #d8b8ff 0%, #ffb6d7 52%, #9ed8ff 100%);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 2rem;
+}
+
+.item--left .cardWrapper {
+  grid-column: 1;
+  justify-self: end;
+}
+
+.item--right .cardWrapper {
+  grid-column: 3;
+  justify-self: start;
+}
+
+.cardWrapper {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.node {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  grid-column: 2;
+  justify-self: center;
+  border: 2px solid $color-white;
+  box-shadow: 0 0 0 2px rgba($color-white, 0.5);
+}
+
+.node--0 {
+  background: $color-secondary-orange;
+}
+
+.node--1 {
+  background: $color-secondary-sky-blue;
+}
+
+.node--2 {
+  background: $color-secondary-pink;
+}
+
+@media (max-width: 62rem) {
+  .item {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    column-gap: 1rem;
+  }
+
+  .line {
+    left: 1rem;
+    transform: none;
+  }
+
+  .node {
+    grid-column: 1;
+  }
+
+  .item--left .cardWrapper,
+  .item--right .cardWrapper {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

@@ -18,28 +18,13 @@ export const ProgressBar = ({
   size = 'sm',
   label,
   showValue = false,
-  className = '',
 }: ProgressBarProps) => {
   const clamped = Math.min(100, Math.max(0, value))
 
   return (
-    <div className={className}>
-      {(label || showValue) && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '8px',
-            fontSize: '14px',
-            color: '#1a1a1a',
-          }}
-        >
-          {label && <span>{label}</span>}
-          {showValue && <span>{clamped}%</span>}
-        </div>
-      )}
+    <div className={styles.container}>
       <div
-        className={`${styles.container} ${styles[size]}`}
+        className={`${styles.container__bar} ${styles[size]}`}
         role="progressbar"
         aria-valuenow={clamped}
         aria-valuemin={0}
@@ -48,6 +33,12 @@ export const ProgressBar = ({
       >
         <div className={`${styles.bar} ${styles[color]}`} style={{ width: `${clamped}%` }} />
       </div>
+      {(label || showValue) && (
+        <div className={styles.label}>
+          {label && <span>{label}</span>}
+          {showValue && <span>{clamped}%</span>}
+        </div>
+      )}
     </div>
   )
 }
