@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { IconFont } from '@/components/atoms/IconFont'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { Button } from '@/components/atoms/Button'
@@ -18,8 +19,10 @@ export function SubtopicCard({
   imageUrl,
   description,
   wordCount,
+  topicTitle,
   themeIndex,
 }: SubtopicCardProps) {
+  const navigate = useNavigate()
   const resolvedThemeIndex = themeIndex ?? id - 1
   const activeTheme =
     CARD_THEMES[
@@ -51,6 +54,10 @@ export function SubtopicCard({
         <Button
           variant="custom"
           className={`${styles.button__start} ${styles[`button__start--${activeTheme}`]}`}
+          onClick={() => {
+            const toSlug = (url: string) => url.toLowerCase().replace(/\s+/g, '-')
+            navigate(`/${toSlug(topicTitle)}/${toSlug(title)}/${id}`)
+          }}
         >
           <IconFont name="play" size="1.25rem" /> Start Learning
         </Button>

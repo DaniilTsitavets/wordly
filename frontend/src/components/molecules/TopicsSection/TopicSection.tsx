@@ -17,8 +17,9 @@ export function TopicSection({ topicId, topicTitle, topicDescription }: TopicSec
         imageUrl: subtopic.image_url,
         description: subtopic.description,
         wordCount: subtopic.words_count,
+        topicTitle,
       })),
-    [subtopics]
+    [subtopics, topicTitle]
   )
 
   return (

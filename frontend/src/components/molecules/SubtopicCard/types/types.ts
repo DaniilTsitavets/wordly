@@ -4,6 +4,7 @@ interface SubtopicCardData {
   imageUrl: string
   description: string
   wordCount: number
+  topicTitle: string
 }
 
 export type { SubtopicCardData }
