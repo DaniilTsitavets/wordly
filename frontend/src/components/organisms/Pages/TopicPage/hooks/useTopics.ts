@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { TopicApi, TTopic, TopicsResponse } from '../types/types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { getTopics } from '@/api/topics'
+import type { TTopic, TopicApi } from '../types/types'
 
 export const mapTopic = (api: TopicApi): TTopic => ({
   id: api.id,
@@ -27,18 +26,10 @@ export function useTopics(): {
     const fetchTopics = async () => {
       try {
         setIsLoading(true)
-
-        const response = await fetch(`${API_BASE_URL}/topics`)
-        if (!response.ok) {
-          throw new Error(`Failed to fetch topics: ${response.statusText}`)
-        }
-
-        const data: TopicsResponse = await response.json()
-        const mappedTopics = data.topics.map(mapTopic)
-
-        setTopics(mappedTopics)
-      } catch (error) {
-        setError((error as Error).message)
+        const data = await getTopics()
+        setTopics(data.topics.map(mapTopic))
+      } catch (err) {
+        setError((err as Error).message)
       } finally {
         setIsLoading(false)
       }

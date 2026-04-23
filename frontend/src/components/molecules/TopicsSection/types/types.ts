@@ -22,7 +22,7 @@ type SubtopicApi = {
   sort_order: number
   words_count: number
   disabled_mechanics: string[]
-  status: 'locked' | 'in_progress' | 'completed'
+  status: 'locked' | 'unblocked' | 'in_progress' | 'completed'
 }
 
 type TopicDetailResponse = {

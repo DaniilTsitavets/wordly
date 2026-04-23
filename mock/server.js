@@ -14,6 +14,12 @@ app.use((req, res, next) => {
 // ─── MOCK DATA ───────────────────────────────────────────────────────────────
 
 const FAKE_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaXNHdWVzdCI6ZmFsc2UsImV4cCI6OTk5OTk5OTk5OX0.mock';
+const GUEST_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaXNHdWVzdCI6dHJ1ZSwiZXhwIjo5OTk5OTk5OTk5fQ.guest';
+
+const isGuest = (req) => {
+  const auth = req.headers['authorization'] || '';
+  return auth.includes(GUEST_TOKEN);
+};
 
 const MOCK_USER = {
   id: 1, name: 'Alex', surname: 'Smith', email: 'mock@test.com',
@@ -149,7 +155,7 @@ app.post('/api/v1/auth/login', (req, res) => {
 
 app.post('/api/v1/auth/guest', (req, res) => {
   res.status(201).json({
-    access_token: FAKE_TOKEN,
+    access_token: GUEST_TOKEN,
     user: { ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true },
   });
 });
@@ -191,13 +197,16 @@ const SUBTOPICS_SUMMARY = [
     words_count: 9, disabled_mechanics: [], status: 'in_progress' },
   { id: 2, name: 'Продукты питания', description: 'Базовые продукты из магазина',
     image_url: 'https://placehold.co/400x300?text=Groceries', sort_order: 2,
-    words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'locked' },
+    words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'unblocked' },
 ];
 
 app.post('/api/v1/subtopics/batch', (req, res) => {
   const { ids } = req.body;
   if (!ids || ids.length === 0) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
-  const result = SUBTOPICS_SUMMARY.filter(s => ids.includes(s.id));
+  const result = SUBTOPICS_SUMMARY.filter(s => ids.includes(s.id)).map(s => {
+    if (isGuest(req) && s.id === 2) return { ...s, status: 'locked' };
+    return s;
+  });
   res.json(result);
 });
 
