@@ -194,9 +194,9 @@ const SUBTOPICS_SUMMARY = [
     words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'locked' },
 ];
 
-app.post('/api/v1/subtopics/batch', (req, res) => {
-  const { ids } = req.body;
-  if (!ids || ids.length === 0) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
+app.get('/api/v1/subtopics/batch', (req, res) => {
+  const ids = [].concat(req.query.ids || []).map(Number);
+  if (!ids.length) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
   const result = SUBTOPICS_SUMMARY.filter(s => ids.includes(s.id));
   res.json(result);
 });
