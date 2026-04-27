@@ -18,6 +18,7 @@ export function TopicSection({ topicId, topicTitle, topicDescription }: TopicSec
         description: subtopic.description,
         wordCount: subtopic.words_count,
         topicTitle,
+        status: subtopic.status,
       })),
     [subtopics, topicTitle]
   )

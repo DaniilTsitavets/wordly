@@ -14,11 +14,19 @@ app.use((req, res, next) => {
 // ─── MOCK DATA ───────────────────────────────────────────────────────────────
 
 const FAKE_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaXNHdWVzdCI6ZmFsc2UsImV4cCI6OTk5OTk5OTk5OX0.mock';
+const GUEST_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaXNHdWVzdCI6dHJ1ZSwiZXhwIjo5OTk5OTk5OTk5fQ.guest';
+
+const isGuest = (req) => {
+  const auth = req.headers['authorization'] || '';
+  return auth.includes(GUEST_TOKEN);
+};
 
 const MOCK_USER = {
   id: 1, name: 'Alex', surname: 'Smith', email: 'mock@test.com',
   is_guest: false, interface_language: 'ru', daily_goal_min: 10,
-  notifications_enabled: true, streak: 5, gems: 150,
+  notifications_enabled: true, color_theme: 'system',
+  onboarding_completed: false,
+  streak: 5, gems: 150,
   last_active_date: '2026-04-09', created_at: '2026-01-01T00:00:00Z',
 };
 
@@ -140,6 +148,7 @@ const makeLevels = (currentMechanic, disabled = []) =>
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
 app.post('/api/v1/auth/register', (req, res) => {
+  MOCK_USER.onboarding_completed = false;
   res.status(201).json({ access_token: FAKE_TOKEN, user: MOCK_USER });
 });
 
@@ -149,7 +158,7 @@ app.post('/api/v1/auth/login', (req, res) => {
 
 app.post('/api/v1/auth/guest', (req, res) => {
   res.status(201).json({
-    access_token: FAKE_TOKEN,
+    access_token: GUEST_TOKEN,
     user: { ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true },
   });
 });
@@ -159,7 +168,10 @@ app.post('/api/v1/auth/logout', (req, res) => res.sendStatus(204));
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
 app.get('/api/v1/users/me', (req, res) => res.json(MOCK_USER));
-app.put('/api/v1/users/me', (req, res) => res.json({ ...MOCK_USER, ...req.body }));
+app.put('/api/v1/users/me', (req, res) => {
+  Object.assign(MOCK_USER, req.body);
+  res.json(MOCK_USER);
+});
 
 // ─── TOPICS ──────────────────────────────────────────────────────────────────
 
@@ -191,13 +203,16 @@ const SUBTOPICS_SUMMARY = [
     words_count: 9, disabled_mechanics: [], status: 'in_progress' },
   { id: 2, name: 'Продукты питания', description: 'Базовые продукты из магазина',
     image_url: 'https://placehold.co/400x300?text=Groceries', sort_order: 2,
-    words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'locked' },
+    words_count: 9, disabled_mechanics: ['mnemonic_cards'], status: 'unblocked' },
 ];
 
-app.get('/api/v1/subtopics/batch', (req, res) => {
-  const ids = [].concat(req.query.ids || []).map(Number);
-  if (!ids.length) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
-  const result = SUBTOPICS_SUMMARY.filter(s => ids.includes(s.id));
+app.post('/api/v1/subtopics/batch', (req, res) => {
+  const { ids } = req.body;
+  if (!ids || ids.length === 0) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
+  const result = SUBTOPICS_SUMMARY.filter(s => ids.includes(s.id)).map(s => {
+    if (isGuest(req) && s.id === 2) return { ...s, status: 'locked' };
+    return s;
+  });
   res.json(result);
 });
 

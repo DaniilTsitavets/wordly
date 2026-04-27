@@ -1,0 +1,179 @@
+@use '../../../styles/index' as *;
+
+// Perspective container (does NOT rotate)
+.card {
+  perspective: 1000px;
+  max-width: 41.9rem;
+  width: 100%;
+  min-height: 32rem;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 1rem;
+    border-radius: 1.25rem;
+  }
+}
+
+// Inner element that actually flips
+.cardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+
+  &--flipped {
+    transform: rotateY(180deg);
+  }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1.5rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1.5px solid $color-primary-light;
+  background: $color-white;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.faceBack {
+  transform: rotateY(180deg);
+}
+
+.imageWrapper {
+  display: flex;
+  max-width: 26rem;
+  width: 100%;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.image {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  padding-top: 1rem;
+}
+
+.word {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: $color-neutral-text-primary;
+  text-align: center;
+}
+
+.pronunciation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audioButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  color: $color-neutral-icon;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: $color-primary;
+  }
+}
+
+.transcription {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: $color-neutral-text-muted;
+}
+
+.mnemonic {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: $color-primary;
+  text-align: center;
+  font-style: italic;
+}
+
+.flipHint {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: $color-neutral-text-placeholder;
+}
+
+.translationWord {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: $color-neutral-text-primary;
+  text-align: center;
+}
+
+.backWordEn {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: $color-neutral-text-muted;
+  text-align: center;
+}
+
+.exampleBlock {
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.625rem;
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+
+  &--default {
+    background: $color-tint-yellow;
+  }
+
+  &--mnemonic {
+    background: rgba($color-primary-light, 0.35);
+  }
+}
+
+.exampleEn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: $color-neutral-text-primary;
+}
+
+.exampleRu {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: $color-neutral-text-muted;
+}

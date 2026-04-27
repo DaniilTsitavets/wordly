@@ -1,23 +1,23 @@
 import type { ReactNode } from 'react'
-import styles from './Card.module.scss'
+import styles from './Plate.module.scss'
 
-type CardVariant = 'default' | 'outlined' | 'elevated'
+type PlateVariant = 'default' | 'outlined' | 'elevated'
 
-interface CardProps {
-  variant?: CardVariant
+interface PlateProps {
+  variant?: PlateVariant
   icon?: ReactNode
   title: string
   description?: string
   className?: string
 }
 
-export const Card = ({
+export const Plate = ({
   variant = 'default',
   icon,
   title,
   description,
   className = '',
-}: CardProps) => {
+}: PlateProps) => {
   return (
     <div className={`${styles.card} ${styles[variant]} ${className}`}>
       {icon && (
