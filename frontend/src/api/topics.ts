@@ -41,3 +41,33 @@ export function getSubtopicsBatch(ids: number[]): Promise<SubtopicSummary[]> {
     body: { ids },
   })
 }
+
+export type MechanicType =
+  | 'mnemonic_cards'
+  | 'flashcards'
+  | 'matching'
+  | 'filling_gaps'
+  | 'word_builder'
+
+export type LevelStatus = 'locked' | 'unblocked' | 'in_progress' | 'completed'
+
+export interface LevelProgress {
+  mechanic_type: MechanicType
+  status: LevelStatus
+  started_at: string | null
+  completed_at: string | null
+}
+
+export interface SubtopicDetail {
+  id: number
+  name: string
+  description: string
+  image_url: string
+  words_count: number
+  disabled_mechanics: MechanicType[]
+  levels: LevelProgress[]
+}
+
+export function getSubtopic(id: number): Promise<SubtopicDetail> {
+  return apiRequest<SubtopicDetail>(`/subtopics/${id}`)
+}
