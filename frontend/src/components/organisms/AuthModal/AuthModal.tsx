@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Modal } from '@/components/atoms/Modal'
 import { Input } from '@/components/atoms/Input'
 import { Button } from '@/components/atoms/Button'
@@ -123,6 +124,7 @@ const LoginForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
 const SignupForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const { isLoading, error } = useAppSelector((state) => state.auth)
   const [name, setName] = useState('')
   const [surname, setSurname] = useState('')
@@ -142,6 +144,9 @@ const SignupForm = ({ onSuccess }: { onSuccess: () => void }) => {
       const { access_token, user } = await register({ name, surname, email, password })
       dispatch(loginSuccess({ token: access_token, user }))
       onSuccess()
+      if (!user.onboarding_completed) {
+        navigate('/onboarding/daily-goal')
+      }
     } catch (err) {
       dispatch(setError(err instanceof Error ? err.message : 'Registration failed'))
     }
