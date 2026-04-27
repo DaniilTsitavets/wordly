@@ -1,3 +1,3 @@
 export function SubTopicPage() {
-  return ()
+  return <div>SubTopicPage</div>
 }
