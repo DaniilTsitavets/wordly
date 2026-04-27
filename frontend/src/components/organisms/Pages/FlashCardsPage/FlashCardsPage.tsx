@@ -1,9 +1,16 @@
 import { Card } from '@/components/molecules/Card/Card'
 import testImg from '@/assets/test_img/test_img2.jpg'
+import { ProgressBar } from '@/components/atoms/ProgressBar'
+import { Button } from '@/components/atoms/Button'
+import { IconFont } from '@/components/atoms/IconFont'
+import styles from './FlashCardsPage.module.scss'
 
 export const FlashCardsPage = () => {
   return (
     <>
+    <section className={styles.container}>
+      <ProgressBar value={60}  />
+    <p>Card 1 of 4</p>
       <Card
         wordEn="Hello"
         transcriptionEn="hə'ləʊ"
@@ -14,16 +21,10 @@ export const FlashCardsPage = () => {
         usageExampleRu="Привет, как дела?"
       />
 
-      <Card
-        wordEn="Ship"
-        transcriptionEn="ʃɪp"
-        translationRu="Корабль"
-        imageUrl={testImg}
-        hasMnemonic={true}
-        mnemonicText="Представь себе корабль с шипами"
-        usageExampleEn="The ship is heading to London."
-        usageExampleRu="Корабль направляется в Лондон."
-      />
+      <Button size="md" variant='gradient'>Next <IconFont name="arrow-right" size={14} /></Button>
+    </section>
+    
+
     </>
   )
 }
