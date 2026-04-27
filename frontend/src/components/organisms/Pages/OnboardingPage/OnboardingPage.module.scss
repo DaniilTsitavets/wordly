@@ -1,0 +1,15 @@
+.page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f3f5f9;
+}
+
+.error {
+  margin-top: 12px;
+  color: #d33;
+  font-size: 14px;
+  text-align: center;
+}
