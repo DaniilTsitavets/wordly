@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { TopicDetailResponse, SubtopicApi } from '../types/types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { getTopicSubtopicIds, getSubtopicsBatch } from '@/api/topics'
+import type { SubtopicApi } from '../types/types'
 
 export function useTopicDetail(topicId: number): {
   subtopics: SubtopicApi[] | null
@@ -13,25 +12,20 @@ export function useTopicDetail(topicId: number): {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchTopicDetail = async () => {
+    const fetchSubtopics = async () => {
       try {
         setIsLoading(true)
-
-        const response = await fetch(`${API_BASE_URL}/topics/${topicId}`)
-        if (!response.ok) {
-          throw new Error(`Failed to fetch topic ${topicId}: ${response.statusText}`)
-        }
-
-        const data: TopicDetailResponse = await response.json()
-        setSubtopics(data.subtopics)
-      } catch (error) {
-        setError((error as Error).message)
+        const ids = await getTopicSubtopicIds(topicId)
+        const data = await getSubtopicsBatch(ids)
+        setSubtopics(data)
+      } catch (err) {
+        setError((err as Error).message)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchTopicDetail()
+    fetchSubtopics()
   }, [topicId])
 
   return { subtopics, isLoading, error }

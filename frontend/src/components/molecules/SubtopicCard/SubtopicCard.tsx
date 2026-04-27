@@ -20,6 +20,7 @@ export function SubtopicCard({
   description,
   wordCount,
   topicTitle,
+  status,
   themeIndex,
 }: SubtopicCardProps) {
   const navigate = useNavigate()
@@ -28,9 +29,18 @@ export function SubtopicCard({
     CARD_THEMES[
       ((resolvedThemeIndex % CARD_THEMES.length) + CARD_THEMES.length) % CARD_THEMES.length
     ]
+  const isLocked = status === 'locked'
 
   return (
-    <section className={`${styles.card} ${styles[`card--${activeTheme}`]}`}>
+    <section
+      className={`${styles.card} ${isLocked ? styles['card--locked'] : styles[`card--${activeTheme}`]}`}
+    >
+      {isLocked && (
+        <div className={styles.lockBadge} aria-label="Locked">
+          <IconFont name="lock" size={16} />
+        </div>
+      )}
+
       {imageUrl && (
         <div className={styles.image__container}>
           <img src={imageUrl} alt={`${title} illustration`} loading="lazy" decoding="async" />
@@ -51,16 +61,22 @@ export function SubtopicCard({
           <ProgressBar value={50} showValue={true} />
         </div>
 
-        <Button
-          variant="custom"
-          className={`${styles.button__start} ${styles[`button__start--${activeTheme}`]}`}
-          onClick={() => {
-            const toSlug = (url: string) => url.toLowerCase().replace(/\s+/g, '-')
-            navigate(`/${toSlug(topicTitle)}/${toSlug(title)}/${id}`)
-          }}
-        >
-          <IconFont name="play" size="1.25rem" /> Start Learning
-        </Button>
+        {isLocked ? (
+          <Button variant="custom" className={styles.button__locked} disabled>
+            <IconFont name="lock" size="1.25rem" /> Locked
+          </Button>
+        ) : (
+          <Button
+            variant="custom"
+            className={`${styles.button__start} ${styles[`button__start--${activeTheme}`]}`}
+            onClick={() => {
+              const toSlug = (url: string) => url.toLowerCase().replace(/\s+/g, '-')
+              navigate(`/${toSlug(topicTitle)}/${toSlug(title)}/${id}`)
+            }}
+          >
+            <IconFont name="play" size="1.25rem" /> Start Learning
+          </Button>
+        )}
       </div>
     </section>
   )

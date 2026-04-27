@@ -18,7 +18,7 @@ export const routesConfig: IRoute[] = [
     path: '/:topic/:subtopic/:subtopicId',
     element: <SubTopicPage />,
     isProtected: false,
-  }
+  },
 ]
 
 export type { IRoute }
