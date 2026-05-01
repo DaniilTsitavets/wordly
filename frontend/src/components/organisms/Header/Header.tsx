@@ -12,6 +12,7 @@ interface HeaderAuthProps {
   gems?: number
   onLogout: () => void
   onProfileClick?: () => void
+  onVocabularyClick?: () => void
   avatarSrc?: string
   onLoginClick?: never
   className?: string
@@ -77,9 +78,14 @@ export const Header = (props: HeaderProps) => {
           <span className={styles.divider} aria-hidden="true" />
 
           <div className={styles.navIcons}>
-            <button className={styles.navBtn} aria-label="Books">
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="Vocabulary"
+              onClick={props.onVocabularyClick}
+            >
               <IconFont name="book-colored" />
-              <span className={styles.tooltip}>Books</span>
+              <span className={styles.tooltip}>Vocabulary</span>
             </button>
             <button className={styles.navBtn} aria-label="Recall">
               <IconFont name="brain" />

@@ -58,6 +58,7 @@ export function Layout() {
             gems={user?.gems ?? 0}
             onLogout={handleLogout}
             onProfileClick={() => navigate('/profile')}
+            onVocabularyClick={() => navigate('/vocabulary')}
           />
         ) : (
           <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />

@@ -1,0 +1,216 @@
+@use '../../../../styles/index' as *;
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.backButton {
+  position: absolute;
+  left: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-neutral-dark;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.totalCard {
+  background: $color-white;
+  border: 1px solid $color-neutral-gray-light;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.totalHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.totalTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.totalSubtitle {
+  font-size: 13px;
+  color: $color-neutral-text-muted;
+  margin: 0;
+  padding-left: 28px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.listItem {
+  margin: 0;
+}
+
+.card {
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cardBlue {
+  background: #cdeafe;
+}
+
+.cardYellow {
+  background: #fff8d3;
+}
+
+.cardPink {
+  background: #fbcedf;
+}
+
+.cardGreen {
+  background: #c5f0c0;
+}
+
+.cardMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardHeading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wordEn {
+  font-size: 18px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+}
+
+.wordRu {
+  font-size: 14px;
+  color: $color-neutral-text-secondary;
+}
+
+.transcription {
+  font-size: 13px;
+  color: $color-neutral-text-muted;
+  margin: 0;
+  font-style: italic;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: $color-neutral-text-secondary;
+  margin-top: 2px;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cardAside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.reviewBadge {
+  background: rgba(102, 49, 219, 0.12);
+  color: $color-primary;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.intervalLabel {
+  font-size: 12px;
+  color: $color-neutral-text-secondary;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
+.error {
+  color: $color-error;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 560px) {
+  .header {
+    justify-content: flex-start;
+    padding-left: 40px;
+  }
+
+  .card {
+    flex-direction: column;
+  }
+
+  .cardAside {
+    flex-direction: row;
+    align-items: center;
+    align-self: flex-start;
+  }
+}
