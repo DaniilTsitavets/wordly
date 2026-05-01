@@ -43,4 +43,10 @@ public class UserWordState {
 
     @Column(name = "next_recall")
     private LocalDate nextRecall;
+
+    @Column(name = "session_date")
+    private LocalDate sessionDate;
+
+    @Column(name = "session_correct")
+    private Boolean sessionCorrect;
 }

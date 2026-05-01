@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +28,6 @@ public class RecallService {
 
     private final UserWordStateRepository userWordStateRepository;
     private final UserRepository userRepository;
-
-    // Tracks [correct, failed] counts per user session in memory
-    private final ConcurrentHashMap<Long, int[]> sessionStats = new ConcurrentHashMap<>();
 
     @Transactional(readOnly = true)
     public RecallWordsResponse getRecallWords(Long userId) {
@@ -57,29 +53,38 @@ public class RecallService {
         } else {
             resetInterval(state);
         }
+        state.setSessionDate(LocalDate.now());
+        state.setSessionCorrect(isCorrect);
         userWordStateRepository.save(state);
-
-        sessionStats.compute(userId, (id, arr) -> {
-            if (arr == null) arr = new int[2];
-            if (isCorrect) arr[0]++; else arr[1]++;
-            return arr;
-        });
 
         return new AnswerResultResponse(wordId, isCorrect, word.getWordEn());
     }
 
     @Transactional
     public RecallCompleteResponse completeRecall(Long userId) {
-        int[] stats = sessionStats.remove(userId);
-        int correct = stats != null ? stats[0] : 0;
-        int failed = stats != null ? stats[1] : 0;
+        List<UserWordState> sessionStates = userWordStateRepository
+                .findByUserIdAndSessionDate(userId, LocalDate.now());
+
+        long correct = sessionStates.stream().filter(s -> Boolean.TRUE.equals(s.getSessionCorrect())).count();
+        long failed = sessionStates.stream().filter(s -> Boolean.FALSE.equals(s.getSessionCorrect())).count();
+        int total = (int) (correct + failed);
+
+        if (total == 0) {
+            return new RecallCompleteResponse(0, 0, 0, 0);
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
         user.setGems(user.getGems() + GEMS_PER_RECALL_SESSION);
         userRepository.save(user);
 
-        return new RecallCompleteResponse(correct + failed, correct, failed, GEMS_PER_RECALL_SESSION);
+        sessionStates.forEach(s -> {
+            s.setSessionDate(null);
+            s.setSessionCorrect(null);
+        });
+        userWordStateRepository.saveAll(sessionStates);
+
+        return new RecallCompleteResponse(total, (int) correct, (int) failed, GEMS_PER_RECALL_SESSION);
     }
 
     private void advanceInterval(UserWordState state) {
