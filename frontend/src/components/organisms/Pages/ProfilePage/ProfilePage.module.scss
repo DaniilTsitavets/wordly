@@ -1,0 +1,315 @@
+@use '../../../../styles/index' as *;
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.backButton {
+  position: absolute;
+  left: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-neutral-dark;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.headerCard {
+  background: $color-white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: $color-primary-light;
+  color: $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.identityText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userName {
+  font-size: 18px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.memberBadge {
+  font-size: 13px;
+  color: $color-neutral-text-muted;
+  margin: 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.statCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: $color-neutral-text-muted;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabelRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: $color-neutral-dark;
+}
+
+.editButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: $color-neutral-text-muted;
+
+  &:hover {
+    color: $color-primary;
+    background: rgba(102, 49, 219, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    color: $color-primary;
+  }
+}
+
+.fieldInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid $color-neutral-border;
+  background: $color-white;
+  font-size: 14px;
+  color: $color-text;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $color-neutral-text-placeholder;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+
+  &:read-only,
+  &:disabled {
+    background: #f9fafb;
+    color: $color-neutral-text-secondary;
+    cursor: default;
+  }
+}
+
+select.fieldInput {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='none' stroke='%236b7280' stroke-width='2' d='M1 1l5 5 5-5'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+.formError {
+  color: $color-error;
+  font-size: 13px;
+  margin: 0;
+}
+
+.formSuccess {
+  color: $color-accent-emerald;
+  font-size: 13px;
+  margin: 0;
+}
+
+.submitRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.submitBtn {
+  border-radius: 999px !important;
+  min-width: 200px;
+}
+
+.statsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dailyGoalCard {
+  background: $color-white;
+  border: 1px solid $color-neutral-gray-light;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dailyGoalHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dailyGoalTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.dailyGoalProgressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.dailyGoalLabel {
+  font-size: 14px;
+  color: $color-neutral-text-secondary;
+}
+
+.dailyGoalValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+}
+
+.changeGoalBtn {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
+.error {
+  color: $color-error;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 560px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    justify-content: flex-start;
+    padding-left: 40px;
+  }
+}
