@@ -57,6 +57,7 @@ export function Layout() {
             streak={user?.streak ?? 0}
             gems={user?.gems ?? 0}
             onLogout={handleLogout}
+            onProfileClick={() => navigate('/profile')}
           />
         ) : (
           <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />

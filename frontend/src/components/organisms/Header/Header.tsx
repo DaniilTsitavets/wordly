@@ -11,6 +11,7 @@ interface HeaderAuthProps {
   streak?: number
   gems?: number
   onLogout: () => void
+  onProfileClick?: () => void
   avatarSrc?: string
   onLoginClick?: never
   className?: string
@@ -110,9 +111,23 @@ export const Header = (props: HeaderProps) => {
               aria-expanded={menuOpen}
             />
             {menuOpen && (
-              <div className={styles.dropdownMenu}>
+              <div className={styles.dropdownMenu} role="menu">
                 <button
+                  type="button"
+                  role="menuitem"
                   className={styles.dropdownItem}
+                  onClick={() => {
+                    setMenuOpen(false)
+                    props.onProfileClick?.()
+                  }}
+                >
+                  <IconFont name="user" size={16} />
+                  Profile
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
                   onClick={() => {
                     setMenuOpen(false)
                     props.onLogout()
