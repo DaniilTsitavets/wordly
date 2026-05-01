@@ -205,17 +205,24 @@ class RecallServiceTest {
         @Test
         @DisplayName("should return session stats and award gems")
         void shouldReturnStatsAndAwardGems() {
-            Word w = word(1L, "plate");
-            UserWordState s = state(10L, w, 1, LocalDate.now());
-            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+            Word w1 = word(1L, "plate");
+            Word w2 = word(2L, "fork");
+            Word w3 = word(3L, "knife");
+            UserWordState s1 = state(10L, w1, 1, LocalDate.now());
+            UserWordState s2 = state(10L, w2, 1, LocalDate.now());
+            UserWordState s3 = state(10L, w3, 1, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s1));
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 2L)).thenReturn(Optional.of(s2));
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 3L)).thenReturn(Optional.of(s3));
+            when(userWordStateRepository.findByUserIdAndSessionDate(10L, LocalDate.now()))
+                    .thenReturn(List.of(s1, s2, s3));
 
             User user = User.builder().id(10L).gems(50).build();
             when(userRepository.findById(10L)).thenReturn(Optional.of(user));
 
-            // Submit 2 correct, 1 incorrect
             recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "wrong"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(2L, "fork"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(3L, "wrong"), 10L);
 
             RecallCompleteResponse response = recallService.completeRecall(10L);
 
@@ -228,25 +235,28 @@ class RecallServiceTest {
         }
 
         @Test
-        @DisplayName("should return zero stats when complete is called without any answers")
+        @DisplayName("should return zero stats and no gems when complete is called without any answers")
         void shouldReturnZeroStatsWithNoAnswers() {
-            User user = User.builder().id(10L).gems(20).build();
-            when(userRepository.findById(10L)).thenReturn(Optional.of(user));
+            when(userWordStateRepository.findByUserIdAndSessionDate(10L, LocalDate.now()))
+                    .thenReturn(List.of());
 
             RecallCompleteResponse response = recallService.completeRecall(10L);
 
             assertThat(response.correct()).isZero();
             assertThat(response.failed()).isZero();
             assertThat(response.totalWords()).isZero();
-            assertThat(response.gemsEarned()).isEqualTo(10);
+            assertThat(response.gemsEarned()).isZero();
         }
 
         @Test
-        @DisplayName("should clear session stats after complete so second call returns zeros")
+        @DisplayName("should clear session stats after complete so second call returns zeros and does not award gems again")
         void shouldClearSessionAfterComplete() {
             Word w = word(1L, "plate");
             UserWordState s = state(10L, w, 1, LocalDate.now());
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+            when(userWordStateRepository.findByUserIdAndSessionDate(10L, LocalDate.now()))
+                    .thenReturn(List.of(s))
+                    .thenReturn(List.of());
 
             User user = User.builder().id(10L).gems(0).build();
             when(userRepository.findById(10L)).thenReturn(Optional.of(user));
@@ -258,12 +268,21 @@ class RecallServiceTest {
 
             assertThat(secondCall.correct()).isZero();
             assertThat(secondCall.failed()).isZero();
+            assertThat(secondCall.gemsEarned()).isZero();
+            assertThat(user.getGems()).isEqualTo(10);
         }
 
         @Test
         @DisplayName("should throw NotFoundException when user does not exist")
         void shouldThrowWhenUserNotFound() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(99L, w, 1, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(99L, 1L)).thenReturn(Optional.of(s));
+            when(userWordStateRepository.findByUserIdAndSessionDate(99L, LocalDate.now()))
+                    .thenReturn(List.of(s));
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 99L);
 
             assertThatThrownBy(() -> recallService.completeRecall(99L))
                     .isInstanceOf(NotFoundException.class);
