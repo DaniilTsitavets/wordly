@@ -149,7 +149,8 @@ const makeLevels = (currentMechanic, disabled = []) =>
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
 app.post('/api/v1/auth/register', (req, res) => {
-  MOCK_USER.onboarding_completed = false;
+  const { name, surname, email } = req.body;
+  Object.assign(MOCK_USER, { name, surname, email, onboarding_completed: false });
   res.status(201).json({ access_token: FAKE_TOKEN, user: MOCK_USER });
 });
 
