@@ -3,6 +3,7 @@ import { TopicPage } from '@/components/organisms/Pages/TopicPage'
 import { SubTopicPage } from '@/components/organisms/Pages/SubTopicPage/SubTopicPage'
 import { OnboardingPage } from '@/components/organisms/Pages/OnboardingPage'
 import { ProfilePage } from '@/components/organisms/Pages/ProfilePage'
+import { VocabularyPage } from '@/components/organisms/Pages/VocabularyPage'
 
 interface IRoute {
   path: string
@@ -29,6 +30,11 @@ export const routesConfig: IRoute[] = [
   {
     path: '/profile',
     element: <ProfilePage />,
+    isProtected: false,
+  },
+  {
+    path: '/vocabulary',
+    element: <VocabularyPage />,
     isProtected: false,
   },
 ]
