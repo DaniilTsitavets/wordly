@@ -98,3 +98,6 @@ run = "docker compose --profile mock down mock"
 [tasks.health]
 description = "Check backend health endpoint"
 run = "curl -s http://localhost:8080/health"
+
+[tools]
+java = "temurin-21"

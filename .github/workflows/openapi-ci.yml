@@ -1,0 +1,25 @@
+name: OpenAPI - CI
+
+on:
+  pull_request:
+    paths:
+      - 'openapi.yaml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Spectral
+        run: npm install -g @stoplight/spectral-cli
+
+      - name: Lint OpenAPI spec
+        run: spectral lint openapi.yaml --ruleset @stoplight/spectral-oas
