@@ -785,6 +785,11 @@ components:
           type: string
         has_mnemonic:
           type: boolean
+        mnemo_description:
+          type: string
+          nullable: true
+          description: Mnemonic memory hint text. Present only when has_mnemonic is true.
+          example: ПЛЕТЁТ — тарелка плетёт узоры
 
     SessionData:
       type: object

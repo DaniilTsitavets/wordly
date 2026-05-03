@@ -125,6 +125,7 @@ const toPreview = (w) => ({
   id: w.id, word_en: w.word_en, transcription_en: w.transcription_en,
   translation_ru: w.translation_ru, image_url: w.image_url,
   has_mnemonic: w.mnemonic !== null,
+  mnemo_description: w.mnemonic ? w.mnemonic.mnemo_text : null,
 });
 
 const toSessionWord = (w, mechanic) => ({
