@@ -21,13 +21,21 @@ const isGuest = (req) => {
   return auth.includes(GUEST_TOKEN);
 };
 
-const MOCK_USER = {
+const DEFAULT_USER = {
   id: 1, name: 'Alex', surname: 'Smith', email: 'mock@test.com',
   is_guest: false, interface_language: 'ru', daily_goal_min: 10,
   notifications_enabled: true, color_theme: 'system',
   onboarding_completed: false,
   streak: 5, gems: 150,
   last_active_date: '2026-04-09', created_at: '2026-01-01T00:00:00Z',
+};
+
+const MOCK_USER = { ...DEFAULT_USER };
+let MOCK_PASSWORD = 'secret123';
+
+const resetMockUser = (overrides = {}) => {
+  Object.keys(MOCK_USER).forEach((key) => delete MOCK_USER[key]);
+  Object.assign(MOCK_USER, DEFAULT_USER, overrides);
 };
 
 // Subtopic 1 — 9 words, 6 with mnemonics → Level 0 (mnemonic_cards) active
@@ -149,12 +157,20 @@ const makeLevels = (currentMechanic, disabled = []) =>
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
 app.post('/api/v1/auth/register', (req, res) => {
-  const { name, surname, email } = req.body;
-  Object.assign(MOCK_USER, { name, surname, email, onboarding_completed: false });
+  const { name, surname, email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'email and password are required' });
+  }
+  resetMockUser({ name: name ?? '', surname: surname ?? '', email });
+  MOCK_PASSWORD = password;
   res.status(201).json({ access_token: FAKE_TOKEN, user: MOCK_USER });
 });
 
 app.post('/api/v1/auth/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (email !== MOCK_USER.email || password !== MOCK_PASSWORD) {
+    return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid credentials' });
+  }
   res.json({ access_token: FAKE_TOKEN, user: MOCK_USER });
 });
 
