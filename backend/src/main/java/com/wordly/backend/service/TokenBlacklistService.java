@@ -25,7 +25,14 @@ public class TokenBlacklistService {
     }
 
     public boolean isRevoked(String token) {
-        return revokedTokens.contains(token);
+        if (!revokedTokens.contains(token)) {
+            return false;
+        }
+        if (!jwtService.isTokenValid(token)) {
+            revokedTokens.remove(token);
+            return false;
+        }
+        return true;
     }
 
     @Scheduled(fixedRateString = "${app.token-blacklist.cleanup-interval-ms:3600000}")
