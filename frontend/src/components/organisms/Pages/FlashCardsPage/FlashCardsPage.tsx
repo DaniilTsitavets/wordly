@@ -11,7 +11,7 @@ import { completeSession } from '@/api/completeSession'
 import styles from './FlashCardsPage.module.scss'
 
 export const FlashCardsPage = () => {
-  const { subtopicId } = useParams<{ subtopicId: string }>()
+  const { subtopicId, mechanicType } = useParams<{ subtopicId: string; mechanicType: string }>()
   const navigate = useNavigate()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -55,7 +55,7 @@ export const FlashCardsPage = () => {
     if (isCompleting) return
     setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'flashcards')
+      const result = await completeSession(Number(subtopicId), mechanicType ?? 'flashcards')
       setGemsEarned(result.gems_earned)
       setShowReward(true)
     } catch {

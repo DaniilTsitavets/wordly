@@ -7,7 +7,6 @@ import type { LevelProgress } from '@/api/topics'
 import { useSubtopic } from './hooks/useSubtopic'
 import { MECHANIC_INFO } from './utils/mechanics'
 import styles from './SubTopicPage.module.scss'
-
 const DAILY_GOAL_PROGRESS_STUB = 75
 
 export function SubTopicPage() {
@@ -68,7 +67,7 @@ export function SubTopicPage() {
           imageUrl={subtopic.image_url}
           wordsCount={subtopic.words_count}
           onStart={() => {
-            // TODO: navigate to learning session once implemented
+            navigate(`/subtopics/${subtopicId}/${currentLevel.mechanic_type}`)
           }}
         />
       )}
@@ -79,7 +78,12 @@ export function SubTopicPage() {
           Learning Path
         </h2>
         {subtopic.levels.map((level, index) => (
-          <LearningPathRow key={level.mechanic_type} level={level} levelIndex={index} />
+          <LearningPathRow
+            key={level.mechanic_type}
+            level={level}
+            levelIndex={index}
+            subtopicId={subtopicId!}
+          />
         ))}
       </section>
     </div>
@@ -144,9 +148,11 @@ function CurrentLevelCard({
 interface LearningPathRowProps {
   level: LevelProgress
   levelIndex: number
+  subtopicId: string
 }
 
-function LearningPathRow({ level, levelIndex }: LearningPathRowProps) {
+function LearningPathRow({ level, levelIndex, subtopicId }: LearningPathRowProps) {
+  const navigate = useNavigate()
   const info = MECHANIC_INFO[level.mechanic_type]
   const statusClass =
     level.status === 'completed'
@@ -175,7 +181,12 @@ function LearningPathRow({ level, levelIndex }: LearningPathRowProps) {
       <div className={styles.levelAction}>
         {level.status === 'completed' && <span className={styles.statusBadge}>Completed</span>}
         {(level.status === 'in_progress' || level.status === 'unblocked') && (
-          <Button variant="gradient" size="sm" className={styles.startSmallBtn}>
+          <Button
+            variant="gradient"
+            size="sm"
+            className={styles.startSmallBtn}
+            onClick={() => navigate(`/subtopics/${subtopicId}/${level.mechanic_type}`)}
+          >
             Start
           </Button>
         )}
