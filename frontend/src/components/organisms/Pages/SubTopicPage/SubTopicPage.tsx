@@ -1,5 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { useEffect, useCallback } from 'react'
 import { Spinner } from '@/components/atoms/Spinner'
 import { IconFont } from '@/components/atoms/IconFont'
 import { Button } from '@/components/atoms/Button'
@@ -14,17 +14,29 @@ const DAILY_GOAL_PROGRESS_STUB = 75
 export function SubTopicPage() {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const id = Number(subtopicId)
   const { subtopic, isLoading, error, refetch } = useSubtopic(id)
 
-  // Refetch when returning from a completed session
-  useEffect(() => {
+  const checkSessionCompleted = useCallback(() => {
     const sessionCompleted = sessionStorage.getItem('sessionCompleted')
     if (sessionCompleted === 'true') {
       sessionStorage.removeItem('sessionCompleted')
       refetch()
     }
   }, [refetch])
+
+  useEffect(() => {
+    checkSessionCompleted()
+  }, [checkSessionCompleted, location.key])
+
+  useEffect(() => {
+    const handleFocus = () => {
+      checkSessionCompleted()
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [checkSessionCompleted])
 
   if (isLoading) {
     return (
@@ -78,15 +90,16 @@ export function SubTopicPage() {
           imageUrl={subtopic.image_url}
           wordsCount={subtopic.words_count}
           onStart={() => {
-            // Навигация на нужную механику
             if (currentLevel.mechanic_type === 'flashcards') {
               navigate(`/subtopics/${subtopic.id}/flashcards`)
             } else if (currentLevel.mechanic_type === 'mnemonic_cards') {
               navigate(`/subtopics/${subtopic.id}/mnemonic-cards`)
             } else if (currentLevel.mechanic_type === 'matching') {
               navigate(`/subtopics/${subtopic.id}/matching`)
-            } else {
-              // fallback: можно добавить другие механики
+            } else if (currentLevel.mechanic_type === 'word_builder') {
+              navigate(`/subtopics/${subtopic.id}/word-builder`)
+            } else if (currentLevel.mechanic_type === 'filling_gaps') {
+              navigate(`/subtopics/${subtopic.id}/filling-gaps`)
             }
           }}
         />
@@ -213,6 +226,10 @@ function LearningPathRow({ level, levelIndex, subtopicId }: LearningPathRowProps
                 navigate(`/subtopics/${subtopicId}/mnemonic-cards`)
               } else if (level.mechanic_type === 'matching') {
                 navigate(`/subtopics/${subtopicId}/matching`)
+              } else if (level.mechanic_type === 'word_builder') {
+                navigate(`/subtopics/${subtopicId}/word-builder`)
+              } else if (level.mechanic_type === 'filling_gaps') {
+                navigate(`/subtopics/${subtopicId}/filling-gaps`)
               }
             }}
           >
