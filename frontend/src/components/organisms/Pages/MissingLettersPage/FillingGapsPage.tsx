@@ -35,12 +35,11 @@ const createWordWithGaps = (word: string, gapRatio: number = 0.4): string => {
   return letters.map((char, index) => (indicesToHide.has(index) ? '_' : char)).join('')
 }
 
-
 const normalizeAnswer = (str: string): string => {
   return str
     .toLowerCase()
     .trim()
-    .replace(/[.,!?;:]+$/, '') 
+    .replace(/[.,!?;:]+$/, '')
 }
 
 export const FillingGapsPage = () => {
