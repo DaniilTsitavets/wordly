@@ -8,7 +8,7 @@ import { FlashCardsPage } from '@/components/organisms/Pages/FlashCardsPage'
 import { MnemonicCardsPage } from '@/components/organisms/Pages/MnemonicCardsPage'
 import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPage/WordsMatchingPage'
 import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
-import { FillingGapsPage } from '@/components/organisms/Pages/MissingLettersPage/FillingGapsPage'
+import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
 
 interface IRoute {
   path: string

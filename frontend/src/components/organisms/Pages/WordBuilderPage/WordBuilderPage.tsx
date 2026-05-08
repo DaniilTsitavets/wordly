@@ -122,6 +122,10 @@ export const WordBuilderPage = () => {
     navigate(-1)
   }, [navigate])
 
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
   if (isLoading) {
     return <div className={styles.centered}>Loading...</div>
   }
@@ -136,8 +140,13 @@ export const WordBuilderPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.progressContainer}>
-        <ProgressBar value={progress} color="purple" size="sm" />
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <div className={styles.progressContainer}>
+          <ProgressBar value={progress} color="purple" size="sm" />
+        </div>
       </div>
 
       <div className={styles.imageContainer}>

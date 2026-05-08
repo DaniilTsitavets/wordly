@@ -6,6 +6,7 @@ import { completeSession } from '@/api/completeSession'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
+import { IconFont } from '@/components/atoms/IconFont'
 
 const PAIRS_PER_PAGE = 4
 
@@ -139,16 +140,20 @@ export const WordsMatchingPage = () => {
     }
   }, [isAllComplete, showReward, isCompleting, subtopicId])
 
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
+  const handleCollect = useCallback(() => {
+    setShowReward(false)
+    sessionStorage.setItem('sessionCompleted', 'true')
+    navigate(-1)
+  }, [navigate])
+
   if (isLoading) return <div className={styles.container}>Loading...</div>
   if (error) return <div className={styles.container}>Error: {error}</div>
   if (!words || words.length === 0) return <div className={styles.container}>No words found</div>
   if (!currentPage) return <div className={styles.container}>Loading...</div>
-
-  const handleCollect = () => {
-    setShowReward(false)
-    sessionStorage.setItem('sessionCompleted', 'true')
-    navigate(-1)
-  }
 
   const progress = (matched.length / words.length) * 100
 
@@ -172,7 +177,12 @@ export const WordsMatchingPage = () => {
 
   return (
     <div className={styles.container}>
-      <ProgressBar value={progress} className={styles.progressBar} color="purple" />
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <ProgressBar value={progress} className={styles.progressBar} color="purple" />
+      </div>
       <div className={styles.heading}>
         <h2 className={styles.title}>Match the words with translations</h2>
         <p className={styles.matchedAmount}>

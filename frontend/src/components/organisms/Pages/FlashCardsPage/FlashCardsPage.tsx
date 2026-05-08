@@ -71,9 +71,18 @@ export const FlashCardsPage = () => {
     navigate(-1)
   }
 
+  const handleBack = () => {
+    navigate(-1)
+  }
+
   return (
     <section className={styles.container}>
-      <ProgressBar value={progress} />
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <ProgressBar value={progress} />
+      </div>
       <p>{`Card ${currentIndex + 1} of ${words.length}`}</p>
 
       <Card
