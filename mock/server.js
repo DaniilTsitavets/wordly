@@ -136,15 +136,38 @@ const toSessionWord = (w, mechanic) => ({
   mnemonic: mechanic === 'mnemonic_cards' ? w.mnemonic : null,
 });
 
-const MECHANICS = ['mnemonic_cards', 'flashcards', 'matching', 'filling_gaps', 'word_builder'];
+const MECHANICS = ['mnemonic_cards', 'flashcards', 'matching', 'word_builder', 'filling_gaps'];
 
-const makeLevels = (currentMechanic, disabled = []) =>
-  MECHANICS.filter(m => !disabled.includes(m)).map((m, i, arr) => ({
+// Track current mechanic per subtopic (in-memory state)
+const subtopicProgress = {
+  1: 'word_builder', // subtopic 1 - set to word_builder for testing
+  2: 'flashcards',   // subtopic 2 starts with flashcards (mnemonic_cards disabled)
+};
+
+const makeLevels = (currentMechanic, disabled = []) => {
+  const available = MECHANICS.filter(m => !disabled.includes(m));
+  
+  // If currentMechanic is null, all are completed
+  if (!currentMechanic) {
+    return available.map(m => ({
+      mechanic_type: m,
+      status: 'completed',
+      started_at: '2026-04-09T10:00:00Z',
+      completed_at: '2026-04-09T11:00:00Z',
+    }));
+  }
+  
+  const currentIdx = available.indexOf(currentMechanic);
+  
+  return available.map((m, i) => ({
     mechanic_type: m,
-    status: m === currentMechanic ? 'in_progress' : i < arr.indexOf(currentMechanic) ? 'completed' : 'locked',
-    started_at: m === currentMechanic ? '2026-04-09T10:00:00Z' : null,
-    completed_at: null,
+    status: i < currentIdx ? 'completed' 
+          : i === currentIdx ? 'in_progress'
+          : 'locked',  // All levels after current are locked
+    started_at: i <= currentIdx ? '2026-04-09T10:00:00Z' : null,
+    completed_at: i < currentIdx ? '2026-04-09T11:00:00Z' : null,
   }));
+};
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
@@ -220,17 +243,18 @@ app.post('/api/v1/subtopics/batch', (req, res) => {
 
 app.get('/api/v1/subtopics/:id', (req, res) => {
   const id = parseInt(req.params.id);
+  const currentMechanic = subtopicProgress[id];
   if (id === 1) return res.json({
     id: 1, name: 'Кухонная утварь', description: 'Посуда и кухонные принадлежности',
     image_url: 'https://placehold.co/400x300?text=Kitchen',
     words_count: 9, disabled_mechanics: [],
-    levels: makeLevels('mnemonic_cards'),
+    levels: makeLevels(currentMechanic || 'mnemonic_cards'),
   });
   if (id === 2) return res.json({
     id: 2, name: 'Продукты питания', description: 'Базовые продукты из магазина',
     image_url: 'https://placehold.co/400x300?text=Groceries',
     words_count: 9, disabled_mechanics: ['mnemonic_cards'],
-    levels: makeLevels('flashcards', ['mnemonic_cards']),
+    levels: makeLevels(currentMechanic || 'flashcards', ['mnemonic_cards']),
   });
   res.status(404).json({ code: 'NOT_FOUND', message: 'Subtopic not found' });
 });
@@ -266,9 +290,26 @@ app.post('/api/v1/subtopics/:id/session/answer', (req, res) => {
 });
 
 app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
+  const id = parseInt(req.params.id);
   const { mechanic_type } = req.body;
-  const idx = MECHANICS.indexOf(mechanic_type);
-  const next = idx >= 0 && idx < MECHANICS.length - 1 ? MECHANICS[idx + 1] : null;
+  
+  // Get disabled mechanics for this subtopic
+  const disabled = id === 2 ? ['mnemonic_cards'] : [];
+  const availableMechanics = MECHANICS.filter(m => !disabled.includes(m));
+  
+  const idx = availableMechanics.indexOf(mechanic_type);
+  const next = idx >= 0 && idx < availableMechanics.length - 1 ? availableMechanics[idx + 1] : null;
+  
+  // Update progress to next mechanic
+  if (next) {
+    subtopicProgress[id] = next;
+    console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}`);
+  } else {
+    // All mechanics completed - mark as done (could set to null or keep last)
+    subtopicProgress[id] = null;
+    console.log(`Subtopic ${id}: completed all mechanics!`);
+  }
+  
   res.json({ mechanic_type, gems_earned: 5, next_mechanic: next, subtopic_completed: next === null });
 });
 
