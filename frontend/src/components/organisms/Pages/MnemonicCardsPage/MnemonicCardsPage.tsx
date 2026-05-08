@@ -8,17 +8,20 @@ import { IconFont } from '@/components/atoms/IconFont'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
-import styles from './FlashCardsPage.module.scss'
+import styles from './MnemonicCardsPage.module.scss'
 
-export const FlashCardsPage = () => {
+export const MnemonicCardsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const { words, isLoading, error } = useWords(Number(subtopicId))
+  const { words: allWords, isLoading, error } = useWords(Number(subtopicId))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
   const [isCompleting, setIsCompleting] = useState(false)
+
+  // Filter only words with mnemonic
+  const words = allWords?.filter((w) => w.has_mnemonic) ?? []
 
   if (isLoading) {
     return <div className={styles.centered}>Loading...</div>
@@ -29,7 +32,7 @@ export const FlashCardsPage = () => {
   }
 
   if (!words || words.length === 0) {
-    return <div className={styles.centered}>No words found</div>
+    return <div className={styles.centered}>No mnemonic words found</div>
   }
 
   const word = words[currentIndex]
@@ -55,7 +58,7 @@ export const FlashCardsPage = () => {
     if (isCompleting) return
     setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'flashcards')
+      const result = await completeSession(Number(subtopicId), 'mnemonic_cards')
       setGemsEarned(result.gems_earned)
       setShowReward(true)
     } catch {
@@ -82,8 +85,8 @@ export const FlashCardsPage = () => {
         transcriptionEn={word.transcription_en}
         translationRu={word.translation_ru}
         imageUrl={word.image_url || testImg}
-        hasMnemonic={false}
-        mnemonicText={undefined}
+        hasMnemonic={true}
+        mnemonicText={word.mnemonic_text}
         usageExampleEn={word.usage_example_en}
         usageExampleRu={word.usage_example_ru}
         isFlipped={isCardFlipped}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getSubtopic } from '@/api/topics'
 import type { SubtopicDetail } from '@/api/topics'
 
@@ -6,10 +6,16 @@ export function useSubtopic(subtopicId: number): {
   subtopic: SubtopicDetail | null
   isLoading: boolean
   error: string | null
+  refetch: () => void
 } {
   const [subtopic, setSubtopic] = useState<SubtopicDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const refetch = useCallback(() => {
+    setRefreshKey((k) => k + 1)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -29,7 +35,7 @@ export function useSubtopic(subtopicId: number): {
     return () => {
       cancelled = true
     }
-  }, [subtopicId])
+  }, [subtopicId, refreshKey])
 
-  return { subtopic, isLoading, error }
+  return { subtopic, isLoading, error, refetch }
 }

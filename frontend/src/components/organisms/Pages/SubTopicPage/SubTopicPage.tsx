@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Spinner } from '@/components/atoms/Spinner'
 import { IconFont } from '@/components/atoms/IconFont'
 import { Button } from '@/components/atoms/Button'
@@ -14,7 +15,16 @@ export function SubTopicPage() {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
   const id = Number(subtopicId)
-  const { subtopic, isLoading, error } = useSubtopic(id)
+  const { subtopic, isLoading, error, refetch } = useSubtopic(id)
+
+  // Refetch when returning from a completed session
+  useEffect(() => {
+    const sessionCompleted = sessionStorage.getItem('sessionCompleted')
+    if (sessionCompleted === 'true') {
+      sessionStorage.removeItem('sessionCompleted')
+      refetch()
+    }
+  }, [refetch])
 
   if (isLoading) {
     return (
@@ -68,7 +78,16 @@ export function SubTopicPage() {
           imageUrl={subtopic.image_url}
           wordsCount={subtopic.words_count}
           onStart={() => {
-            // TODO: navigate to learning session once implemented
+            // Навигация на нужную механику
+            if (currentLevel.mechanic_type === 'flashcards') {
+              navigate(`/subtopics/${subtopic.id}/flashcards`)
+            } else if (currentLevel.mechanic_type === 'mnemonic_cards') {
+              navigate(`/subtopics/${subtopic.id}/mnemonic-cards`)
+            } else if (currentLevel.mechanic_type === 'matching') {
+              navigate(`/subtopics/${subtopic.id}/matching`)
+            } else {
+              // fallback: можно добавить другие механики
+            }
           }}
         />
       )}
@@ -79,7 +98,12 @@ export function SubTopicPage() {
           Learning Path
         </h2>
         {subtopic.levels.map((level, index) => (
-          <LearningPathRow key={level.mechanic_type} level={level} levelIndex={index} />
+          <LearningPathRow
+            key={level.mechanic_type}
+            level={level}
+            levelIndex={index}
+            subtopicId={subtopic.id}
+          />
         ))}
       </section>
     </div>
@@ -144,9 +168,10 @@ function CurrentLevelCard({
 interface LearningPathRowProps {
   level: LevelProgress
   levelIndex: number
+  subtopicId: number
 }
 
-function LearningPathRow({ level, levelIndex }: LearningPathRowProps) {
+function LearningPathRow({ level, levelIndex, subtopicId }: LearningPathRowProps) {
   const info = MECHANIC_INFO[level.mechanic_type]
   const statusClass =
     level.status === 'completed'
@@ -154,6 +179,8 @@ function LearningPathRow({ level, levelIndex }: LearningPathRowProps) {
       : level.status === 'in_progress' || level.status === 'unblocked'
         ? styles.inProgress
         : styles.locked
+
+  const navigate = useNavigate()
 
   return (
     <div className={`${styles.levelRow} ${statusClass}`}>
@@ -175,7 +202,20 @@ function LearningPathRow({ level, levelIndex }: LearningPathRowProps) {
       <div className={styles.levelAction}>
         {level.status === 'completed' && <span className={styles.statusBadge}>Completed</span>}
         {(level.status === 'in_progress' || level.status === 'unblocked') && (
-          <Button variant="gradient" size="sm" className={styles.startSmallBtn}>
+          <Button
+            variant="gradient"
+            size="sm"
+            className={styles.startSmallBtn}
+            onClick={() => {
+              if (level.mechanic_type === 'flashcards') {
+                navigate(`/subtopics/${subtopicId}/flashcards`)
+              } else if (level.mechanic_type === 'mnemonic_cards') {
+                navigate(`/subtopics/${subtopicId}/mnemonic-cards`)
+              } else if (level.mechanic_type === 'matching') {
+                navigate(`/subtopics/${subtopicId}/matching`)
+              }
+            }}
+          >
             Start
           </Button>
         )}

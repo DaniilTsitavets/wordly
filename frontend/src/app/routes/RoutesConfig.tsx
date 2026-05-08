@@ -4,6 +4,9 @@ import { SubTopicPage } from '@/components/organisms/Pages/SubTopicPage/SubTopic
 import { OnboardingPage } from '@/components/organisms/Pages/OnboardingPage'
 import { ProfilePage } from '@/components/organisms/Pages/ProfilePage'
 import { VocabularyPage } from '@/components/organisms/Pages/VocabularyPage'
+import { FlashCardsPage } from '@/components/organisms/Pages/FlashCardsPage'
+import { MnemonicCardsPage } from '@/components/organisms/Pages/MnemonicCardsPage'
+import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPage/WordsMatchingPage'
 
 interface IRoute {
   path: string
@@ -35,6 +38,21 @@ export const routesConfig: IRoute[] = [
   {
     path: '/vocabulary',
     element: <VocabularyPage />,
+    isProtected: false,
+  },
+  {
+    path: '/subtopics/:subtopicId/matching',
+    element: <WordsMatchingPage />,
+    isProtected: false,
+  },
+  {
+    path: '/subtopics/:subtopicId/flashcards',
+    element: <FlashCardsPage />,
+    isProtected: false,
+  },
+  {
+    path: '/subtopics/:subtopicId/mnemonic-cards',
+    element: <MnemonicCardsPage />,
     isProtected: false,
   },
 ]
