@@ -20,6 +20,26 @@
         3 #ffffff,
         4 #ffffff;
 }
+
+@font-palette-values --paletteGreen {
+    font-family: "WordlyIcons";
+    override-colors:
+        0 #1db881,
+        1 #1db881,
+        2 #1db881,
+        3 #1db881,
+        4 #1db881;
+}
+
+@font-palette-values --paletteRed {
+    font-family: "WordlyIcons";
+    override-colors:
+        0 #fb2c36,
+        1 #fb2c36,
+        2 #fb2c36,
+        3 #fb2c36,
+        4 #fb2c36;
+}
 .icon {
     /* Use !important to prevent extensions from overriding this font. */
     font-family: "WordlyIcons" !important;

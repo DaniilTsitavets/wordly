@@ -212,12 +212,12 @@ export const WordBuilderPage = () => {
         >
           {answerState === 'correct' ? (
             <>
-              <IconFont name="tick3" size={24} />
+              <IconFont name="filled-tick" size={24} />
               <span>Correct!</span>
             </>
           ) : (
             <>
-              <IconFont name="cross2" size={24} />
+              <IconFont name="cross" size={24} color="#fb2c36" />
               <span>Try Again</span>
             </>
           )}
