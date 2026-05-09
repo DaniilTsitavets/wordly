@@ -59,6 +59,7 @@ export function Layout() {
             onLogout={handleLogout}
             onProfileClick={() => navigate('/profile')}
             onVocabularyClick={() => navigate('/vocabulary')}
+            onRecallClick={() => navigate('/recall')}
           />
         ) : (
           <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />
