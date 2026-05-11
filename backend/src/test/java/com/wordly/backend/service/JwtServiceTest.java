@@ -1,5 +1,6 @@
 package com.wordly.backend.service;
 
+import com.wordly.backend.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,22 +23,33 @@ class JwtServiceTest {
 
     @Test
     void generateAndValidate_regularUser() {
-        String token = jwtService.generateToken(42L, false);
+        String token = jwtService.generateToken(42L, false, Role.USER);
         System.out.println("USER token: " + token);
 
         assertThat(jwtService.isTokenValid(token)).isTrue();
         assertThat(jwtService.extractUserId(token)).isEqualTo(42L);
         assertThat(jwtService.extractIsGuest(token)).isFalse();
+        assertThat(jwtService.extractRole(token)).isEqualTo(Role.USER);
     }
 
     @Test
     void generateAndValidate_guest() {
-        String token = jwtService.generateToken(99L, true);
+        String token = jwtService.generateToken(99L, true, Role.USER);
         System.out.println("GUEST token: " + token);
 
         assertThat(jwtService.isTokenValid(token)).isTrue();
         assertThat(jwtService.extractUserId(token)).isEqualTo(99L);
         assertThat(jwtService.extractIsGuest(token)).isTrue();
+    }
+
+    @Test
+    void generateAndValidate_admin() {
+        String token = jwtService.generateToken(7L, false, Role.ADMIN);
+
+        assertThat(jwtService.isTokenValid(token)).isTrue();
+        assertThat(jwtService.extractUserId(token)).isEqualTo(7L);
+        assertThat(jwtService.extractIsGuest(token)).isFalse();
+        assertThat(jwtService.extractRole(token)).isEqualTo(Role.ADMIN);
     }
 
     @Test
@@ -52,7 +64,7 @@ class JwtServiceTest {
                 "dev-secret-change-in-production-min-32-chars",
                 -1000L
         );
-        String token = shortLived.generateToken(1L, false);
+        String token = shortLived.generateToken(1L, false, Role.USER);
         assertThat(shortLived.isTokenValid(token)).isFalse();
     }
 

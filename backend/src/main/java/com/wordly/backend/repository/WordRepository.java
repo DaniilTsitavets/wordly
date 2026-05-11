@@ -12,4 +12,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     boolean existsBySubtopicIdAndMnemonicImageUrlIsNotNull(Long subtopicId);
 
     boolean existsBySubtopicIdAndMnemoTextIsNotNull(Long subtopicId);
+
+    long countBySubtopicId(Long subtopicId);
 }

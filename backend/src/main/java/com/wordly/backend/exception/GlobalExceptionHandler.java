@@ -2,6 +2,7 @@ package com.wordly.backend.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -76,6 +77,16 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleNotReadable(HttpMessageNotReadableException ex) {
         log.warn("Malformed request body: {}", ex.getMessage());
         return new ErrorResponse("BAD_REQUEST", "Request body is missing or malformed");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDataIntegrity(DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation: {}", ex.getMostSpecificCause().getMessage());
+        return new ErrorResponse(
+                "CONFLICT",
+                "Operation conflicts with existing data (e.g., referenced rows or unique constraints)."
+        );
     }
 
     @ExceptionHandler(Exception.class)

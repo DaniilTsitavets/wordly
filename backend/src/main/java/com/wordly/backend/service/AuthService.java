@@ -5,6 +5,7 @@ import com.wordly.backend.dto.LoginRequest;
 import com.wordly.backend.dto.RegisterRequest;
 import com.wordly.backend.dto.UserProfileResponse;
 import com.wordly.backend.entity.User;
+import com.wordly.backend.entity.enums.Role;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class AuthService {
                 .email(normalizedEmail)
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .guest(false)
+                .role(Role.USER)
                 .build();
 
         User saved = userRepository.save(user);
@@ -70,6 +72,7 @@ public class AuthService {
     public AuthResponse loginAsGuest() {
         User guest = User.builder()
                 .guest(true)
+                .role(Role.USER)
                 .build();
 
         User saved = userRepository.save(guest);
@@ -89,7 +92,7 @@ public class AuthService {
     }
 
     private AuthResponse toAuthResponse(User user) {
-        String token = jwtService.generateToken(user.getId(), user.isGuest());
+        String token = jwtService.generateToken(user.getId(), user.isGuest(), user.getRole());
         return new AuthResponse(token, UserProfileResponse.from(user));
     }
 }

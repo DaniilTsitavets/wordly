@@ -1,5 +1,6 @@
 package com.wordly.backend.service;
 
+import com.wordly.backend.entity.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -32,10 +33,11 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(Long userId, boolean isGuest) {
+    public String generateToken(Long userId, boolean isGuest, Role role) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("isGuest", isGuest)
+                .claim("role", role == null ? Role.USER.getValue() : role.getValue())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(signingKey)
@@ -48,6 +50,18 @@ public class JwtService {
 
     public boolean extractIsGuest(String token) {
         return Boolean.TRUE.equals(parseClaims(token).get("isGuest", Boolean.class));
+    }
+
+    public Role extractRole(String token) {
+        String value = parseClaims(token).get("role", String.class);
+        if (value == null) {
+            return Role.USER;
+        }
+        try {
+            return Role.fromValue(value);
+        } catch (IllegalArgumentException e) {
+            return Role.USER;
+        }
     }
 
     public boolean isTokenValid(String token) {
