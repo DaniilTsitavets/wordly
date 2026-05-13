@@ -310,19 +310,21 @@ app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
     console.log(`Subtopic ${id}: completed all mechanics!`);
   }
   
-  res.json({ mechanic_type, gems_earned: 5, next_mechanic: next, subtopic_completed: next === null });
+  const gemsEarned = 5;
+  MOCK_USER.gems = (MOCK_USER.gems ?? 0) + gemsEarned;
+  res.json({ mechanic_type, gems_earned: gemsEarned, next_mechanic: next, subtopic_completed: next === null });
 });
 
 // ─── RECALL ──────────────────────────────────────────────────────────────────
 
 app.get('/api/v1/recall', (req, res) => {
-  res.json({
-    total: 3,
-    words: WORDS_1.slice(0, 3).map(w => ({
-      id: w.id, word_en: w.word_en, translation_ru: w.translation_ru,
-      transcription_en: w.transcription_en, recall_interval: 7,
-    })),
-  });
+  // Distribute due words across the first three intervals: 5×1d, 3×3d, 2×7d
+  const intervals = [1, 1, 1, 1, 1, 3, 3, 3, 7, 7];
+  const words = ALL_WORDS.slice(0, intervals.length).map((w, i) => ({
+    id: w.id, word_en: w.word_en, translation_ru: w.translation_ru,
+    transcription_en: w.transcription_en, recall_interval: intervals[i],
+  }));
+  res.json({ total: words.length, words });
 });
 
 app.post('/api/v1/recall/answer', (req, res) => {
@@ -333,7 +335,9 @@ app.post('/api/v1/recall/answer', (req, res) => {
 });
 
 app.post('/api/v1/recall/complete', (req, res) => {
-  res.json({ total_words: 3, correct: 2, failed: 1, gems_earned: 5 });
+  const gemsEarned = 5;
+  MOCK_USER.gems = (MOCK_USER.gems ?? 0) + gemsEarned;
+  res.json({ total_words: 3, correct: 2, failed: 1, gems_earned: gemsEarned });
 });
 
 // ─── VOCABULARY ───────────────────────────────────────────────────────────────

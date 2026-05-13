@@ -13,6 +13,7 @@ interface HeaderAuthProps {
   onLogout: () => void
   onProfileClick?: () => void
   onVocabularyClick?: () => void
+  onRecallClick?: () => void
   avatarSrc?: string
   onLoginClick?: never
   className?: string
@@ -87,7 +88,12 @@ export const Header = (props: HeaderProps) => {
               <IconFont name="book-colored" />
               <span className={styles.tooltip}>Vocabulary</span>
             </button>
-            <button className={styles.navBtn} aria-label="Recall">
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="Recall"
+              onClick={props.onRecallClick}
+            >
               <IconFont name="brain" />
               <span className={styles.tooltip}>Recall</span>
             </button>

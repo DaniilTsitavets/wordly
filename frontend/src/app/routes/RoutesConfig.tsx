@@ -4,6 +4,7 @@ import { SubTopicPage } from '@/components/organisms/Pages/SubTopicPage/SubTopic
 import { OnboardingPage } from '@/components/organisms/Pages/OnboardingPage'
 import { ProfilePage } from '@/components/organisms/Pages/ProfilePage'
 import { VocabularyPage } from '@/components/organisms/Pages/VocabularyPage'
+import { RecallPage } from '@/components/organisms/Pages/RecallPage'
 import { FlashCardsPage } from '@/components/organisms/Pages/FlashCardsPage'
 import { MnemonicCardsPage } from '@/components/organisms/Pages/MnemonicCardsPage'
 import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPage/WordsMatchingPage'
@@ -39,6 +40,11 @@ export const routesConfig: IRoute[] = [
   {
     path: '/vocabulary',
     element: <VocabularyPage />,
+    isProtected: false,
+  },
+  {
+    path: '/recall',
+    element: <RecallPage />,
     isProtected: false,
   },
   {

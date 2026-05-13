@@ -3,6 +3,8 @@ import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
@@ -36,6 +38,7 @@ type PageType = { en: WordType[]; ru: WordType[] }
 export const WordsMatchingPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
   const [selectedRu, setSelectedRu] = useState<number | null>(null)
@@ -128,7 +131,9 @@ export const WordsMatchingPage = () => {
       const complete = async () => {
         try {
           const result = await completeSession(Number(subtopicId), 'matching')
-          setGemsEarned(result.gems_earned ?? 10)
+          const earned = result.gems_earned ?? 10
+          setGemsEarned(earned)
+          dispatch(addGems(earned))
         } catch (e) {
           console.error('Failed to complete session:', e)
         }
@@ -137,7 +142,7 @@ export const WordsMatchingPage = () => {
       }
       complete()
     }
-  }, [isAllComplete, showReward, isCompleting, subtopicId])
+  }, [isAllComplete, showReward, isCompleting, subtopicId, dispatch])
 
   if (isLoading) return <div className={styles.container}>Loading...</div>
   if (error) return <div className={styles.container}>Error: {error}</div>
