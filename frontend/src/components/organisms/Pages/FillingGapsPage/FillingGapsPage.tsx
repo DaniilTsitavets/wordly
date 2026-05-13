@@ -1,41 +1,54 @@
-import styles from './WordBuilder.module.scss'
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import styles from './FillingGapsPage.module.scss'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { Button } from '@/components/atoms/Button'
-import { LetterTile } from '@/components/atoms/LetterTile'
-import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
+import { Input } from '@/components/atoms/Input'
 import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
-import { useAppDispatch } from '@/store/hooks'
-import { addGems } from '@/store/slices/authSlice'
-import testImg from '@/assets/test_img/test_img2.jpg'
+import { RewardModal } from '@/components/molecules/RewardModal'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
 
-interface LetterItem {
-  letter: string
-  originalIndex: number
+/**
+ * Creates a word with random letters replaced by underscores
+ * @param word - The original word
+ * @param gapRatio - Ratio of letters to hide (0-1)
+ * @returns Word with gaps (underscores)
+ */
+const createWordWithGaps = (word: string, gapRatio: number = 0.4): string => {
+  const letters = word.split('')
+  const letterIndices: number[] = []
+
+  letters.forEach((char, index) => {
+    if (/[a-zA-Z]/.test(char)) {
+      letterIndices.push(index)
+    }
+  })
+
+  const numGaps = Math.max(1, Math.floor(letterIndices.length * gapRatio))
+
+  const shuffled = [...letterIndices].sort(() => Math.random() - 0.5)
+  const indicesToHide = new Set(shuffled.slice(0, numGaps))
+
+  return letters.map((char, index) => (indicesToHide.has(index) ? '_' : char)).join('')
 }
 
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
+const normalizeAnswer = (str: string): string => {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:]+$/, '')
 }
 
-export const WordBuilderPage = () => {
+export const FillingGapsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
 
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [selectedIndices, setSelectedIndices] = useState<number[]>([])
+  const [userAnswer, setUserAnswer] = useState('')
   const [answerState, setAnswerState] = useState<AnswerState>('pending')
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
@@ -45,26 +58,15 @@ export const WordBuilderPage = () => {
   const isLast = currentIndex >= (words?.length ?? 0) - 1
   const progress = words?.length ? ((currentIndex + 1) / words.length) * 100 : 0
 
-  const shuffledLetters = useMemo<LetterItem[]>(() => {
-    if (!word?.word_en) return []
-    const letters = word.word_en
-      .toLowerCase()
-      .split('')
-      .map((letter, index) => ({
-        letter,
-        originalIndex: index,
-      }))
-    return shuffleArray(letters)
+  const wordWithGaps = useMemo(() => {
+    if (!word?.word_en) return ''
+    return createWordWithGaps(word.word_en)
   }, [word?.word_en])
 
   useEffect(() => {
-    setSelectedIndices([])
+    setUserAnswer('')
     setAnswerState('pending')
   }, [currentIndex])
-
-  const currentAnswer = useMemo(() => {
-    return selectedIndices.map((idx) => shuffledLetters[idx]?.letter || '').join('')
-  }, [selectedIndices, shuffledLetters])
 
   const handleSpeak = useCallback(() => {
     if ('speechSynthesis' in window && word?.word_en) {
@@ -74,30 +76,16 @@ export const WordBuilderPage = () => {
     }
   }, [word?.word_en])
 
-  const handleLetterClick = useCallback(
-    (shuffledIndex: number) => {
-      if (selectedIndices.includes(shuffledIndex)) return
-      setSelectedIndices((prev) => [...prev, shuffledIndex])
-      setAnswerState('pending')
-    },
-    [selectedIndices]
-  )
-
-  const handleAnswerLetterClick = useCallback((position: number) => {
-    setSelectedIndices((prev) => prev.filter((_, idx) => idx !== position))
-    setAnswerState('pending')
-  }, [])
-
   const handleReset = useCallback(() => {
-    setSelectedIndices([])
+    setUserAnswer('')
     setAnswerState('pending')
   }, [])
 
   const handleCheckAnswer = useCallback(() => {
     if (!word?.word_en) return
-    const isCorrect = currentAnswer.toLowerCase() === word.word_en.toLowerCase()
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(word.word_en)
     setAnswerState(isCorrect ? 'correct' : 'incorrect')
-  }, [currentAnswer, word?.word_en])
+  }, [userAnswer, word?.word_en])
 
   const handleNextWord = useCallback(() => {
     if (!isLast) {
@@ -109,22 +97,31 @@ export const WordBuilderPage = () => {
     if (isCompleting) return
     setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'word_builder')
+      const result = await completeSession(Number(subtopicId), 'missing_letters')
       setGemsEarned(result.gems_earned)
-      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
     } finally {
       setIsCompleting(false)
     }
-  }, [isCompleting, subtopicId, dispatch])
+  }, [isCompleting, subtopicId])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)
     sessionStorage.setItem('sessionCompleted', 'true')
     navigate(-1)
   }, [navigate])
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUserAnswer(e.target.value)
+      if (answerState !== 'pending') {
+        setAnswerState('pending')
+      }
+    },
+    [answerState]
+  )
 
   const handleBack = useCallback(() => {
     navigate(-1)
@@ -153,61 +150,27 @@ export const WordBuilderPage = () => {
         </div>
       </div>
 
-      <div className={styles.imageContainer}>
-        <img src={word.image_url || testImg} alt={word.word_en} className={styles.wordImage} />
-      </div>
-
-      <div className={styles.promptContainer}>
-        <span className={styles.promptLabel}>Translate into English:</span>
-        <div className={styles.wordContainer}>
-          <span className={styles.word}>{word.translation_ru}</span>
-          <button
-            className={styles.speakerButton}
-            onClick={handleSpeak}
-            aria-label="Listen to pronunciation"
-          >
-            <IconFont name="player" size={20} />
-          </button>
+      <div className={styles.originalWord}>
+        <div className={styles.wordPlate}>
+          <span className={styles.wordWithGaps}>{wordWithGaps}</span>
         </div>
+
+        <button
+          className={styles.speakerButton}
+          onClick={handleSpeak}
+          aria-label="Hear pronunciation"
+        >
+          <IconFont name="player" size={16} />
+          <span>Hear pronunciation</span>
+        </button>
       </div>
 
-      <div className={styles.answerPlate}>
-        {selectedIndices.length === 0 ? (
-          <span className={styles.placeholder}>Build the word from the letters below...</span>
-        ) : (
-          <div className={styles.answerLetters}>
-            {selectedIndices.map((shuffledIdx, position) => {
-              const letterItem = shuffledLetters[shuffledIdx]
-              if (!letterItem) return null
-              return (
-                <LetterTile
-                  key={`answer-${position}`}
-                  letter={letterItem.letter}
-                  state="correct"
-                  onClick={() => handleAnswerLetterClick(position)}
-                />
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Letter Tiles */}
-      <div className={styles.lettersContainer}>
-        {shuffledLetters.map((item, shuffledIdx) => {
-          const isSelected = selectedIndices.includes(shuffledIdx)
-          return (
-            <LetterTile
-              key={`letter-${shuffledIdx}`}
-              letter={item.letter}
-              state={isSelected ? 'incorrect' : 'default'}
-              onClick={() => handleLetterClick(shuffledIdx)}
-              disabled={isSelected}
-            />
-          )
-        })}
-      </div>
-
+      <Input
+        value={userAnswer}
+        onChange={handleInputChange}
+        placeholder=""
+        className={styles.answerInput}
+      />
       {answerState !== 'pending' && (
         <div
           className={`${styles.feedbackBanner} ${

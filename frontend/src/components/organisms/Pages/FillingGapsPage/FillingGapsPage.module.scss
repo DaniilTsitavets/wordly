@@ -49,53 +49,44 @@
 .progressContainer {
   flex: 1;
 }
-
-.imageContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.wordImage {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-}
-
-.promptContainer {
+.originalWord {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 3.17rem;
+  gap: 1rem;
 }
-
-.promptLabel {
-  font-size: 0.875rem;
-  color: $color-text-secondary;
-}
-
-.wordContainer {
+.wordPlate {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  padding: 1.5rem 2rem;
+  background: $color-neutral-gray-light;
+  border-radius: 1rem;
+  margin-top: 6.12rem;
+  min-width: 200px;
 }
 
-.word {
+.wordWithGaps {
   font-size: 2rem;
   font-weight: 700;
   color: $color-text;
+  letter-spacing: 0.1rem;
 }
 
 .speakerButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   background: transparent;
   color: $color-neutral-icon;
   cursor: pointer;
   border-radius: 0.5rem;
+  font-size: 0.875rem;
   transition:
     background-color 0.2s,
     color 0.2s;
@@ -106,37 +97,9 @@
   }
 }
 
-.answerPlate {
+.answerInput {
   width: 100%;
-  min-height: 80px;
-  border: 2px solid $color-neutral-gray-light;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: $color-white;
-}
-
-.placeholder {
-  font-size: 0.875rem;
-  color: $color-neutral-text-placeholder;
-  font-style: italic;
-}
-
-.answerLetters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-.lettersContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  padding: 1rem;
+  margin-bottom: 3.75rem;
 }
 
 .feedbackBanner {
@@ -163,6 +126,6 @@
 
 .buttonsContainer {
   display: flex;
-  gap: 1rem;
+  gap: 3.125rem;
   justify-content: center;
 }
