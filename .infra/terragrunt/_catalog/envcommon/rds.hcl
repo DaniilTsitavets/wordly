@@ -48,7 +48,7 @@ dependency "data" {
 # Module Input Variables
 # ----------------------------------------------------------------------------------------------------------------------
 inputs = {
-  identifier = "${local.prefix}-rds"
+  identifier = "${local.prefix}-rds-master"
 
   manage_master_user_password = false
   password                    = dependency.data.outputs.spring_datasource_password
