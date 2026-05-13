@@ -2,7 +2,7 @@
 # Terraform Module Source
 # ----------------------------------------------------------------------------------------------------------------------
 terraform {
-  source = "tfr:///terraform-aws-modules/route53/aws//.?version=6.1.0"
+  source = "tfr:///terraform-aws-modules/s3-bucket/aws?version=5.9.1"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -13,46 +13,37 @@ locals {
   region_vars      = read_terragrunt_config(find_in_parent_folders("region.hcl"))
 
   env    = local.environment_vars.locals.environment.short
-  prefix = local.environment_vars.locals.prefix
+  prefix = "${local.environment_vars.locals.prefix}-${local.region_vars.locals.aws_region_short}"
   region = local.region_vars.locals.aws_region
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-dependency "cloudfront" {
-  config_path = "${get_terragrunt_dir()}/../../cloudfront"
-  mock_outputs = {
-    cloudfront_distribution_hosted_zone_id = "AAAAAAAAAA"
-    cloudfront_distribution_domain_name    = "0000.cloudfront.net"
-  }
-}
-
-dependency "route53" {
-  config_path = "${get_terragrunt_dir()}/../../../../_shared/${local.region}/route53/${local.environment_vars.locals.app_domain}"
-
-  mock_outputs = {
-    id   = "Z0000000000ABC"
-    name = "example.com"
-  }
-}
+# No dependencies
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Module Input Variables
 # ----------------------------------------------------------------------------------------------------------------------
 inputs = {
-  create_zone = false
-  name        = dependency.route53.outputs.name
-  zone_id     = dependency.route53.outputs.id
+  bucket        = "${local.prefix}-${basename(get_terragrunt_dir())}-bucket"
+  force_destroy = false
 
-  records = {
-    frontend = {
-      name = "${local.env}"
-      type = "A"
-      alias = {
-        name    = dependency.cloudfront.outputs.cloudfront_distribution_domain_name
-        zone_id = dependency.cloudfront.outputs.cloudfront_distribution_hosted_zone_id
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+
+  object_ownership = "BucketOwnerPreferred"
+
+  # acl = "public-read"
+
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
       }
+      bucket_key_enabled = true
     }
   }
 }

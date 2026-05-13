@@ -1,12 +1,20 @@
 # ----------------------------------------------------------------------------------------------------------------------
-# Terraform Module Source
+# Find terragrunt.hcl config file
 # ----------------------------------------------------------------------------------------------------------------------
-terraform {
-  source = "tfr:///terraform-aws-modules/route53/aws//.?version=6.1.0"
+include "root" {
+  path = find_in_parent_folders("root.terragrunt.hcl")
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Local Variables
+# Include _envcommon config file for the correspondent module
+# ----------------------------------------------------------------------------------------------------------------------
+include "envcommon" {
+  path   = "${dirname(find_in_parent_folders("root.terragrunt.hcl"))}/_catalog/envcommon/s3.hcl"
+  expose = true
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Module Local Variables
 # ----------------------------------------------------------------------------------------------------------------------
 locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
@@ -14,45 +22,14 @@ locals {
 
   env    = local.environment_vars.locals.environment.short
   prefix = local.environment_vars.locals.prefix
-  region = local.region_vars.locals.aws_region
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-dependency "cloudfront" {
-  config_path = "${get_terragrunt_dir()}/../../cloudfront"
-  mock_outputs = {
-    cloudfront_distribution_hosted_zone_id = "AAAAAAAAAA"
-    cloudfront_distribution_domain_name    = "0000.cloudfront.net"
-  }
-}
-
-dependency "route53" {
-  config_path = "${get_terragrunt_dir()}/../../../../_shared/${local.region}/route53/${local.environment_vars.locals.app_domain}"
-
-  mock_outputs = {
-    id   = "Z0000000000ABC"
-    name = "example.com"
-  }
-}
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Module Input Variables
+# Module Input Variables - override if needed
 # ----------------------------------------------------------------------------------------------------------------------
-inputs = {
-  create_zone = false
-  name        = dependency.route53.outputs.name
-  zone_id     = dependency.route53.outputs.id
-
-  records = {
-    frontend = {
-      name = "${local.env}"
-      type = "A"
-      alias = {
-        name    = dependency.cloudfront.outputs.cloudfront_distribution_domain_name
-        zone_id = dependency.cloudfront.outputs.cloudfront_distribution_hosted_zone_id
-      }
-    }
-  }
-}
+# inputs = {
+# }

@@ -2,7 +2,7 @@
 # Terraform Module Source
 # ----------------------------------------------------------------------------------------------------------------------
 terraform {
-  source = "tfr:///terraform-aws-modules/route53/aws//.?version=6.1.0"
+  source = "tfr:///terraform-aws-modules/ecs/aws//modules/cluster?version=7.5.0"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -10,30 +10,21 @@ terraform {
 # ----------------------------------------------------------------------------------------------------------------------
 locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  region_vars      = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+  region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
 
   env    = local.environment_vars.locals.environment.short
-  prefix = local.environment_vars.locals.prefix
+  prefix = "${local.environment_vars.locals.prefix}-${local.region_vars.locals.aws_region_short}"
   region = local.region_vars.locals.aws_region
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-dependency "cloudfront" {
-  config_path = "${get_terragrunt_dir()}/../../cloudfront"
-  mock_outputs = {
-    cloudfront_distribution_hosted_zone_id = "AAAAAAAAAA"
-    cloudfront_distribution_domain_name    = "0000.cloudfront.net"
-  }
-}
-
-dependency "route53" {
-  config_path = "${get_terragrunt_dir()}/../../../../_shared/${local.region}/route53/${local.environment_vars.locals.app_domain}"
+dependency "asg" {
+  config_path = "${get_terragrunt_dir()}/../asg/"
 
   mock_outputs = {
-    id   = "Z0000000000ABC"
-    name = "example.com"
+    autoscaling_group_arn = "arn:aws:autoscaling:us-east-1:111111111111:autoScalingGroup:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:autoScalingGroupName/mock-asg"
   }
 }
 
@@ -41,18 +32,37 @@ dependency "route53" {
 # Module Input Variables
 # ----------------------------------------------------------------------------------------------------------------------
 inputs = {
-  create_zone = false
-  name        = dependency.route53.outputs.name
-  zone_id     = dependency.route53.outputs.id
+  name                        = "${local.prefix}-ecs-cluster"
+  create_cloudwatch_log_group = false
 
-  records = {
-    frontend = {
-      name = "${local.env}"
-      type = "A"
-      alias = {
-        name    = dependency.cloudfront.outputs.cloudfront_distribution_domain_name
-        zone_id = dependency.cloudfront.outputs.cloudfront_distribution_hosted_zone_id
+  capacity_providers = {
+    "${local.prefix}-ec2-cp" = {
+      auto_scaling_group_provider = {
+        auto_scaling_group_arn         = dependency.asg.outputs.autoscaling_group_arn
+        managed_termination_protection = "DISABLED"
+        managed_draining               = "ENABLED"
+
+        managed_scaling = {
+          maximum_scaling_step_size = 1
+          minimum_scaling_step_size = 1
+          status                    = "ENABLED"
+          target_capacity           = 100
+        }
       }
     }
   }
+
+  default_capacity_provider_strategy = {
+    "${local.prefix}-ec2-cp" = {
+      weight = 1
+      base   = 1
+    }
+  }
+
+  setting = [
+    {
+      name  = "containerInsights"
+      value = "disabled"
+    }
+  ]
 }

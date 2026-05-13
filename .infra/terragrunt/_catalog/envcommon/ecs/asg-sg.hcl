@@ -2,7 +2,7 @@
 # Terraform Module Source
 # ----------------------------------------------------------------------------------------------------------------------
 terraform {
-  source = "tfr:///terraform-aws-modules/route53/aws//.?version=6.1.0"
+  source = "tfr:///terraform-aws-modules/security-group/aws//.?version=5.3.1"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -13,27 +13,26 @@ locals {
   region_vars      = read_terragrunt_config(find_in_parent_folders("region.hcl"))
 
   env    = local.environment_vars.locals.environment.short
-  prefix = local.environment_vars.locals.prefix
+  prefix = "${local.environment_vars.locals.prefix}-${local.region_vars.locals.aws_region_short}"
   region = local.region_vars.locals.aws_region
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-dependency "cloudfront" {
-  config_path = "${get_terragrunt_dir()}/../../cloudfront"
+dependency "vpc" {
+  config_path = "${get_terragrunt_dir()}/../../vpc/"
+
   mock_outputs = {
-    cloudfront_distribution_hosted_zone_id = "AAAAAAAAAA"
-    cloudfront_distribution_domain_name    = "0000.cloudfront.net"
+    vpc_id = "vpc-11111aa1a111c1a11"
   }
 }
 
-dependency "route53" {
-  config_path = "${get_terragrunt_dir()}/../../../../_shared/${local.region}/route53/${local.environment_vars.locals.app_domain}"
+dependency "alb" {
+  config_path = "${get_terragrunt_dir()}/../../alb/"
 
   mock_outputs = {
-    id   = "Z0000000000ABC"
-    name = "example.com"
+    security_group_id = "sg-0000000"
   }
 }
 
@@ -41,18 +40,14 @@ dependency "route53" {
 # Module Input Variables
 # ----------------------------------------------------------------------------------------------------------------------
 inputs = {
-  create_zone = false
-  name        = dependency.route53.outputs.name
-  zone_id     = dependency.route53.outputs.id
-
-  records = {
-    frontend = {
-      name = "${local.env}"
-      type = "A"
-      alias = {
-        name    = dependency.cloudfront.outputs.cloudfront_distribution_domain_name
-        zone_id = dependency.cloudfront.outputs.cloudfront_distribution_hosted_zone_id
-      }
+  name   = "${local.prefix}-ecs-asg-sg"
+  vpc_id = dependency.vpc.outputs.vpc_id
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = "0.0.0.0/0"
     }
-  }
+  ]
 }
