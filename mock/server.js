@@ -136,11 +136,11 @@ const toSessionWord = (w, mechanic) => ({
   mnemonic: mechanic === 'mnemonic_cards' ? w.mnemonic : null,
 });
 
-const MECHANICS = ['mnemonic_cards', 'flashcards', 'matching', 'word_builder', 'filling_gaps'];
+const MECHANICS = ['mnemonic_cards', 'flashcards', 'matching', 'filling_gaps', 'word_builder'];
 
 // Track current mechanic per subtopic (in-memory state)
 const subtopicProgress = {
-  1: 'word_builder', // subtopic 1 - set to word_builder for testing
+  1: 'filling_gaps', // subtopic 1 - set to filling_gaps for testing
   2: 'flashcards',   // subtopic 2 starts with flashcards (mnemonic_cards disabled)
 };
 
