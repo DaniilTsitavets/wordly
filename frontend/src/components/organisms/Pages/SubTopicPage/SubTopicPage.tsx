@@ -199,7 +199,7 @@ function LearningPathRow({ level, levelIndex, subtopicId }: LearningPathRowProps
     <div className={`${styles.levelRow} ${statusClass}`}>
       <div className={styles.levelIcon}>
         {level.status === 'completed' ? (
-          <IconFont name="tick3" size={18} color="#16a34a" decorative />
+          <IconFont name="filled-tick" size={18} decorative />
         ) : level.status === 'locked' ? (
           <IconFont name="lock" size={16} color="#9ca3af" decorative />
         ) : (
