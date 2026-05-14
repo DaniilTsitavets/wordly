@@ -97,7 +97,7 @@ export const FillingGapsPage = () => {
     if (isCompleting) return
     setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'missing_letters')
+      const result = await completeSession(Number(subtopicId), 'filling_gaps')
       setGemsEarned(result.gems_earned)
       setShowReward(true)
     } catch {
