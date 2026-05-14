@@ -248,13 +248,13 @@ app.get('/api/v1/subtopics/:id', (req, res) => {
     id: 1, name: 'Кухонная утварь', description: 'Посуда и кухонные принадлежности',
     image_url: 'https://placehold.co/400x300?text=Kitchen',
     words_count: 9, disabled_mechanics: [],
-    levels: makeLevels(currentMechanic || 'mnemonic_cards'),
+    levels: makeLevels(id in subtopicProgress ? currentMechanic : 'mnemonic_cards'),
   });
   if (id === 2) return res.json({
     id: 2, name: 'Продукты питания', description: 'Базовые продукты из магазина',
     image_url: 'https://placehold.co/400x300?text=Groceries',
     words_count: 9, disabled_mechanics: ['mnemonic_cards'],
-    levels: makeLevels(currentMechanic || 'flashcards', ['mnemonic_cards']),
+    levels: makeLevels(id in subtopicProgress ? currentMechanic : 'flashcards', ['mnemonic_cards']),
   });
   res.status(404).json({ code: 'NOT_FOUND', message: 'Subtopic not found' });
 });
@@ -298,7 +298,10 @@ app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
   const availableMechanics = MECHANICS.filter(m => !disabled.includes(m));
   
   const idx = availableMechanics.indexOf(mechanic_type);
-  const next = idx >= 0 && idx < availableMechanics.length - 1 ? availableMechanics[idx + 1] : null;
+  if (idx < 0) {
+    return res.status(400).json({ code: 'BAD_REQUEST', message: `Unknown mechanic: ${mechanic_type}` });
+  }
+  const next = idx < availableMechanics.length - 1 ? availableMechanics[idx + 1] : null;
   
   // Update progress to next mechanic
   if (next) {
