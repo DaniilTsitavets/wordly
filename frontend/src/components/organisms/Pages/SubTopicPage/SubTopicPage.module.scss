@@ -1,0 +1,317 @@
+@use '../../../../styles/index' as *;
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.backButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-neutral-dark;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.titleBlock {
+  flex: 1;
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ec4899;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+}
+
+.description {
+  font-size: 15px;
+  color: $color-neutral-text-secondary;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 480px;
+}
+
+.dailyGoal {
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1.5px solid #f3e8ff;
+  border-radius: 16px;
+  padding: 14px 18px;
+  min-width: 220px;
+}
+
+.dailyGoalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.dailyGoalLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-neutral-dark;
+}
+
+.dailyGoalValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #84cc16;
+}
+
+.currentLevelCard {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.currentLevelText {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.levelTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ec4899;
+}
+
+.levelTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.levelDescription {
+  font-size: 14px;
+  color: $color-neutral-text-secondary;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.startBtn {
+  align-self: flex-start;
+  border-radius: 999px !important;
+  margin-top: 8px;
+}
+
+.imageWrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: #f3f4f6;
+  transform: rotate(2deg);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cardsBadge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-neutral-dark;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pathSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pathTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0 0 4px 0;
+}
+
+.levelRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  border-left: 4px solid transparent;
+
+  &.completed {
+    background: #f3f4f6;
+    border-left-color: #84cc16;
+  }
+
+  &.inProgress {
+    border-left-color: #ec4899;
+  }
+
+  &.locked {
+    background: #fafafa;
+    border-left-color: #d1d5db;
+    color: #9ca3af;
+  }
+}
+
+.levelIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fce7f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .locked & {
+    background: #e5e7eb;
+  }
+
+  .completed & {
+    background: #dcfce7;
+  }
+}
+
+.levelInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.levelName {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0 0 2px 0;
+
+  .locked & {
+    color: #9ca3af;
+  }
+}
+
+.levelDesc {
+  font-size: 13px;
+  color: $color-neutral-text-muted;
+  margin: 0;
+}
+
+.levelAction {
+  flex-shrink: 0;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.lockedText {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.startSmallBtn {
+  border-radius: 999px !important;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
+.error {
+  color: #d33;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 720px) {
+  .topRow {
+    flex-direction: column;
+  }
+
+  .currentLevelCard {
+    grid-template-columns: 1fr;
+  }
+
+  .dailyGoal {
+    width: 100%;
+  }
+}

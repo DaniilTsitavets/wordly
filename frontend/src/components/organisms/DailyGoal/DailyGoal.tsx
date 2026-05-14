@@ -19,11 +19,17 @@ const GOALS: GoalConfig[] = [
 ]
 
 interface DailyGoalProps {
-  onStart?: (goal: GoalOption) => void
+  onStart?: (minutes: number) => void
+  isSubmitting?: boolean
 }
 
-export const DailyGoal = ({ onStart }: DailyGoalProps) => {
+export const DailyGoal = ({ onStart, isSubmitting = false }: DailyGoalProps) => {
   const [selected, setSelected] = useState<GoalOption>('recommended')
+
+  const handleStart = () => {
+    const goal = GOALS.find((g) => g.id === selected)
+    if (goal) onStart?.(goal.minutes)
+  }
 
   return (
     <div className={styles.container}>
@@ -91,9 +97,10 @@ export const DailyGoal = ({ onStart }: DailyGoalProps) => {
         size="lg"
         className={styles.startBtn}
         rightIcon={<IconFont name="arrow-right" size={18} decorative />}
-        onClick={() => onStart?.(selected)}
+        onClick={handleStart}
+        disabled={isSubmitting}
       >
-        Let's Start!
+        {isSubmitting ? 'Saving…' : "Let's Start!"}
       </Button>
     </div>
   )

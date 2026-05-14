@@ -119,3 +119,60 @@
   display: flex;
   align-items: center;
 }
+
+.loginBtn {
+  height: 44px;
+  min-width: 110px;
+  border-radius: 3rem !important;
+}
+
+.avatarWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f5f3ff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: -2px;
+  }
+}
+
+.dropdownItemDanger {
+  color: #e53e3e;
+
+  &:hover {
+    background: #fff5f5;
+  }
+}

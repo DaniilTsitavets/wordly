@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import styles from './MatchCard.module.scss'
 
-type MatchCardState = 'default' | 'correct' | 'incorrect'
+type MatchCardState = 'default' | 'correct' | 'incorrect' | 'selected'
 
 interface MatchCardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode

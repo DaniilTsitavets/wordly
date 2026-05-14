@@ -23,16 +23,19 @@
   }
 
   &.sm {
-    padding: 0 1rem;
+    padding: 0.5rem 1.25rem;
     font-size: 0.875rem;
+    border-radius: 6.25rem;
   }
   &.md {
-    padding: 0 1.5rem;
+    padding: 1rem 2rem;
     font-size: 1rem;
+    border-radius: 1.5rem;
   }
   &.lg {
-    padding: 0 2rem;
-    font-size: 1.125rem;
+    padding: 1rem 5.5rem;
+    font-size: 1.25rem;
+    border-radius:3rem;
   }
 
   &.primary {

@@ -171,6 +171,9 @@ paths:
                 color_theme:
                   type: string
                   enum: [light, dark, system]
+                onboarding_completed:
+                  type: boolean
+                  description: Set to true once the user finishes the initial onboarding flow.
       responses:
         '200':
           description: Profile updated
@@ -228,25 +231,23 @@ paths:
   # ─── SUBTOPICS ──────────────────────────────────────────
 
   /subtopics/batch:
-    post:
+    get:
       tags: [Subtopics]
       summary: Get subtopics data by a list of IDs
       security:
         - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [ids]
-              properties:
-                ids:
-                  type: array
-                  items:
-                    type: integer
-                    format: int64
-                  example: [1, 2, 3]
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          style: form
+          explode: true
+          example: [1, 2, 3]
       responses:
         '200':
           description: List of subtopics with progress status
@@ -615,6 +616,10 @@ components:
           type: string
           example: system
           enum: [light, dark, system]
+        onboarding_completed:
+          type: boolean
+          description: True after the user has finished the initial onboarding flow (set daily goal).
+          example: false
         streak:
           type: integer
           example: 7
@@ -780,6 +785,11 @@ components:
           type: string
         has_mnemonic:
           type: boolean
+        mnemo_description:
+          type: string
+          nullable: true
+          description: Mnemonic memory hint text. Present only when has_mnemonic is true.
+          example: ПЛЕТЁТ — тарелка плетёт узоры
 
     SessionData:
       type: object

@@ -1,0 +1,1 @@
+export { MnemonicCardsPage } from './MnemonicCardsPage'

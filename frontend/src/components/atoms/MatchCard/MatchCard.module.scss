@@ -41,4 +41,9 @@
     background: #ffadb1;
     border-color: #b30065;
   }
+
+  &.selected {
+    outline: 2px solid #a78bfa;
+    background: #f3f4f6;
+  }
 }
