@@ -10,6 +10,7 @@ import { MnemonicCardsPage } from '@/components/organisms/Pages/MnemonicCardsPag
 import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPage/WordsMatchingPage'
 import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
 import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
+import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
 
 interface IRoute {
   path: string
@@ -46,6 +47,11 @@ export const routesConfig: IRoute[] = [
   {
     path: '/recall',
     element: <RecallPage />,
+    isProtected: false,
+  },
+  {
+    path: '/recall/practice',
+    element: <RecallMechanicPage />,
     isProtected: false,
   },
   {

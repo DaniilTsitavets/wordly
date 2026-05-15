@@ -18,3 +18,30 @@ export interface RecallResponse {
 export function getRecall(): Promise<RecallResponse> {
   return apiRequest<RecallResponse>('/recall')
 }
+
+export interface RecallAnswerResponse {
+  word_id: number
+  is_correct: boolean
+  correct_answer: string
+}
+
+export function recallAnswer(wordId: number, userAnswer: string): Promise<RecallAnswerResponse> {
+  return apiRequest<RecallAnswerResponse>('/recall/answer', {
+    method: 'POST',
+    body: { word_id: wordId, user_answer: userAnswer },
+  })
+}
+
+export interface RecallCompleteResponse {
+  total_words: number
+  correct: number
+  failed: number
+  gems_earned: number
+}
+
+export function recallComplete(): Promise<RecallCompleteResponse> {
+  return apiRequest<RecallCompleteResponse>('/recall/complete', {
+    method: 'POST',
+    body: {},
+  })
+}
