@@ -20,18 +20,18 @@ locals {
   workload_settings = {
     backend = {
       secrets = [
-        # Secret keys injected from Secrets Manager (ecs-backend-env-vars)
-        # e.g. "JWT_SECRET", "DB_PASSWORD"
+        "DB_PASSWORD",
+        "JWT_SECRET",
+        "SPRING_PROFILES_ACTIVE",
+        "DB_URL",
+        "DB_USERNAME",
+        "CORS_ALLOWED_ORIGINS"
       ]
       env_vars = [
         {
-          name  = "SPRING_PROFILES_ACTIVE"
-          value = "dev"
-        },
-        {
           name  = "SERVER_PORT"
           value = "8080"
-        }
+        },
       ]
     }
   }
