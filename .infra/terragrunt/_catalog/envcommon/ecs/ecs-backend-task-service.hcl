@@ -121,7 +121,7 @@ inputs = {
         }
       ]
 
-      readonly_root_filesystem  = false
+      readonlyRootFilesystem    = false
       enable_cloudwatch_logging = true
 
       environment = local.backend_settings.env_vars
