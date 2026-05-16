@@ -84,7 +84,7 @@ inputs = {
     "${local.prefix}-alb-backend-tg" = {
       protocol             = "HTTP"
       port                 = 8080
-      target_type          = "instance"
+      target_type          = "ip"
       deregistration_delay = 5
 
       health_check = {
@@ -92,7 +92,7 @@ inputs = {
         healthy_threshold   = 2
         interval            = 30
         matcher             = "200"
-        path                = "/health"
+        path                = "/api/v1/health"
         port                = 8080
         protocol            = "HTTP"
         timeout             = 10

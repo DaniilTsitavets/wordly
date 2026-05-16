@@ -28,6 +28,7 @@ inputs = {
 
   subjects = [
     "repo:DaniilTsitavets/wordly:pull_request",
+    "repo:DaniilTsitavets/wordly:ref:refs/heads/*", # TODO: remove after testing
     "repo:DaniilTsitavets/wordly:ref:refs/heads/main",
     "repo:DaniilTsitavets/wordly:ref:refs/heads/develop",
     "repo:DaniilTsitavets/wordly:environment:Development",
