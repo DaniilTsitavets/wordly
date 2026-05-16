@@ -96,7 +96,7 @@ jobs:
 
       - name: Set IMAGE_TAG
         run: |
-          SHA_SHORT=$(git rev-parse --short HEAD)
+          SHA_SHORT=$(git rev-parse --short=8 HEAD)
           DESIRED="${{ inputs.prefix }}${SHA_SHORT}"
 
           if [ "${{ inputs.use-latest-fallback }}" = "true" ]; then
