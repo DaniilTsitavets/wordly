@@ -3,7 +3,7 @@ name: "CI/CD"
 on:
   push:
     branches:
-      - "**" #todo temp for testing, replace with develop
+      - "develop"
     paths-ignore:
       - ".infra/**"
 
