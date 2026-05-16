@@ -50,44 +50,14 @@ inputs = {
       },
       {
         "rulePriority" : 10,
-        "description" : "Keep last 30 `prod-` tagged images",
-        "selection" : {
-          "tagStatus" : "tagged",
-          "tagPrefixList" : [
-            "prod-"
-          ],
-          "countType" : "imageCountMoreThan",
-          "countNumber" : 30
-        },
-        "action" : {
-          "type" : "expire"
-        }
-      },
-      {
-        "rulePriority" : 20,
-        "description" : "Keep last 30 `staging-` tagged images",
-        "selection" : {
-          "tagStatus" : "tagged",
-          "tagPrefixList" : [
-            "staging-"
-          ],
-          "countType" : "imageCountMoreThan",
-          "countNumber" : 30
-        },
-        "action" : {
-          "type" : "expire"
-        }
-      },
-      {
-        "rulePriority" : 30,
-        "description" : "Keep last 50 `dev-` tagged images",
+        "description" : "Keep last 10 `dev-` tagged images",
         "selection" : {
           "tagStatus" : "tagged",
           "tagPrefixList" : [
             "dev-"
           ],
           "countType" : "imageCountMoreThan",
-          "countNumber" : 50
+          "countNumber" : 10
         },
         "action" : {
           "type" : "expire"

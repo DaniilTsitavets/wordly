@@ -129,6 +129,12 @@ inputs = {
 
     compress        = true
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+
+    function_association = {
+      viewer-request = {
+        function_key = "viewer-request-handler"
+      }
+    }
   }
 
   ordered_cache_behavior = [
