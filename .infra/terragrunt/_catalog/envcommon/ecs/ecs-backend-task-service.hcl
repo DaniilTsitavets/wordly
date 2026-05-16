@@ -112,7 +112,6 @@ inputs = {
       essential = true
       image     = "${dependency.ecr.outputs.repository_url}:${get_env("IMAGE_TAG", "latest")}"
 
-      # camelCase — именно так ожидает модуль
       portMappings = [
         {
           name          = "backend-http"
