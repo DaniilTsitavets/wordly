@@ -84,7 +84,7 @@ inputs = {
     "${local.prefix}-alb-backend-tg" = {
       protocol             = "HTTP"
       port                 = 8080
-      target_type          = "instance"
+      target_type          = "ip"
       deregistration_delay = 5
 
       health_check = {
