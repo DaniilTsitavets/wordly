@@ -25,7 +25,7 @@ output "ecs_optimized_arm_ami_id" {
 }
 
 output "spring_datasource_password" {
-  description = "SPRING_DATASOURCE_PASSWORD extracted from ecs-backend-env-vars secret"
-  value       = jsondecode(data.aws_secretsmanager_secret_version.ecs_backend.secret_string)["SPRING_DATASOURCE_PASSWORD"]
+  description = "DB_PASSWORD extracted from ecs-backend-env-vars secret"
+  value       = jsondecode(data.aws_secretsmanager_secret_version.ecs_backend.secret_string)["DB_PASSWORD"]
   sensitive   = true
 }
