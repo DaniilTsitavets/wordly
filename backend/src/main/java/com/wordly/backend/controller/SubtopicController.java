@@ -21,12 +21,12 @@ public class SubtopicController {
     private final SubtopicService subtopicService;
     private final LearningService learningService;
 
-    @GetMapping("/batch")
+    @PostMapping("/batch")
     public List<SubtopicSummaryResponse> getSubtopicsByIds(
-            @RequestParam List<Long> ids,
+            @Valid @RequestBody SubtopicBatchRequest request,
             @AuthenticationPrincipal Long userId
     ) {
-        return subtopicService.getSubtopicsByIds(ids, userId);
+        return subtopicService.getSubtopicsByIds(request.ids(), userId);
     }
 
     @GetMapping("/{subtopicId}")

@@ -25,7 +25,10 @@ locals {
         "SPRING_PROFILES_ACTIVE",
         "DB_URL",
         "DB_USERNAME",
-        "CORS_ALLOWED_ORIGINS"
+        "CORS_ALLOWED_ORIGINS",
+        "OPENROUTER_API_KEY",
+        "OPENROUTER_MODEL",
+        "OPENROUTER_BASE_URL"
       ]
       env_vars = [
         {
