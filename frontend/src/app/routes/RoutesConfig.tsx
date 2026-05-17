@@ -11,6 +11,7 @@ import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPag
 import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
 import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
 import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
+import { AdminPage } from '@/features/admin/components/AdminPage'
 
 interface IRoute {
   path: string
@@ -79,6 +80,11 @@ export const routesConfig: IRoute[] = [
     element: <FillingGapsPage />,
     isProtected: false,
   },
+  {
+    path: '/admin/dashboard',
+    element: <AdminPage />,
+    isProtected: false,
+  }
 ]
 
 export type { IRoute }
