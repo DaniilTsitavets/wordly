@@ -89,16 +89,36 @@ public class LearningService {
     public LevelCompleteResultResponse completeLevel(Long subtopicId, CompleteSessionRequest request, Long userId, boolean isGuest) {
         Subtopic subtopic = subtopicService.getAccessibleSubtopic(subtopicId, isGuest);
         MechanicType mechanicType = request.mechanicType();
+        List<MechanicType> activeMechanics = progressComputationService.getActiveMechanics(subtopic);
 
         UserSubtopicLevelMechanicProgress progress = progressRepository
                 .findByUserIdAndSubtopicIdAndMechanicType(userId, subtopicId, mechanicType)
-                .orElseThrow(() -> new LevelLockedException("Level not unlocked: " + mechanicType));
+                .orElseGet(() -> {
+                    int idx = activeMechanics.indexOf(mechanicType);
+                    if (idx < 0) {
+                        throw new LevelLockedException("Level not unlocked: " + mechanicType);
+                    }
+                    if (idx > 0) {
+                        MechanicType prev = activeMechanics.get(idx - 1);
+                        boolean prevCompleted = progressRepository
+                                .findByUserIdAndSubtopicIdAndMechanicType(userId, subtopicId, prev)
+                                .map(p -> p.getStatus() == ProgressStatus.COMPLETED)
+                                .orElse(false);
+                        if (!prevCompleted) {
+                            throw new LevelLockedException("Level not unlocked: " + mechanicType);
+                        }
+                    }
+                    return progressRepository.save(UserSubtopicLevelMechanicProgress.builder()
+                            .userId(userId)
+                            .subtopic(subtopic)
+                            .mechanicType(mechanicType)
+                            .status(ProgressStatus.IN_PROGRESS)
+                            .build());
+                });
 
         if (progress.getStatus() == ProgressStatus.COMPLETED) {
             throw new IllegalStateException("Level already completed");
         }
-
-        progress.setStatus(ProgressStatus.COMPLETED);
 
         progress.setStatus(ProgressStatus.COMPLETED);
         progress.setCompletedAt(LocalDateTime.now());
@@ -111,7 +131,6 @@ public class LearningService {
 
         applyWordStateTransition(subtopicId, userId, mechanicType);
 
-        List<MechanicType> activeMechanics = progressComputationService.getActiveMechanics(subtopic);
         MechanicType nextMechanic = findNextMechanic(activeMechanics, mechanicType);
 
         if (nextMechanic != null) {
