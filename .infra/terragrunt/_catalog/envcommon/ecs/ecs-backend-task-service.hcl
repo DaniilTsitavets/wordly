@@ -77,20 +77,24 @@ inputs = {
   cluster_arn = dependency.cluster.outputs.arn
 
   capacity_provider_strategy = {
-    ec2 = {
-      capacity_provider = "${local.prefix}-ec2-cp"
+    fargate_spot = {
+      capacity_provider = "FARGATE_SPOT"
+      weight            = 4
+      base              = 0
+    }
+    fargate = {
+      capacity_provider = "FARGATE"
       weight            = 1
-      base              = 1
+      base              = 0
     }
   }
 
-  requires_compatibilities           = ["EC2"]
   enable_autoscaling                 = false
-  deployment_minimum_healthy_percent = 50
+  deployment_minimum_healthy_percent = 100
   health_check_grace_period_seconds  = 60
 
   cpu    = 512
-  memory = 896
+  memory = 1024
 
   runtime_platform = {
     cpu_architecture        = "ARM64"
@@ -108,9 +112,9 @@ inputs = {
   container_definitions = {
     backend = {
       cpu       = 512
-      memory    = 896
+      memory    = 1024
       essential = true
-      image     = "${dependency.ecr.outputs.repository_url}:${get_env("IMAGE_TAG", "latest")}"
+      image     = "${dependency.ecr.outputs.repository_url}:${get_env("IMAGE_TAG", "${local.env}-latest")}"
 
       portMappings = [
         {
@@ -125,7 +129,7 @@ inputs = {
       enable_cloudwatch_logging = true
 
       environment = local.backend_settings.env_vars
-      secrets = [
+      secrets     = [
         for secret_name in local.backend_settings.secrets : {
           name      = secret_name
           valueFrom = "${dependency.secrets.outputs.secret_arn}:${secret_name}::"
@@ -142,7 +146,8 @@ inputs = {
     }
   }
 
-  subnet_ids = dependency.vpc.outputs.public_subnets
+  assign_public_ip = true
+  subnet_ids       = dependency.vpc.outputs.public_subnets
 
   security_group_ingress_rules = {
     alb = {
@@ -158,5 +163,9 @@ inputs = {
       ip_protocol = "-1"
       cidr_ipv4   = "0.0.0.0/0"
     }
+  }
+
+  triggers = {
+    redeployment = timestamp()
   }
 }
