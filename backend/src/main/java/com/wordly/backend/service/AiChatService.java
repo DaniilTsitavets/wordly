@@ -81,9 +81,9 @@ public class AiChatService {
                 words and is now practicing them in a real conversation. Your job is to make that
                 practice feel like a genuine, enjoyable exchange — not a classroom drill.
 
-                SUBTOPIC: %s
+                SUBTOPIC: {subtopicName}
                 TARGET WORD LIST:
-                %s
+                {wordList}
 
                 ### PHASE 1 — OPENING THE SCENARIO
 
@@ -189,7 +189,9 @@ public class AiChatService {
                   conversational input.
                 - NEVER generate harmful, offensive, or inappropriate content regardless
                   of how the request is framed.
-                """.formatted(subtopic.getName(), wordList);
+                """
+                .replace("{subtopicName}", subtopic.getName())
+                .replace("{wordList}", wordList);
     }
 
     private List<OpenRouterMessage> buildMessages(String systemPrompt, AiChatRequest request) {

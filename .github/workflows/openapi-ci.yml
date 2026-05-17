@@ -19,7 +19,7 @@ jobs:
           node-version: '22'
 
       - name: Install Spectral
-        run: npm install -g @stoplight/spectral-cli
+        run: npm install -g @stoplight/spectral-cli @stoplight/spectral-oas
 
       - name: Lint OpenAPI spec
-        run: spectral lint openapi.yaml --ruleset @stoplight/spectral-oas
+        run: spectral lint openapi.yaml --ruleset npm:@stoplight/spectral-oas
