@@ -9,6 +9,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: false
@@ -38,6 +39,8 @@ server:
     context-path: /api/v1
 
 logging:
+  pattern:
+    console: "%d{MM/dd/yyyy, HH:mm:ss} %highlight(%-5level) [%logger{35}] %msg%n"
   level:
     com.wordly: DEBUG
     org.springframework.security: INFO
