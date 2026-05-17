@@ -11,7 +11,7 @@ import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPag
 import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
 import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
 import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
-import { AdminPage } from '@/features/admin/components/AdminPage'
+import { AdminLayout } from '@/features/admin/components/AdminLayout/AdminLayout'
 
 interface IRoute {
   path: string
@@ -82,9 +82,9 @@ export const routesConfig: IRoute[] = [
   },
   {
     path: '/admin/dashboard',
-    element: <AdminPage />,
+    element: <AdminLayout />,
     isProtected: false,
-  }
+  },
 ]
 
 export type { IRoute }

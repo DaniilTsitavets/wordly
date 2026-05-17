@@ -3,7 +3,26 @@
 .container {
   display: flex;
   flex-direction: column;
+  gap: 1.25rem;
+  max-width: 16rem;
   width: 100%;
+}
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__panel {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.8rem;
+  }
+  &__subtitle {
+    font-size: 0.75rem;
+    font-weight: 300;
+    line-height: 1.125rem;
+    color: $color-neutral-text-tertiary;
+  }
 }
 
 .nav__links {

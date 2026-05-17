@@ -6,6 +6,10 @@ import type { AdminPanelNavLink } from './AdminNavLinks'
 export const AdminSideBar = () => {
   return (
     <div className={styles.container}>
+      <div className={styles.title}>
+        <p className={styles.title__panel}>Admin Panel</p>
+        <p className={styles.title__subtitle}>Manage your content</p>
+      </div>
       <nav className={styles.nav__links}>
         <ul className={styles.nav__list}>
           {AdminPanelNavLinks.map((link: AdminPanelNavLink) => (

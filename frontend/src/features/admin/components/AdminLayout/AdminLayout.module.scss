@@ -1,0 +1,13 @@
+@use '../../../../styles/index' as *;
+
+.container {
+  display: flex;
+  flex-direction: row;
+  padding: 2rem;
+}
+.admin_panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
