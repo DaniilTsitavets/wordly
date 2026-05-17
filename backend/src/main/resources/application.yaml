@@ -42,7 +42,7 @@ server:
 
 logging:
   pattern:
-    console: "%d{MM/dd/yyyy, HH:mm:ss} %highlight(%-5level) [%logger{35}] %msg%n"
+    console: "%d{MM/dd/yyyy HH:mm:ss} %highlight(%-5level) [%logger{35}] %msg%n"
   level:
     com.wordly: DEBUG
     org.springframework.security: INFO
