@@ -15,8 +15,6 @@
   line-height: 2.25rem;
 }
 
-// ─── Stat Cards ──────────────────────────────────────────────────────────────
-
 .statsGrid {
   display: flex;
   flex-direction: row;
@@ -70,8 +68,6 @@
   color: $color-neutral-text-secondary;
   margin-top: 0.5rem;
 }
-
-// ─── Recent Activity ─────────────────────────────────────────────────────────
 
 .activitySection {
   background: $color-white;
