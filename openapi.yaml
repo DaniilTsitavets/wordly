@@ -26,6 +26,7 @@ paths:
     post:
       tags: [Auth]
       summary: Register a new user
+      security: []
       requestBody:
         required: true
         content:
@@ -66,6 +67,7 @@ paths:
     post:
       tags: [Auth]
       summary: Login with email and password
+      security: []
       requestBody:
         required: true
         content:
@@ -99,6 +101,7 @@ paths:
     post:
       tags: [Auth]
       summary: Create a guest session
+      security: []
       description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
       responses:
         '201':
@@ -608,6 +611,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
 
   schemas:
 
@@ -910,6 +919,7 @@ components:
           type: string
           example: Поставь тарелку на стол.
         mnemonic:
+          type: object
           allOf:
             - $ref: '#/components/schemas/Mnemonic'
           description: Only present when mechanic_type is mnemonic_cards
