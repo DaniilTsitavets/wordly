@@ -32,7 +32,7 @@ public class LearningService {
     private final UserWordStateRepository userWordStateRepository;
     private final ProgressComputationService progressComputationService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public SessionDataResponse getSession(Long subtopicId, Long userId, boolean isGuest) {
         Subtopic subtopic = subtopicService.getAccessibleSubtopic(subtopicId, isGuest);
         List<MechanicType> activeMechanics = progressComputationService.getActiveMechanics(subtopic);
@@ -48,6 +48,15 @@ public class LearningService {
                 ));
 
         MechanicType currentMechanic = resolveCurrentMechanic(activeMechanics, progressMap);
+
+        if (!progressMap.containsKey(currentMechanic)) {
+            progressRepository.save(UserSubtopicLevelMechanicProgress.builder()
+                    .userId(userId)
+                    .subtopic(subtopic)
+                    .mechanicType(currentMechanic)
+                    .status(ProgressStatus.IN_PROGRESS)
+                    .build());
+        }
 
         List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(subtopicId);
         List<SessionWordResponse> sessionWords = words.stream()

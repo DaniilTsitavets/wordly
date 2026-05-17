@@ -95,6 +95,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(LevelLockedException.class)
     public ErrorResponse handleLevelLocked(LevelLockedException ex) {
+        log.warn("Level locked: {}", ex.getMessage());
         return new ErrorResponse("LEVEL_LOCKED", ex.getMessage());
     }
 
