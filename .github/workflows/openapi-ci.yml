@@ -13,13 +13,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install Spectral
-        run: npm install -g @stoplight/spectral-cli
-
       - name: Lint OpenAPI spec
-        run: spectral lint openapi.yaml --ruleset https://unpkg.com/@stoplight/spectral-rulesets@1.22.2/dist/oas/index.js
+        run: npx @redocly/cli@latest lint openapi.yaml
