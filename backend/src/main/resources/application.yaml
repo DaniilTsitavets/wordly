@@ -27,6 +27,11 @@ jwt:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
+openrouter:
+  api-key: ${OPENROUTER_API_KEY}
+  model: ${OPENROUTER_MODEL}
+  base-url: ${OPENROUTER_BASE_URL}
+
 server:
   port: 8080
   servlet:
