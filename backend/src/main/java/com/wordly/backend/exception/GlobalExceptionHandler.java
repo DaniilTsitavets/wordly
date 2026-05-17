@@ -1,6 +1,7 @@
 package com.wordly.backend.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.client.ResourceAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +78,13 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleNotReadable(HttpMessageNotReadableException ex) {
         log.warn("Malformed request body: {}", ex.getMessage());
         return new ErrorResponse("BAD_REQUEST", "Request body is missing or malformed");
+    }
+
+    @ExceptionHandler(ResourceAccessException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse handleResourceAccess(ResourceAccessException ex) {
+        log.warn("External service unavailable: {}", ex.getMessage());
+        return new ErrorResponse("SERVICE_UNAVAILABLE", "AI service is temporarily unavailable");
     }
 
     @ExceptionHandler(Exception.class)
