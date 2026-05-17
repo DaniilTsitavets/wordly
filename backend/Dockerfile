@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM --platform=$BUILDPLATFORM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 
 COPY .mvn/ .mvn/
@@ -8,10 +8,10 @@ RUN ./mvnw dependency:go-offline -q
 COPY src/ src/
 RUN ./mvnw package -DskipTests -q
 
-FROM eclipse-temurin:21-jdk-alpine AS extract
+FROM --platform=$BUILDPLATFORM eclipse-temurin:21-jdk-alpine AS extract
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
+RUN java -Djarmode=tools -jar app.jar extract --layers --launcher
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
