@@ -3,11 +3,18 @@
 .container {
   display: flex;
   flex-direction: row;
-  padding: 2rem;
+    background: $color-admin-panel-bg;
+
 }
 .admin_panel {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.admin__content {
+  padding: 0 2rem;
+  width: 100%;
+  height: 100vh;
 }
