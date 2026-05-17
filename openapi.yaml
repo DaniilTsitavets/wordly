@@ -235,23 +235,25 @@ paths:
   # ─── SUBTOPICS ──────────────────────────────────────────
 
   /subtopics/batch:
-    get:
+    post:
       tags: [Subtopics]
       summary: Get subtopics data by a list of IDs
       security:
         - bearerAuth: []
-      parameters:
-        - name: ids
-          in: query
-          required: true
-          schema:
-            type: array
-            items:
-              type: integer
-              format: int64
-          style: form
-          explode: true
-          example: [1, 2, 3]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  example: [1, 2, 3]
       responses:
         '200':
           description: List of subtopics with progress status
@@ -261,6 +263,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SubtopicSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
