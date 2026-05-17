@@ -518,6 +518,37 @@ app.get('/api/v1/admin/users', (req, res) => {
   res.json({ total: mockUsers.length, page, limit, users: mockUsers.slice(start, start + limit) });
 });
 
+// ─── AI CHAT ─────────────────────────────────────────────────────────────────
+
+const MOCK_CHAT_REPLIES = [
+  "Great sentence! Just a small spelling note: it's 'knife', not 'nife'. But using it in that context is perfect — well done! What else would you find in the kitchen?",
+  "Nice try! The word 'plate' fits well here. Could you also use the word for 'ложка' in your next reply?",
+  "Excellent use of vocabulary! Your sentence sounds very natural. Now, imagine you're setting the table — what do you need?",
+  "Almost perfect! Watch the spelling: it's 'spoon', not 'spun'. The meaning came through clearly though. Keep going!",
+];
+
+let mockChatReplyIndex = 0;
+
+app.post('/api/v1/ai/chat', (req, res) => {
+  const { subtopicId, history, message } = req.body;
+  if (!subtopicId || !message) {
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'subtopicId and message are required' });
+  }
+  const subtopic = subtopics.find(s => s.id === subtopicId);
+  if (!subtopic) {
+    return res.status(404).json({ code: 'NOT_FOUND', message: 'Subtopic not found' });
+  }
+  if (history.length === 0) {
+    const subtopicWords = words.filter(w => w.subtopic_id === subtopicId).map(w => w.word_en).join(', ');
+    return res.json({
+      reply: `Great choice! Let's practice words from "${subtopic.name}". Today we'll work with: ${subtopicWords}. Imagine you're in the kitchen preparing dinner — what do you need to set the table?`,
+    });
+  }
+  const reply = MOCK_CHAT_REPLIES[mockChatReplyIndex % MOCK_CHAT_REPLIES.length];
+  mockChatReplyIndex++;
+  res.json({ reply });
+});
+
 // ─── START ───────────────────────────────────────────────────────────────────
 
 const PORT = 4010;

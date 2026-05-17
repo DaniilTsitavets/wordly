@@ -24,4 +24,4 @@ jobs:
           cache: maven
 
       - name: Run unit tests and SpotBugs
-        run: mvn verify -Dexcludes="**/*IT.java"
+        run: mvn verify --no-transfer-progress -Dspotbugs.quiet=true -Dexcludes="**/*IT.java"

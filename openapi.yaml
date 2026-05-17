@@ -16,6 +16,7 @@ tags:
   - name: Learning
   - name: Recall
   - name: Vocabulary
+  - name: AI Chat
 
 paths:
 
@@ -25,6 +26,7 @@ paths:
     post:
       tags: [Auth]
       summary: Register a new user
+      security: []
       requestBody:
         required: true
         content:
@@ -65,6 +67,7 @@ paths:
     post:
       tags: [Auth]
       summary: Login with email and password
+      security: []
       requestBody:
         required: true
         content:
@@ -98,6 +101,7 @@ paths:
     post:
       tags: [Auth]
       summary: Create a guest session
+      security: []
       description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
       responses:
         '201':
@@ -526,6 +530,48 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  # ─── AI CHAT ────────────────────────────────────────────────
+
+  /ai/chat:
+    post:
+      tags: [AI Chat]
+      summary: Send a message to the AI tutor
+      description: >
+        Stateless AI chat endpoint. The client maintains conversation history and sends
+        it with every request. The AI generates a reply, checks spelling of target words,
+        and evaluates their usage in context.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiChatRequest'
+            example:
+              subtopicId: 1
+              history:
+                - role: assistant
+                  content: "Let's practice words from 'Kitchen Utensils'! Imagine you're setting the table — what do you need?"
+                - role: user
+                  content: "I need a plate and a frok"
+              message: "Also a cup and a spoon"
+      responses:
+        '200':
+          description: AI reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiChatResponse'
+              example:
+                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 # ─── COMPONENTS ─────────────────────────────────────────────
 
 components:
@@ -565,8 +611,51 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
 
   schemas:
+
+    AiChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          example: user
+        content:
+          type: string
+          example: "I need a plate and a fork"
+
+    AiChatRequest:
+      type: object
+      required: [subtopicId, history, message]
+      properties:
+        subtopicId:
+          type: integer
+          format: int64
+          example: 1
+        history:
+          type: array
+          description: Full conversation history (alternating assistant/user messages)
+          items:
+            $ref: '#/components/schemas/AiChatMessage'
+        message:
+          type: string
+          description: The user's current message
+          example: "Also a cup and a spoon"
+
+    AiChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+          example: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though!"
 
     Error:
       type: object
@@ -830,6 +919,7 @@ components:
           type: string
           example: Поставь тарелку на стол.
         mnemonic:
+          type: object
           allOf:
             - $ref: '#/components/schemas/Mnemonic'
           description: Only present when mechanic_type is mnemonic_cards
