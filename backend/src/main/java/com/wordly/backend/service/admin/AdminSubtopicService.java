@@ -45,7 +45,7 @@ public class AdminSubtopicService {
                 .name(request.name().trim())
                 .description(safe(request.description()))
                 .imageUrl(safe(request.imageUrl()))
-                .sortOrder(request.sortOrder() == null ? 0 : request.sortOrder())
+                .sortOrder(request.sortOrder() == null ? Integer.valueOf(0) : request.sortOrder())
                 .wordsCount(0)
                 .disabledMechanics(toMechanicValues(request.disabledMechanics()))
                 .build();

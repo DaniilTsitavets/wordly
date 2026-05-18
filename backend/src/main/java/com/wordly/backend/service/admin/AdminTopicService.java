@@ -42,7 +42,7 @@ public class AdminTopicService {
                 .name(request.name().trim())
                 .description(safe(request.description()))
                 .imageUrl(blankToNull(request.imageUrl()))
-                .sortOrder(request.sortOrder() == null ? 0 : request.sortOrder())
+                .sortOrder(request.sortOrder() == null ? Integer.valueOf(0) : request.sortOrder())
                 .build();
         Topic saved = topicRepository.save(topic);
         log.info("Admin created topic id={}", saved.getId());
