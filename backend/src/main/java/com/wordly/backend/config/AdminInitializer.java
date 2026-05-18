@@ -43,7 +43,11 @@ public class AdminInitializer {
                                 .guest(false)
                                 .role(Role.ADMIN)
                                 .build();
-                        userRepository.save(admin);
+  try {
+      userRepository.save(admin);
+  } catch (DataIntegrityViolationException e) {
+      log.info("Admin user already exists (concurrent init), skipping.");
+  }
                         log.info("Seeded admin user: {}", normalizedEmail);
                     }
             );
