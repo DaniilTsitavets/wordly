@@ -1,6 +1,6 @@
 import { AdminTable, type ColumnDef } from '../AdminTable'
 
-interface TopicRow {
+export type TopicRow = {
   id: number
   icon: string
   name: string

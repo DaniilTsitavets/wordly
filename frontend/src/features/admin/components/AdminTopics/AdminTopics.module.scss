@@ -1,0 +1,22 @@
+@use '../../../../styles/index' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    line-height: 2.62rem;
+    font-weight: 600;
+    color: $color-neutral-text-primary;
+  }
+}
