@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("BAD_REQUEST", "Request body is missing or malformed");
     }
 
-<<<<<<< feature/admin
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataIntegrity(DataIntegrityViolationException ex) {
@@ -90,13 +90,13 @@ public class GlobalExceptionHandler {
                 "CONFLICT",
                 "Operation conflicts with existing data (e.g., referenced rows or unique constraints)."
         );
-=======
+    }
+    
     @ExceptionHandler(ResourceAccessException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public ErrorResponse handleResourceAccess(ResourceAccessException ex) {
         log.warn("External service unavailable: {}", ex.getMessage());
         return new ErrorResponse("SERVICE_UNAVAILABLE", "AI service is temporarily unavailable");
->>>>>>> develop
     }
 
     @ExceptionHandler(Exception.class)
