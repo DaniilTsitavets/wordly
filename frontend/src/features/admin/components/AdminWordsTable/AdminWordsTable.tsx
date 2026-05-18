@@ -1,6 +1,6 @@
 import { AdminTable, type ColumnDef } from '../AdminTable'
 
-interface WordRow {
+export type WordRow = {
   id: number
   image: string
   english: string
@@ -13,27 +13,41 @@ const columns: ColumnDef<WordRow>[] = [
   {
     key: 'image',
     header: 'Image',
-    width: '5rem',
+    width: '3.5rem',
     render: (item) => <span style={{ fontSize: '1.5rem' }}>{item.image}</span>,
   },
   {
     key: 'english',
     header: 'English',
+    width: '7rem',
     render: (item) => <strong>{item.english}</strong>,
   },
   {
     key: 'russian',
     header: 'Russian',
+    width: '7rem',
     render: (item) => item.russian,
   },
   {
     key: 'topic',
     header: 'Topic',
-    render: (item) => item.topic,
+    render: (item) => (
+      <span
+        style={{
+          fontSize: '0.775rem',
+          lineHeight: '1.3125rem',
+          color: '#5A5C5C',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {item.topic}
+      </span>
+    ),
   },
   {
     key: 'interval',
     header: 'Interval',
+    width: '4rem',
     render: (item) => item.interval,
   },
 ]

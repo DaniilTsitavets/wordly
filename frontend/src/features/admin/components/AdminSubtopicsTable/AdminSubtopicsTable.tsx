@@ -1,6 +1,6 @@
 import { AdminTable, type ColumnDef } from '../AdminTable'
 
-interface SubtopicRow {
+export type SubtopicRow = {
   id: number
   icon: string
   name: string
@@ -12,29 +12,33 @@ const columns: ColumnDef<SubtopicRow>[] = [
   {
     key: 'icon',
     header: 'Icon',
-    width: '5rem',
+    width: '3.5rem',
     render: (item) => <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>,
   },
   {
     key: 'name',
     header: 'Name',
+    width: '8rem',
     render: (item) => <strong>{item.name}</strong>,
   },
   {
     key: 'description',
     header: 'Description',
+    maxWidth: '16.5625rem',
     render: (item) => item.description,
   },
   {
     key: 'words',
     header: 'Words',
+    width: '5rem',
     render: (item) => `${item.wordsCount} words`,
   },
 ]
 
 const mockSubtopics: SubtopicRow[] = [
-  { id: 1, icon: 'ðŸ¥—', name: 'Salads', description: 'Fresh and healthy salads', wordsCount: 5 },
-  { id: 2, icon: 'ðŸž', name: 'Bakery', description: 'Bread and pastries', wordsCount: 4 },
+  { id: 1, icon: '🥗', name: 'Salads', description: 'Fresh and healthy salads', wordsCount: 5 },
+  { id: 2, icon: '🍞', name: 'Bakery', description: 'Bread and pastries', wordsCount: 4 },
+  { id: 3, icon: '🥛', name: 'Dairy', description: 'Milk, cheese and yogurt', wordsCount: 6 },
 ]
 
 interface AdminSubtopicsTableProps {
