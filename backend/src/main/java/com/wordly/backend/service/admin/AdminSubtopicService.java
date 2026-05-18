@@ -68,7 +68,7 @@ public class AdminSubtopicService {
 
         subtopic.setName(request.name().trim());
         subtopic.setDescription(safe(request.description()));
-        subtopic.setImageUrl(safe(request.imageUrl()));
+        subtopic.setImageUrl(blankToNull(request.imageUrl()));
         if (request.sortOrder() != null) {
             subtopic.setSortOrder(request.sortOrder());
         }
