@@ -41,7 +41,7 @@ public class AdminTopicService {
         Topic topic = Topic.builder()
                 .name(request.name().trim())
                 .description(safe(request.description()))
-                .imageUrl(safe(request.imageUrl()))
+                .imageUrl(blankToNull(request.imageUrl()))
                 .sortOrder(request.sortOrder() == null ? 0 : request.sortOrder())
                 .build();
         Topic saved = topicRepository.save(topic);
