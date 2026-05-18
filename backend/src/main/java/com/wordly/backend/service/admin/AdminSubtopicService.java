@@ -44,7 +44,7 @@ public class AdminSubtopicService {
                 .topic(topic)
                 .name(request.name().trim())
                 .description(safe(request.description()))
-                .imageUrl(safe(request.imageUrl()))
+                .imageUrl(blankToNull(request.imageUrl()))
                 .sortOrder(request.sortOrder() == null ? 0 : request.sortOrder())
                 .wordsCount(0)
                 .disabledMechanics(toMechanicValues(request.disabledMechanics()))
