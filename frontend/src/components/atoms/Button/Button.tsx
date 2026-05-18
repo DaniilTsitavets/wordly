@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import styles from './Button.module.scss'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'gradient' | 'custom'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'gradient' | 'admin' | 'custom'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

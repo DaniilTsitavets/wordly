@@ -1,0 +1,101 @@
+@use '../../../../styles/index' as *;
+
+.wrapper {
+  background: $color-white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  gap: 7rem;
+  border-bottom: 1px solid $color-neutral-gray-light;
+}
+
+.headerCell {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $color-neutral-text-muted;
+  text-transform: capitalize;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  gap: 7rem;
+  border-bottom: 1px solid $color-neutral-gray-light;
+  transition: background-color 0.15s;
+  outline: none;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: #f9fafb;
+  }
+}
+
+.cell {
+  flex: 1;
+  font-size: 0.875rem;
+  color: $color-neutral-text-primary;
+}
+
+.actionsCell {
+  flex: none;
+  width: 10rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.editBtn,
+.deleteBtn {
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    outline 0.15s;
+  outline: 2px solid transparent;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+}
+
+.editBtn {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.deleteBtn {
+  background-color: #fee2e2;
+  color: #dc2626;
+}

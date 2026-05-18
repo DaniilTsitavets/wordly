@@ -1,0 +1,74 @@
+@use '../../../../styles/index' as *;
+
+.container {
+  background: $color-white;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 16rem;
+  padding: 2rem;
+  width: 100%;
+}
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__panel {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.8rem;
+  }
+  &__subtitle {
+    font-size: 0.75rem;
+    font-weight: 300;
+    line-height: 1.125rem;
+    color: $color-neutral-text-tertiary;
+  }
+}
+
+.nav__links {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.link,
+.active {
+  display: block;
+  font-weight: 500;
+  font-size: 1rem;
+  color: $color-neutral-text-tertiary;
+  line-height: 1.25rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 2.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $gradient-blue-purple;
+    color: $color-admin-panel-text-active;
+    font-weight: 700;
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 0.125rem;
+    border-radius: 2.5rem;
+  }
+}
+
+.active {
+  background: $gradient-blue-purple;
+  color: $color-admin-panel-text-active;
+  font-weight: 700;
+}

@@ -35,7 +35,7 @@
   &.lg {
     padding: 1rem 5.5rem;
     font-size: 1.25rem;
-    border-radius:3rem;
+    border-radius: 3rem;
   }
 
   &.primary {
@@ -75,6 +75,22 @@
   &.gradient {
     background: $gradient-primary;
     color: $color-white;
+    &:hover {
+      opacity: 0.9;
+    }
+    &:active {
+      opacity: 0.8;
+    }
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &.admin {
+    background: $gradient-admin-button;
+    color: $color-white;
+    border-radius: 0.75rem;
+    font-weight: 600;
     &:hover {
       opacity: 0.9;
     }

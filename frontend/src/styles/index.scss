@@ -14,6 +14,7 @@ $color-primary-bg-light: #0cbe4f;
 $color-subtopic-bg-orange: #fff5f0;
 $color-subtopic-bg-pink: #f0f9ff;
 $color-subtopic-bg-sky-blue: #a5dbff;
+$color-admin-panel-bg: #f8f9fa;
 
 // Secondary Colors
 $color-secondary-dark: #830065;
@@ -52,6 +53,7 @@ $color-neutral-gray-light: #e5e7eb;
 $color-neutral-bg-secondary: #faf8f5;
 $color-neutral-bg-light: #fdfdf0;
 $color-white: #ffffff;
+$color-admin-panel-text-active: #2196f3;
 
 // Status Colors
 $color-status-error: #fb2c36;
@@ -88,6 +90,76 @@ $color-error: $color-status-error;
 
 $gradient-primary: linear-gradient(90deg, $color-primary 0%, #ff6bb5 100%);
 $gradient-accent: linear-gradient(135deg, $color-primary-300, $color-secondary-pink);
+$gradient-blue-purple: linear-gradient(
+  180deg,
+  #e3f2fd 0%,
+  #e4f1fd 7%,
+  #e5f0fd 14%,
+  #e7effd 21%,
+  #e8eefe 29%,
+  #e9edfe 36%,
+  #eaecfe 43%,
+  #ebecfe 50%,
+  #ecebfe 57%,
+  #eeeafe 64%,
+  #efe9fe 71%
+);
+$gradient-admin-button: linear-gradient(
+  90deg,
+  #2196f3 0%,
+  #3793f4 7%,
+  #4791f5 14%,
+  #538ef6 21%,
+  #5e8bf6 29%,
+  #6788f7 36%,
+  #6f85f8 43%,
+  #7782f9 50%,
+  #7e7ffa 57%,
+  #857bfb 64%,
+  #8b78fc 71%
+);
+$gradient-stat-blue: linear-gradient(
+  135deg,
+  #e3f2fd 0%,
+  #dff0fd 10%,
+  #dbeefd 20%,
+  #d7ecfd 30%,
+  #d3eafc 40%,
+  #cfe8fc 50%,
+  #cbe6fc 60%,
+  #c7e4fc 70%,
+  #c3e2fb 80%,
+  #bfe0fb 90%,
+  #bbdefb 100%
+);
+$gradient-stat-purple: linear-gradient(
+  135deg,
+  #f3e5ff 0%,
+  #f2e2fd 8%,
+  #f0defb 17%,
+  #efdbf9 25%,
+  #edd8f7 33%,
+  #ecd5f5 42%,
+  #ead1f3 50%,
+  #e9cef1 58%,
+  #e7cbef 67%,
+  #e6c8ed 75%,
+  #e4c4eb 83%
+);
+$gradient-stat-orange: linear-gradient(
+  135deg,
+  #fff4e6 0%,
+  #fff2e2 8%,
+  #fff1de 15%,
+  #ffefda 23%,
+  #ffeed6 31%,
+  #ffecd2 38%,
+  #ffebce 46%,
+  #ffe9ca 54%,
+  #ffe8c6 62%,
+  #ffe6c2 69%,
+  #ffe5be 77%
+);
 
 @tailwind base;
 @tailwind components;
