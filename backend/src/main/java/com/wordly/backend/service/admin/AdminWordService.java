@@ -61,11 +61,11 @@ public class AdminWordService {
 
         word.setSubtopic(targetSubtopic);
         word.setWordEn(request.wordEn().trim());
-        word.setTranscriptionEn(safe(request.transcriptionEn()));
+        word.setTranscriptionEn(blankToNull(request.transcriptionEn()));
         word.setTranslationRu(request.translationRu().trim());
-        word.setImageUrl(safe(request.imageUrl()));
-        word.setUsageExampleEn(safe(request.usageExampleEn()));
-        word.setUsageExampleEnTranslationRu(safe(request.usageExampleEnTranslationRu()));
+        word.setImageUrl(blankToNull(request.imageUrl()));
+        word.setUsageExampleEn(blankToNull(request.usageExampleEn()));
+        word.setUsageExampleEnTranslationRu(blankToNull(request.usageExampleEnTranslationRu()));
         word.setMnemonicImageUrl(blankToNull(request.mnemonicImageUrl()));
         word.setMnemoText(blankToNull(request.mnemoText()));
 
