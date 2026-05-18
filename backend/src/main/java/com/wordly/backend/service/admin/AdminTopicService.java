@@ -56,7 +56,7 @@ public class AdminTopicService {
 
         topic.setName(request.name().trim());
         topic.setDescription(safe(request.description()));
-        topic.setImageUrl(safe(request.imageUrl()));
+        topic.setImageUrl(blankToNull(request.imageUrl()));
         topic.setSortOrder(request.sortOrder() == null ? topic.getSortOrder() : request.sortOrder());
 
         Topic saved = topicRepository.save(topic);
