@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
@@ -43,12 +44,12 @@ public class AdminInitializer {
                                 .guest(false)
                                 .role(Role.ADMIN)
                                 .build();
-  try {
-      userRepository.save(admin);
-  } catch (DataIntegrityViolationException e) {
-      log.info("Admin user already exists (concurrent init), skipping.");
-  }
-                        log.info("Seeded admin user: {}", normalizedEmail);
+                        try {
+                            userRepository.save(admin);
+                            log.info("Seeded admin user: {}", normalizedEmail);
+                        } catch (DataIntegrityViolationException e) {
+                            log.info("Admin user already exists (concurrent init), skipping.");
+                        }
                     }
             );
         };

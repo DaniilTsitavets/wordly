@@ -16,14 +16,11 @@ tags:
   - name: Learning
   - name: Recall
   - name: Vocabulary
-<<<<<<< feature/admin
   - name: Admin
     description: |
       Admin endpoints for content management. Require ADMIN role on the JWT.
       Access is controlled by `hasAuthority('ROLE_ADMIN')` — non-admin tokens get 403.
-=======
   - name: AI Chat
->>>>>>> develop
 
 paths:
 
@@ -108,8 +105,8 @@ paths:
     post:
       tags: [Auth]
       summary: Create a guest session
-      security: []
       description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
+      security: []
       responses:
         '201':
           description: Guest session created
@@ -540,8 +537,49 @@ paths:
                       $ref: '#/components/schemas/VocabularyWord'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
-<<<<<<< feature/admin
+  # ─── AI CHAT ────────────────────────────────────────────────
+
+  /ai/chat:
+    post:
+      tags: [AI Chat]
+      summary: Send a message to the AI tutor
+      description: >
+        Stateless AI chat endpoint. The client maintains conversation history and sends
+        it with every request. The AI generates a reply, checks spelling of target words,
+        and evaluates their usage in context.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiChatRequest'
+            example:
+              subtopicId: 1
+              history:
+                - role: assistant
+                  content: "Let's practice words from 'Kitchen Utensils'! Imagine you're setting the table — what do you need?"
+                - role: user
+                  content: "I need a plate and a frok"
+              message: "Also a cup and a spoon"
+      responses:
+        '200':
+          description: AI reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiChatResponse'
+              example:
+                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
   # ─── ADMIN: TOPICS ──────────────────────────────────────
 
   /admin/topics:
@@ -781,18 +819,6 @@ paths:
     post:
       tags: [Admin]
       summary: Create a word (admin)
-=======
-  # ─── AI CHAT ────────────────────────────────────────────────
-
-  /ai/chat:
-    post:
-      tags: [AI Chat]
-      summary: Send a message to the AI tutor
-      description: >
-        Stateless AI chat endpoint. The client maintains conversation history and sends
-        it with every request. The AI generates a reply, checks spelling of target words,
-        and evaluates their usage in context.
->>>>>>> develop
       security:
         - bearerAuth: []
       requestBody:
@@ -800,7 +826,6 @@ paths:
         content:
           application/json:
             schema:
-<<<<<<< feature/admin
               $ref: '#/components/schemas/AdminWordRequest'
       responses:
         '201':
@@ -895,31 +920,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdminBulkWordsResponse'
-=======
-              $ref: '#/components/schemas/AiChatRequest'
-            example:
-              subtopicId: 1
-              history:
-                - role: assistant
-                  content: "Let's practice words from 'Kitchen Utensils'! Imagine you're setting the table — what do you need?"
-                - role: user
-                  content: "I need a plate and a frok"
-              message: "Also a cup and a spoon"
-      responses:
-        '200':
-          description: AI reply
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AiChatResponse'
-              example:
-                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
->>>>>>> develop
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-<<<<<<< feature/admin
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -959,11 +963,6 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
-=======
-        '404':
-          $ref: '#/components/responses/NotFound'
-
->>>>>>> develop
 # ─── COMPONENTS ─────────────────────────────────────────────
 
 components:
@@ -1010,11 +1009,7 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     BadRequest:
-<<<<<<< feature/admin
       description: Invalid request payload or business rule violation
-=======
-      description: Invalid request parameters
->>>>>>> develop
       content:
         application/json:
           schema:

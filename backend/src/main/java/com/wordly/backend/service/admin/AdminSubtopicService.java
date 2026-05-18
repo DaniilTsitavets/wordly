@@ -44,7 +44,7 @@ public class AdminSubtopicService {
                 .topic(topic)
                 .name(request.name().trim())
                 .description(safe(request.description()))
-                .imageUrl(blankToNull(request.imageUrl()))
+                .imageUrl(safe(request.imageUrl()))
                 .sortOrder(request.sortOrder() == null ? 0 : request.sortOrder())
                 .wordsCount(0)
                 .disabledMechanics(toMechanicValues(request.disabledMechanics()))
@@ -68,7 +68,7 @@ public class AdminSubtopicService {
 
         subtopic.setName(request.name().trim());
         subtopic.setDescription(safe(request.description()));
-        subtopic.setImageUrl(blankToNull(request.imageUrl()));
+        subtopic.setImageUrl(safe(request.imageUrl()));
         if (request.sortOrder() != null) {
             subtopic.setSortOrder(request.sortOrder());
         }
