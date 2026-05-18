@@ -79,7 +79,9 @@ public class AdminTopicService {
         topicRepository.delete(topic);
         log.info("Admin deleted topic id={}", topicId);
     }
-
+    private static String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value;
+    }
     private static String safe(String value) {
         return value == null ? "" : value;
     }
