@@ -1,0 +1,1 @@
+export { AdminWordsTable } from './AdminWordsTable'
