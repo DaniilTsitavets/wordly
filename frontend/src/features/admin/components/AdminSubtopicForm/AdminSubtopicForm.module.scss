@@ -1,0 +1,168 @@
+@use '../../../../styles/index' as *;
+
+.card {
+  background: $color-bg;
+  border-radius: 1.25rem;
+  border: 0.0625rem solid $color-neutral-gray-light;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $color-neutral-text-primary;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $color-neutral-text-tertiary;
+}
+
+.input {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 0.0625rem solid $color-border;
+  background: $color-bg;
+  font-size: 0.875rem;
+  color: $color-text;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $color-neutral-text-placeholder;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+
+  &.error {
+    border-color: $color-error;
+  }
+}
+
+.textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 0.0625rem solid $color-border;
+  background: $color-bg;
+  font-size: 0.875rem;
+  color: $color-text;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $color-neutral-text-placeholder;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+
+  &.error {
+    border-color: $color-error;
+  }
+}
+
+.select {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 0.0625rem solid $color-border;
+  background: $color-bg;
+  font-size: 0.875rem;
+  color: $color-text;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  padding-right: 2.25rem;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $color-primary;
+  }
+
+  &.error {
+    border-color: $color-error;
+  }
+
+  &.placeholder {
+    color: $color-neutral-text-placeholder;
+  }
+}
+
+.emojiPicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.emojiDisplay {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.625rem;
+  border: 0.0625rem solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: $color-bg;
+  cursor: pointer;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.emojiInput {
+  width: 3.5rem;
+  height: 2.75rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 0.0625rem solid $color-border;
+  background: $color-bg;
+  font-size: 1.25rem;
+  text-align: center;
+  outline: none;
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+.errorText {
+  font-size: 0.75rem;
+  color: $color-error;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
