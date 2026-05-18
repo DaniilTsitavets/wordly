@@ -1,6 +1,7 @@
 package com.wordly.backend.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.client.ResourceAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
@@ -79,6 +81,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("BAD_REQUEST", "Request body is missing or malformed");
     }
 
+<<<<<<< feature/admin
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataIntegrity(DataIntegrityViolationException ex) {
@@ -87,6 +90,13 @@ public class GlobalExceptionHandler {
                 "CONFLICT",
                 "Operation conflicts with existing data (e.g., referenced rows or unique constraints)."
         );
+=======
+    @ExceptionHandler(ResourceAccessException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse handleResourceAccess(ResourceAccessException ex) {
+        log.warn("External service unavailable: {}", ex.getMessage());
+        return new ErrorResponse("SERVICE_UNAVAILABLE", "AI service is temporarily unavailable");
+>>>>>>> develop
     }
 
     @ExceptionHandler(Exception.class)
@@ -105,6 +115,21 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(LevelLockedException.class)
     public ErrorResponse handleLevelLocked(LevelLockedException ex) {
+        log.warn("Level locked: {}", ex.getMessage());
         return new ErrorResponse("LEVEL_LOCKED", ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ErrorResponse handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        log.warn("Method not allowed: {}", ex.getMessage());
+        return new ErrorResponse("METHOD_NOT_ALLOWED", ex.getMessage());
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflict(ConflictException ex) {
+        log.warn("Conflict: {}", ex.getMessage());
+        return new ErrorResponse("CONFLICT", ex.getMessage());
     }
 }

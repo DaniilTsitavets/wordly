@@ -44,6 +44,11 @@ const authSlice = createSlice({
     setUser(state, action: PayloadAction<UserProfile>) {
       state.user = action.payload
     },
+    addGems(state, action: PayloadAction<number>) {
+      if (state.user) {
+        state.user.gems = (state.user.gems ?? 0) + action.payload
+      }
+    },
     logoutSuccess(state) {
       state.token = null
       state.user = null
@@ -52,5 +57,6 @@ const authSlice = createSlice({
   },
 })
 
-export const { setLoading, setError, loginSuccess, setUser, logoutSuccess } = authSlice.actions
+export const { setLoading, setError, loginSuccess, setUser, addGems, logoutSuccess } =
+  authSlice.actions
 export default authSlice.reducer

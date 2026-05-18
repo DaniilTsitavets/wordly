@@ -1,3 +1,5 @@
+@use '../../../../styles/index' as *;
+
 .container {
   display: flex;
   flex-direction: column;
@@ -5,6 +7,32 @@
   align-items: center;
   gap: 2rem;
   padding: 2rem 9.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+  width: 100%;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  background: transparent;
+  color: $color-text;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: $color-neutral-gray-light;
+  }
 }
 
 .centered {

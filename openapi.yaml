@@ -16,10 +16,14 @@ tags:
   - name: Learning
   - name: Recall
   - name: Vocabulary
+<<<<<<< feature/admin
   - name: Admin
     description: |
       Admin endpoints for content management. Require ADMIN role on the JWT.
       Access is controlled by `hasAuthority('ROLE_ADMIN')` — non-admin tokens get 403.
+=======
+  - name: AI Chat
+>>>>>>> develop
 
 paths:
 
@@ -29,6 +33,7 @@ paths:
     post:
       tags: [Auth]
       summary: Register a new user
+      security: []
       requestBody:
         required: true
         content:
@@ -69,6 +74,7 @@ paths:
     post:
       tags: [Auth]
       summary: Login with email and password
+      security: []
       requestBody:
         required: true
         content:
@@ -102,6 +108,7 @@ paths:
     post:
       tags: [Auth]
       summary: Create a guest session
+      security: []
       description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
       responses:
         '201':
@@ -235,23 +242,25 @@ paths:
   # ─── SUBTOPICS ──────────────────────────────────────────
 
   /subtopics/batch:
-    get:
+    post:
       tags: [Subtopics]
       summary: Get subtopics data by a list of IDs
       security:
         - bearerAuth: []
-      parameters:
-        - name: ids
-          in: query
-          required: true
-          schema:
-            type: array
-            items:
-              type: integer
-              format: int64
-          style: form
-          explode: true
-          example: [1, 2, 3]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  example: [1, 2, 3]
       responses:
         '200':
           description: List of subtopics with progress status
@@ -261,6 +270,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SubtopicSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -530,6 +541,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+<<<<<<< feature/admin
   # ─── ADMIN: TOPICS ──────────────────────────────────────
 
   /admin/topics:
@@ -769,6 +781,18 @@ paths:
     post:
       tags: [Admin]
       summary: Create a word (admin)
+=======
+  # ─── AI CHAT ────────────────────────────────────────────────
+
+  /ai/chat:
+    post:
+      tags: [AI Chat]
+      summary: Send a message to the AI tutor
+      description: >
+        Stateless AI chat endpoint. The client maintains conversation history and sends
+        it with every request. The AI generates a reply, checks spelling of target words,
+        and evaluates their usage in context.
+>>>>>>> develop
       security:
         - bearerAuth: []
       requestBody:
@@ -776,6 +800,7 @@ paths:
         content:
           application/json:
             schema:
+<<<<<<< feature/admin
               $ref: '#/components/schemas/AdminWordRequest'
       responses:
         '201':
@@ -870,10 +895,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdminBulkWordsResponse'
+=======
+              $ref: '#/components/schemas/AiChatRequest'
+            example:
+              subtopicId: 1
+              history:
+                - role: assistant
+                  content: "Let's practice words from 'Kitchen Utensils'! Imagine you're setting the table — what do you need?"
+                - role: user
+                  content: "I need a plate and a frok"
+              message: "Also a cup and a spoon"
+      responses:
+        '200':
+          description: AI reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiChatResponse'
+              example:
+                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
+>>>>>>> develop
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+<<<<<<< feature/admin
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -913,6 +959,11 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+=======
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+>>>>>>> develop
 # ─── COMPONENTS ─────────────────────────────────────────────
 
 components:
@@ -959,13 +1010,54 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     BadRequest:
+<<<<<<< feature/admin
       description: Invalid request payload or business rule violation
+=======
+      description: Invalid request parameters
+>>>>>>> develop
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
 
   schemas:
+
+    AiChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          example: user
+        content:
+          type: string
+          example: "I need a plate and a fork"
+
+    AiChatRequest:
+      type: object
+      required: [subtopicId, history, message]
+      properties:
+        subtopicId:
+          type: integer
+          format: int64
+          example: 1
+        history:
+          type: array
+          description: Full conversation history (alternating assistant/user messages)
+          items:
+            $ref: '#/components/schemas/AiChatMessage'
+        message:
+          type: string
+          description: The user's current message
+          example: "Also a cup and a spoon"
+
+    AiChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+          example: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though!"
 
     Error:
       type: object
@@ -1231,6 +1323,7 @@ components:
           type: string
           example: Поставь тарелку на стол.
         mnemonic:
+          type: object
           allOf:
             - $ref: '#/components/schemas/Mnemonic'
           description: Only present when mechanic_type is mnemonic_cards

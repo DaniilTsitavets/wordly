@@ -4,6 +4,7 @@ import com.wordly.backend.entity.UserWordState;
 import com.wordly.backend.entity.enums.WordStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -14,7 +15,10 @@ public interface UserWordStateRepository extends JpaRepository<UserWordState, Lo
 
     Optional<UserWordState> findByUserIdAndWordId(Long userId, Long wordId);
 
+    @EntityGraph(attributePaths = "word")
     List<UserWordState> findByUserIdAndNextRecallLessThanEqual(Long userId, LocalDate date);
+
+    List<UserWordState> findByUserIdAndSessionDate(Long userId, LocalDate date);
 
     Page<UserWordState> findByUserId(Long userId, Pageable pageable);
 

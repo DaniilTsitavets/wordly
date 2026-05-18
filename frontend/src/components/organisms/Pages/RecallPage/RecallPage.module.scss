@@ -1,0 +1,418 @@
+@use '../../../../styles/index' as *;
+
+.page {
+  min-height: calc(100vh - 105px);
+  padding: 24px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.backLink {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: $color-neutral-text-secondary;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  cursor: pointer;
+  border-radius: 8px;
+
+  &:hover {
+    color: $color-neutral-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.heroBlock {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 0;
+}
+
+.brainIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.description {
+  font-size: 15px;
+  color: $color-neutral-text-secondary;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 540px;
+}
+
+.summaryCard {
+  background: $color-white;
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summaryStats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.summaryStat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summaryStatRight {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.summaryLabel {
+  font-size: 14px;
+  color: $color-neutral-text-secondary;
+}
+
+.summaryValue {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.summaryValueBlue {
+  color: $color-secondary-sky-blue;
+}
+
+.summaryValuePurple {
+  color: $color-primary;
+}
+
+.startAllBtn {
+  width: 100%;
+  border-radius: 999px !important;
+  height: 52px;
+  font-size: 16px !important;
+}
+
+.scheduleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scheduleTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 8px 0 4px;
+}
+
+.scheduleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intervalCard {
+  background: $color-white;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.intervalInactive {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+  color: $color-neutral-text-muted;
+}
+
+.intervalIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: $color-neutral-dark;
+
+  .intervalInactive & {
+    opacity: 0.5;
+  }
+}
+
+.bucket1 {
+  background: #fcd5d5;
+  color: #d24a4a;
+}
+
+.bucket3 {
+  background: #fde0c1;
+  color: #d97706;
+}
+
+.bucket7 {
+  background: #fdf3b8;
+  color: #b8860b;
+}
+
+.bucket14 {
+  background: #d3eecd;
+  color: #16a34a;
+}
+
+.bucket21 {
+  background: #cbe1f5;
+  color: #2563eb;
+}
+
+.bucket30 {
+  background: #e1d5f5;
+  color: #7c3aed;
+}
+
+.intervalInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.intervalHeading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.intervalTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+
+  .intervalInactive & {
+    color: $color-neutral-text-muted;
+  }
+}
+
+.wordsBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: $color-white;
+}
+
+.badge1 {
+  background: #f06d6d;
+}
+
+.badge3 {
+  background: #f6993f;
+}
+
+.badge7 {
+  background: #f5c518;
+  color: $color-neutral-dark;
+}
+
+.badge14 {
+  background: #22c55e;
+}
+
+.badge21 {
+  background: #3b82f6;
+}
+
+.badge30 {
+  background: #8b5cf6;
+}
+
+.intervalDue {
+  font-size: 13px;
+  color: $color-neutral-text-secondary;
+  margin: 0;
+}
+
+.intervalAction {
+  flex-shrink: 0;
+}
+
+.startBtn {
+  border-radius: 999px !important;
+  color: $color-white !important;
+  font-weight: 600 !important;
+}
+
+.btn1 {
+  background: #f06d6d !important;
+
+  &:hover {
+    background: #e25555 !important;
+  }
+}
+
+.btn3 {
+  background: #f6993f !important;
+
+  &:hover {
+    background: #e8842b !important;
+  }
+}
+
+.btn7 {
+  background: #f5c518 !important;
+  color: $color-neutral-dark !important;
+
+  &:hover {
+    background: #e2b510 !important;
+  }
+}
+
+.btn14 {
+  background: #22c55e !important;
+}
+
+.btn21 {
+  background: #3b82f6 !important;
+}
+
+.btn30 {
+  background: #8b5cf6 !important;
+}
+
+.noWordsBtn {
+  border-radius: 999px !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: $color-neutral-text-muted !important;
+  font-weight: 500 !important;
+  cursor: not-allowed !important;
+}
+
+.howItWorks {
+  background: $color-white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.howItWorksHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.howItWorksTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.howItWorksList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: $color-neutral-text-secondary;
+    line-height: 1.5;
+  }
+}
+
+.howItWorksStep {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: $color-secondary-sky-blue;
+  color: $color-white;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
+.error {
+  color: $color-error;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 600px) {
+  .summaryStats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .summaryStatRight {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .intervalCard {
+    flex-wrap: wrap;
+  }
+
+  .intervalAction {
+    width: 100%;
+  }
+
+  .startBtn,
+  .noWordsBtn {
+    width: 100%;
+  }
+}

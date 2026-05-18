@@ -109,6 +109,9 @@
 .button__start {
   border: none;
   border-radius: 1.3rem !important;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse !important;
   padding: 0.725rem 7.80863rem 0.775rem 7.86638rem !important;
   font-family: 'Be Vietnam Pro';
   font-size: 1rem;

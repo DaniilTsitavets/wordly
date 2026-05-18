@@ -11,6 +11,32 @@
   margin: 0 auto;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  background: transparent;
+  color: $color-text;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: $color-neutral-gray-light;
+  }
+}
+
 .centered {
   display: flex;
   justify-content: center;
@@ -21,7 +47,7 @@
 }
 
 .progressContainer {
-  width: 100%;
+  flex: 1;
 }
 
 .imageContainer {

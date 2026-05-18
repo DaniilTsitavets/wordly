@@ -8,6 +8,8 @@ import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import testImg from '@/assets/test_img/test_img2.jpg'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -29,6 +31,7 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 export const WordBuilderPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -108,17 +111,22 @@ export const WordBuilderPage = () => {
     try {
       const result = await completeSession(Number(subtopicId), 'word_builder')
       setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
     } finally {
       setIsCompleting(false)
     }
-  }, [isCompleting, subtopicId])
+  }, [isCompleting, subtopicId, dispatch])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)
     sessionStorage.setItem('sessionCompleted', 'true')
+    navigate(-1)
+  }, [navigate])
+
+  const handleBack = useCallback(() => {
     navigate(-1)
   }, [navigate])
 
@@ -136,8 +144,13 @@ export const WordBuilderPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.progressContainer}>
-        <ProgressBar value={progress} color="purple" size="sm" />
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <div className={styles.progressContainer}>
+          <ProgressBar value={progress} color="purple" size="sm" />
+        </div>
       </div>
 
       <div className={styles.imageContainer}>
@@ -203,12 +216,12 @@ export const WordBuilderPage = () => {
         >
           {answerState === 'correct' ? (
             <>
-              <IconFont name="tick3" size={24} />
+              <IconFont name="filled-tick" size={24} />
               <span>Correct!</span>
             </>
           ) : (
             <>
-              <IconFont name="cross2" size={24} />
+              <IconFont name="cross" size={24} color="#fb2c36" />
               <span>Try Again</span>
             </>
           )}

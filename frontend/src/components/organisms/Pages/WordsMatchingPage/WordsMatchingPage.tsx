@@ -3,9 +3,12 @@ import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
+import { IconFont } from '@/components/atoms/IconFont'
 
 const PAIRS_PER_PAGE = 4
 
@@ -36,6 +39,7 @@ type PageType = { en: WordType[]; ru: WordType[] }
 export const WordsMatchingPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
   const [selectedRu, setSelectedRu] = useState<number | null>(null)
@@ -128,7 +132,9 @@ export const WordsMatchingPage = () => {
       const complete = async () => {
         try {
           const result = await completeSession(Number(subtopicId), 'matching')
-          setGemsEarned(result.gems_earned ?? 10)
+          const earned = result.gems_earned ?? 10
+          setGemsEarned(earned)
+          dispatch(addGems(earned))
         } catch (e) {
           console.error('Failed to complete session:', e)
         }
@@ -137,18 +143,22 @@ export const WordsMatchingPage = () => {
       }
       complete()
     }
-  }, [isAllComplete, showReward, isCompleting, subtopicId])
+  }, [isAllComplete, showReward, isCompleting, subtopicId, dispatch])
+
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
+  const handleCollect = useCallback(() => {
+    setShowReward(false)
+    sessionStorage.setItem('sessionCompleted', 'true')
+    navigate(-1)
+  }, [navigate])
 
   if (isLoading) return <div className={styles.container}>Loading...</div>
   if (error) return <div className={styles.container}>Error: {error}</div>
   if (!words || words.length === 0) return <div className={styles.container}>No words found</div>
   if (!currentPage) return <div className={styles.container}>Loading...</div>
-
-  const handleCollect = () => {
-    setShowReward(false)
-    sessionStorage.setItem('sessionCompleted', 'true')
-    navigate(-1)
-  }
 
   const progress = (matched.length / words.length) * 100
 
@@ -172,7 +182,12 @@ export const WordsMatchingPage = () => {
 
   return (
     <div className={styles.container}>
-      <ProgressBar value={progress} className={styles.progressBar} color="purple" />
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <ProgressBar value={progress} className={styles.progressBar} color="purple" />
+      </div>
       <div className={styles.heading}>
         <h2 className={styles.title}>Match the words with translations</h2>
         <p className={styles.matchedAmount}>

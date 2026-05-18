@@ -1,6 +1,8 @@
 spring:
   application:
     name: wordly-api
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/wordly}
@@ -9,6 +11,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: false
@@ -33,12 +36,19 @@ admin:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
+openrouter:
+  api-key: ${OPENROUTER_API_KEY}
+  model: ${OPENROUTER_MODEL}
+  base-url: ${OPENROUTER_BASE_URL}
+
 server:
   port: 8080
   servlet:
     context-path: /api/v1
 
 logging:
+  pattern:
+    console: "%d{MM/dd/yyyy HH:mm:ss} %highlight(%-5level) [%logger{35}] %msg%n"
   level:
     com.wordly: DEBUG
     org.springframework.security: INFO
