@@ -35,23 +35,13 @@ const columns: ColumnDef<SubtopicRow>[] = [
   },
 ]
 
-const mockSubtopics: SubtopicRow[] = [
-  { id: 1, icon: '🥗', name: 'Salads', description: 'Fresh and healthy salads', wordsCount: 5 },
-  { id: 2, icon: '🍞', name: 'Bakery', description: 'Bread and pastries', wordsCount: 4 },
-  { id: 3, icon: '🥛', name: 'Dairy', description: 'Milk, cheese and yogurt', wordsCount: 6 },
-]
-
 interface AdminSubtopicsTableProps {
-  subtopics?: SubtopicRow[]
+  subtopics: SubtopicRow[]
   onEdit?: (subtopic: SubtopicRow) => void
   onDelete?: (subtopic: SubtopicRow) => void
 }
 
-export const AdminSubtopicsTable = ({
-  subtopics = mockSubtopics,
-  onEdit,
-  onDelete,
-}: AdminSubtopicsTableProps) => {
+export const AdminSubtopicsTable = ({ subtopics, onEdit, onDelete }: AdminSubtopicsTableProps) => {
   return (
     <AdminTable<SubtopicRow>
       columns={columns}

@@ -52,40 +52,13 @@ const columns: ColumnDef<WordRow>[] = [
   },
 ]
 
-const mockWords: WordRow[] = [
-  {
-    id: 1,
-    image: '🥗',
-    english: 'Salad',
-    russian: 'салат',
-    topic: 'Food & Drinks',
-    interval: '+1d',
-  },
-  {
-    id: 2,
-    image: '🥖',
-    english: 'Bread',
-    russian: 'хлеб',
-    topic: 'Food & Drinks',
-    interval: '+1d',
-  },
-  {
-    id: 3,
-    image: '🧀',
-    english: 'Cheese',
-    russian: 'сыр',
-    topic: 'Food & Drinks',
-    interval: '+3d',
-  },
-]
-
 interface AdminWordsTableProps {
-  words?: WordRow[]
+  words: WordRow[]
   onEdit?: (word: WordRow) => void
   onDelete?: (word: WordRow) => void
 }
 
-export const AdminWordsTable = ({ words = mockWords, onEdit, onDelete }: AdminWordsTableProps) => {
+export const AdminWordsTable = ({ words, onEdit, onDelete }: AdminWordsTableProps) => {
   return (
     <AdminTable<WordRow>
       columns={columns}

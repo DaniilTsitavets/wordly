@@ -10,7 +10,10 @@ export function validateTopicForm(data: { name: string }): ValidationErrors {
   return errors
 }
 
-export function validateSubtopicForm(data: { name: string; topic_id: number | null }): ValidationErrors {
+export function validateSubtopicForm(data: {
+  name: string
+  topic_id: number | null
+}): ValidationErrors {
   const errors: ValidationErrors = {}
   if (!data.name.trim()) {
     errors.name = 'Subtopic name is required'
