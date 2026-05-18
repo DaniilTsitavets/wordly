@@ -12,22 +12,25 @@ const columns: ColumnDef<TopicRow>[] = [
   {
     key: 'icon',
     header: 'Icon',
-    width: '5rem',
+    width: '3.5rem',
     render: (item) => <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>,
   },
   {
     key: 'name',
     header: 'Name',
+    width: '8rem',
     render: (item) => <strong>{item.name}</strong>,
   },
   {
     key: 'description',
     header: 'Description',
+    maxWidth: '16.5625rem',
     render: (item) => item.description,
   },
   {
     key: 'words',
     header: 'Words',
+    width: '5rem',
     render: (item) => `${item.wordsCount} words`,
   },
 ]

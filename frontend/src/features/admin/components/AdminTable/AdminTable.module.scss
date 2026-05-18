@@ -4,52 +4,61 @@
   background: $color-white;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  gap: 7rem;
+  border-bottom: 1px solid $color-neutral-gray-light;
+}
 
-  th,
-  td {
-    padding: 1rem 1.25rem;
-    text-align: left;
-    vertical-align: middle;
+.headerCell {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $color-neutral-text-muted;
+  text-transform: capitalize;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  gap: 7rem;
+  border-bottom: 1px solid $color-neutral-gray-light;
+  transition: background-color 0.15s;
+  outline: none;
+
+  &:last-child {
+    border-bottom: none;
   }
 
-  thead {
-    tr {
-      border-bottom: 1px solid $color-neutral-gray-light;
-    }
-
-    th {
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: $color-neutral-text-muted;
-      text-transform: capitalize;
-    }
+  &:hover,
+  &:focus-visible {
+    background-color: #f9fafb;
   }
+}
 
-  tbody {
-    tr {
-      border-bottom: 1px solid $color-neutral-gray-light;
-      transition: background-color 0.15s;
+.cell {
+  flex: 1;
+  font-size: 0.875rem;
+  color: $color-neutral-text-primary;
+}
 
-      &:last-child {
-        border-bottom: none;
-      }
-
-      &:hover {
-        background-color: #f9fafb;
-      }
-    }
-
-    td {
-      font-size: 0.875rem;
-      color: $color-neutral-text-primary;
-    }
-  }
+.actionsCell {
+  flex: none;
+  width: 10rem;
 }
 
 .actions {
@@ -66,10 +75,18 @@
   font-weight: 500;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition:
+    opacity 0.15s,
+    outline 0.15s;
+  outline: 2px solid transparent;
 
   &:hover {
     opacity: 0.85;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
   }
 }
 
