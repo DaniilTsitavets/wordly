@@ -1,5 +1,7 @@
 package com.wordly.backend.entity;
 
+import com.wordly.backend.entity.converter.RoleConverter;
+import com.wordly.backend.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,6 +33,11 @@ public class User {
 
     @Column(name = "is_guest", nullable = false)
     private boolean guest;
+
+    @Convert(converter = RoleConverter.class)
+    @Column(name = "role", nullable = false)
+    @Builder.Default
+    private Role role = Role.USER;
 
     @Column(name = "interface_language")
     @Builder.Default

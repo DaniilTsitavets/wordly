@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,7 +59,7 @@ class AuthServiceTest {
             when(userRepository.existsByEmail("user@example.com")).thenReturn(false);
             when(userRepository.save(any(User.class))).thenReturn(saved);
             when(passwordEncoder.encode(anyString())).thenReturn("hashed");
-            when(jwtService.generateToken(anyLong(), anyBoolean())).thenReturn("token");
+            when(jwtService.generateToken(anyLong(), anyBoolean(), any())).thenReturn("token");
 
             AuthResponse response = authService.register(request);
 
@@ -75,7 +76,7 @@ class AuthServiceTest {
             when(userRepository.existsByEmail("user@example.com")).thenReturn(false);
             when(userRepository.save(any(User.class))).thenReturn(saved);
             when(passwordEncoder.encode(anyString())).thenReturn("hashed");
-            when(jwtService.generateToken(anyLong(), anyBoolean())).thenReturn("token");
+            when(jwtService.generateToken(anyLong(), anyBoolean(), any())).thenReturn("token");
 
             authService.register(request);
 
@@ -109,7 +110,7 @@ class AuthServiceTest {
 
             when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
             when(passwordEncoder.matches("password123", "hashed")).thenReturn(true);
-            when(jwtService.generateToken(1L, false)).thenReturn("token");
+            when(jwtService.generateToken(eq(1L), eq(false), any())).thenReturn("token");
 
             AuthResponse response = authService.login(request);
 
@@ -174,7 +175,7 @@ class AuthServiceTest {
             User saved = User.builder().id(99L).guest(true).build();
 
             when(userRepository.save(any(User.class))).thenReturn(saved);
-            when(jwtService.generateToken(99L, true)).thenReturn("guest-token");
+            when(jwtService.generateToken(eq(99L), eq(true), any())).thenReturn("guest-token");
 
             AuthResponse response = authService.loginAsGuest();
 

@@ -16,6 +16,10 @@ tags:
   - name: Learning
   - name: Recall
   - name: Vocabulary
+  - name: Admin
+    description: |
+      Admin endpoints for content management. Require ADMIN role on the JWT.
+      Access is controlled by `hasAuthority('ROLE_ADMIN')` — non-admin tokens get 403.
   - name: AI Chat
 
 paths:
@@ -101,8 +105,8 @@ paths:
     post:
       tags: [Auth]
       summary: Create a guest session
-      security: []
       description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
+      security: []
       responses:
         '201':
           description: Guest session created
@@ -533,6 +537,8 @@ paths:
                       $ref: '#/components/schemas/VocabularyWord'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   # ─── AI CHAT ────────────────────────────────────────────────
 
@@ -573,8 +579,389 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  # ─── ADMIN: TOPICS ──────────────────────────────────────
+
+  /admin/topics:
+    get:
+      tags: [Admin]
+      summary: List all topics (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of topics with subtopic counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminTopic'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Admin]
+      summary: Create a topic (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTopicRequest'
+      responses:
+        '201':
+          description: Topic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/topics/{topicId}:
+    put:
+      tags: [Admin]
+      summary: Update a topic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTopicRequest'
+      responses:
+        '200':
+          description: Topic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Admin]
+      summary: Delete a topic (admin)
+      description: Fails with 400 if the topic still has subtopics.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      responses:
+        '204':
+          description: Topic deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── ADMIN: SUBTOPICS ───────────────────────────────────
+
+  /admin/subtopics:
+    get:
+      tags: [Admin]
+      summary: List subtopics for a topic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: topic_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of subtopics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminSubtopic'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [Admin]
+      summary: Create a subtopic (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSubtopicRequest'
+      responses:
+        '201':
+          description: Subtopic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSubtopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/subtopics/{subtopicId}:
+    put:
+      tags: [Admin]
+      summary: Update a subtopic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSubtopicRequest'
+      responses:
+        '200':
+          description: Subtopic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSubtopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Admin]
+      summary: Delete a subtopic (admin)
+      description: Fails with 400 if the subtopic still has words.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '204':
+          description: Subtopic deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── ADMIN: WORDS ───────────────────────────────────────
+
+  /admin/words:
+    get:
+      tags: [Admin]
+      summary: List words for a subtopic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: subtopic_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of words
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminWord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [Admin]
+      summary: Create a word (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminWordRequest'
+      responses:
+        '201':
+          description: Word created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/words/{wordId}:
+    put:
+      tags: [Admin]
+      summary: Update a word (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminWordRequest'
+      responses:
+        '200':
+          description: Word updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Admin]
+      summary: Delete a word (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Word deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/words/bulk:
+    post:
+      tags: [Admin]
+      summary: Bulk create words for a subtopic (admin)
+      description: Inserts an array of words under one subtopic in a single transaction. Fast initial content seeding.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminBulkWordsRequest'
+      responses:
+        '201':
+          description: Words created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminBulkWordsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── ADMIN: USERS ───────────────────────────────────────
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: Paginated list of users (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+      responses:
+        '200':
+          description: Page of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
 # ─── COMPONENTS ─────────────────────────────────────────────
 
@@ -609,6 +996,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Caller is authenticated but lacks required authority
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     NotFound:
       description: Resource not found
       content:
@@ -616,7 +1009,7 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     BadRequest:
-      description: Invalid request parameters
+      description: Invalid request payload or business rule violation
       content:
         application/json:
           schema:
@@ -697,6 +1090,8 @@ components:
           format: email
         is_guest:
           type: boolean
+        role:
+          $ref: '#/components/schemas/Role'
         interface_language:
           type: string
           example: ru
@@ -1001,3 +1396,260 @@ components:
           type: string
           format: date
           nullable: true
+
+    Role:
+      type: string
+      enum: [USER, ADMIN]
+      description: User authorization role. ADMIN unlocks /admin/** endpoints.
+
+    AdminTopic:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
+        subtopics_count:
+          type: integer
+          format: int64
+          example: 3
+
+    AdminTopicRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Food
+        description:
+          type: string
+          maxLength: 10000
+        image_url:
+          type: string
+          maxLength: 255
+        sort_order:
+          type: integer
+          minimum: 0
+          example: 1
+
+    AdminSubtopic:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        topic_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
+        words_count:
+          type: integer
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+            enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+
+    AdminSubtopicRequest:
+      type: object
+      required: [topic_id, name]
+      properties:
+        topic_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 10000
+        image_url:
+          type: string
+          maxLength: 255
+        sort_order:
+          type: integer
+          minimum: 0
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+            enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+
+    AdminWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        subtopic_id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+        transcription_en:
+          type: string
+        translation_ru:
+          type: string
+        image_url:
+          type: string
+        usage_example_en:
+          type: string
+        usage_example_en_translation_ru:
+          type: string
+        mnemonic_image_url:
+          type: string
+          nullable: true
+        mnemo_text:
+          type: string
+          nullable: true
+
+    AdminWordRequest:
+      type: object
+      required: [subtopic_id, word_en, translation_ru]
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+          maxLength: 255
+        transcription_en:
+          type: string
+          maxLength: 255
+        translation_ru:
+          type: string
+          maxLength: 255
+        image_url:
+          type: string
+          maxLength: 255
+        usage_example_en:
+          type: string
+        usage_example_en_translation_ru:
+          type: string
+        mnemonic_image_url:
+          type: string
+          maxLength: 255
+          nullable: true
+        mnemo_text:
+          type: string
+          nullable: true
+
+    AdminBulkWordItem:
+      type: object
+      required: [word_en, translation_ru]
+      properties:
+        word_en:
+          type: string
+          maxLength: 255
+        transcription_en:
+          type: string
+          maxLength: 255
+        translation_ru:
+          type: string
+          maxLength: 255
+        image_url:
+          type: string
+          maxLength: 255
+        usage_example_en:
+          type: string
+        usage_example_en_translation_ru:
+          type: string
+        mnemonic_image_url:
+          type: string
+          maxLength: 255
+          nullable: true
+        mnemo_text:
+          type: string
+          nullable: true
+
+    AdminBulkWordsRequest:
+      type: object
+      required: [subtopic_id, words]
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        words:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AdminBulkWordItem'
+
+    AdminBulkWordsResponse:
+      type: object
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        created:
+          type: integer
+          example: 12
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminWord'
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          nullable: true
+        surname:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+        is_guest:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/Role'
+        streak:
+          type: integer
+        gems:
+          type: integer
+        last_active_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    AdminUsersPage:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+          example: 137
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 50
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUser'
