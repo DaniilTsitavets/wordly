@@ -99,3 +99,17 @@
   background-color: #fee2e2;
   color: #dc2626;
 }
+
+.iconImg {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+.topicLabel {
+  font-size: 0.775rem;
+  line-height: 1.3125rem;
+  color: #5a5c5c;
+  white-space: nowrap;
+}

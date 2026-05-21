@@ -1,4 +1,5 @@
 import { AdminTable, type ColumnDef } from '../AdminTable'
+import styles from '../AdminTable/AdminTable.module.scss'
 
 export type WordRow = {
   id: number
@@ -14,7 +15,9 @@ const columns: ColumnDef<WordRow>[] = [
     key: 'image',
     header: 'Image',
     width: '3.5rem',
-    render: (item) => <span style={{ fontSize: '1.5rem' }}>{item.image}</span>,
+    render: (item) => (
+      <img src={item.image} alt={item.english} className={styles.iconImg} />
+    ),
   },
   {
     key: 'english',
@@ -32,16 +35,7 @@ const columns: ColumnDef<WordRow>[] = [
     key: 'topic',
     header: 'Topic',
     render: (item) => (
-      <span
-        style={{
-          fontSize: '0.775rem',
-          lineHeight: '1.3125rem',
-          color: '#5A5C5C',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {item.topic}
-      </span>
+      <span className={styles.topicLabel}>{item.topic}</span>
     ),
   },
   {

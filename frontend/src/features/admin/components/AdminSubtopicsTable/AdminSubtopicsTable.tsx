@@ -1,4 +1,5 @@
 import { AdminTable, type ColumnDef } from '../AdminTable'
+import styles from '../AdminTable/AdminTable.module.scss'
 
 export type SubtopicRow = {
   id: number
@@ -13,7 +14,9 @@ const columns: ColumnDef<SubtopicRow>[] = [
     key: 'icon',
     header: 'Icon',
     width: '3.5rem',
-    render: (item) => <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>,
+    render: (item) => (
+      <img src={item.icon} alt={item.name} className={styles.iconImg} />
+    ),
   },
   {
     key: 'name',
