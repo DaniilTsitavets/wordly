@@ -15,9 +15,7 @@ const columns: ColumnDef<WordRow>[] = [
     key: 'image',
     header: 'Image',
     width: '3.5rem',
-    render: (item) => (
-      <img src={item.image} alt={item.english} className={styles.iconImg} />
-    ),
+    render: (item) => <img src={item.image} alt={item.english} className={styles.iconImg} />,
   },
   {
     key: 'english',
@@ -34,9 +32,7 @@ const columns: ColumnDef<WordRow>[] = [
   {
     key: 'topic',
     header: 'Topic',
-    render: (item) => (
-      <span className={styles.topicLabel}>{item.topic}</span>
-    ),
+    render: (item) => <span className={styles.topicLabel}>{item.topic}</span>,
   },
   {
     key: 'interval',

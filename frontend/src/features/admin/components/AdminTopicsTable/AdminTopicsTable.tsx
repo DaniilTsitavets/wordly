@@ -14,9 +14,7 @@ const columns: ColumnDef<TopicRow>[] = [
     key: 'icon',
     header: 'Icon',
     width: '3.5rem',
-    render: (item) => (
-      <img src={item.icon} alt={item.name} className={styles.iconImg} />
-    ),
+    render: (item) => <img src={item.icon} alt={item.name} className={styles.iconImg} />,
   },
   {
     key: 'name',

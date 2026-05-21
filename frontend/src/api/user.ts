@@ -6,6 +6,7 @@ export interface UserProfile {
   surname: string
   email: string
   is_guest: boolean
+  role: 'ADMIN' | 'USER'
   interface_language: string
   daily_goal_min: number
   notifications_enabled: boolean
