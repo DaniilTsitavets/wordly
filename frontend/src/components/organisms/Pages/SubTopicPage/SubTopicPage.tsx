@@ -5,11 +5,10 @@ import { IconFont } from '@/components/atoms/IconFont'
 import { Button } from '@/components/atoms/Button'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import type { LevelProgress } from '@/api/topics'
+import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
 import { useSubtopic } from './hooks/useSubtopic'
 import { MECHANIC_INFO } from './utils/mechanics'
 import styles from './SubTopicPage.module.scss'
-
-const DAILY_GOAL_PROGRESS_STUB = 75
 
 export function SubTopicPage() {
   const { subtopicId } = useParams<{ subtopicId: string }>()
@@ -17,14 +16,21 @@ export function SubTopicPage() {
   const location = useLocation()
   const id = Number(subtopicId)
   const { subtopic, isLoading, error, refetch } = useSubtopic(id)
+  const {
+    wordsLearnedToday,
+    dailyGoalWords,
+    progress: dailyProgress,
+    refetch: refetchDaily,
+  } = useDailyProgress()
 
   const checkSessionCompleted = useCallback(() => {
     const sessionCompleted = sessionStorage.getItem('sessionCompleted')
     if (sessionCompleted === 'true') {
       sessionStorage.removeItem('sessionCompleted')
       refetch()
+      refetchDaily()
     }
-  }, [refetch])
+  }, [refetch, refetchDaily])
 
   useEffect(() => {
     checkSessionCompleted()
@@ -77,9 +83,11 @@ export function SubTopicPage() {
         <div className={styles.dailyGoal}>
           <div className={styles.dailyGoalRow}>
             <span className={styles.dailyGoalLabel}>Daily Goal</span>
-            <span className={styles.dailyGoalValue}>{DAILY_GOAL_PROGRESS_STUB}%</span>
+            <span className={styles.dailyGoalValue}>
+              {wordsLearnedToday} / {dailyGoalWords} words
+            </span>
           </div>
-          <ProgressBar value={DAILY_GOAL_PROGRESS_STUB} color="green" size="sm" />
+          <ProgressBar value={dailyProgress} color="green" size="sm" />
         </div>
       </div>
 

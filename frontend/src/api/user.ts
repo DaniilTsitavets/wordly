@@ -39,3 +39,12 @@ export function getMe(): Promise<UserProfile> {
 export function updateMe(payload: UpdateUserPayload): Promise<UserProfile> {
   return apiRequest<UserProfile>('/users/me', { method: 'PUT', body: payload })
 }
+
+export interface DailyProgress {
+  words_learned_today: number
+  daily_goal_words: number
+}
+
+export function getDailyProgress(): Promise<DailyProgress> {
+  return apiRequest<DailyProgress>('/users/me/daily-progress')
+}
