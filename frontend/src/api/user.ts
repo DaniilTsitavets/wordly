@@ -6,6 +6,7 @@ export interface UserProfile {
   surname: string
   email: string
   is_guest: boolean
+  role: 'ADMIN' | 'USER'
   interface_language: string
   daily_goal_min: number
   notifications_enabled: boolean
@@ -37,4 +38,13 @@ export function getMe(): Promise<UserProfile> {
 
 export function updateMe(payload: UpdateUserPayload): Promise<UserProfile> {
   return apiRequest<UserProfile>('/users/me', { method: 'PUT', body: payload })
+}
+
+export interface DailyProgress {
+  words_learned_today: number
+  daily_goal_words: number
+}
+
+export function getDailyProgress(): Promise<DailyProgress> {
+  return apiRequest<DailyProgress>('/users/me/daily-progress')
 }

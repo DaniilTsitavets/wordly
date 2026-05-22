@@ -29,7 +29,7 @@ export function VocabularyPage() {
         <button
           type="button"
           className={styles.backButton}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           aria-label="Go back"
         >
           <IconFont name="arrow-back" size={22} decorative />

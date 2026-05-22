@@ -202,6 +202,19 @@ const subtopicProgress = {
   2: 'flashcards',   // subtopic 2 starts with flashcards (mnemonic_cards disabled)
 };
 
+// Track words learned today (resets on server restart)
+const dailyProgress = {
+  completedSubtopicFirstMechanics: new Set([1]), // subtopic 1 already passed first mechanic
+};
+
+function getWordsLearnedToday() {
+  let total = 0;
+  for (const subtopicId of dailyProgress.completedSubtopicFirstMechanics) {
+    total += words.filter(w => w.subtopic_id === subtopicId).length;
+  }
+  return total;
+}
+
 const makeLevels = (currentMechanic, disabled = []) => {
   const available = MECHANICS.filter(m => !disabled.includes(m));
   if (!currentMechanic) {
@@ -242,10 +255,22 @@ app.post('/api/v1/auth/logout', (req, res) => res.sendStatus(204));
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
-app.get('/api/v1/users/me', (req, res) => res.json(MOCK_USER));
+app.get('/api/v1/users/me', (req, res) => {
+  if (isGuest(req)) {
+    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, gems: 0 });
+  }
+  res.json(MOCK_USER);
+});
 app.put('/api/v1/users/me', (req, res) => {
   Object.assign(MOCK_USER, req.body);
   res.json(MOCK_USER);
+});
+
+app.get('/api/v1/users/me/daily-progress', (req, res) => {
+  res.json({
+    words_learned_today: getWordsLearnedToday(),
+    daily_goal_words: MOCK_USER.daily_goal_min,
+  });
 });
 
 // ─── TOPICS ──────────────────────────────────────────────────────────────────
@@ -277,12 +302,20 @@ app.post('/api/v1/subtopics/batch', (req, res) => {
   const { ids } = req.body;
   if (!ids || ids.length === 0) return res.status(400).json({ code: 'BAD_REQUEST', message: 'ids must not be empty' });
   const result = subtopics.filter(s => ids.includes(s.id)).map(s => {
+    const currentMechanic = subtopicProgress[s.id] !== undefined
+      ? subtopicProgress[s.id]
+      : (s.disabled_mechanics.includes('mnemonic_cards') ? 'flashcards' : 'mnemonic_cards');
+    const levels = makeLevels(currentMechanic, s.disabled_mechanics);
+    const totalMechanics = levels.length;
+    const completedMechanics = levels.filter(l => l.status === 'completed').length;
     const summary = {
       id: s.id, name: s.name, description: s.description,
       image_url: s.image_url, sort_order: s.sort_order,
       words_count: words.filter(w => w.subtopic_id === s.id).length,
       disabled_mechanics: s.disabled_mechanics,
       status: isGuest(req) && s.id !== 1 ? 'locked' : s.status,
+      completed_mechanics_count: completedMechanics,
+      total_mechanics_count: totalMechanics,
     };
     return summary;
   });
@@ -341,7 +374,11 @@ app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
   const idx = availableMechanics.indexOf(mechanic_type);
   const next = idx >= 0 && idx < availableMechanics.length - 1 ? availableMechanics[idx + 1] : null;
   subtopicProgress[id] = next;
-  console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}`);
+  // Track words learned today: first mechanic of a subtopic = new words
+  if (idx === 0) {
+    dailyProgress.completedSubtopicFirstMechanics.add(id);
+  }
+  console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}, words today: ${getWordsLearnedToday()}`);
   res.json({ mechanic_type, gems_earned: 5, next_mechanic: next, subtopic_completed: next === null });
 });
 

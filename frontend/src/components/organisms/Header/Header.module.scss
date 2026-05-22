@@ -118,6 +118,44 @@
 .right {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.adminBtn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #6631db;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  svg,
+  [class^='icon'] {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+    color: #6631db;
+  }
+
+  &:hover {
+    background: rgba(102, 49, 219, 0.08);
+
+    .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6631db;
+    outline-offset: 2px;
+  }
 }
 
 .loginBtn {

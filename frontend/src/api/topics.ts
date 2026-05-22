@@ -23,6 +23,8 @@ export interface SubtopicSummary {
   words_count: number
   disabled_mechanics: string[]
   status: 'locked' | 'unblocked' | 'in_progress' | 'completed'
+  completed_mechanics_count: number
+  total_mechanics_count: number
 }
 
 export function getTopics(): Promise<TopicsResponse> {

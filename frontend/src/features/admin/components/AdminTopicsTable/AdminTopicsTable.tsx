@@ -1,4 +1,5 @@
 import { AdminTable, type ColumnDef } from '../AdminTable'
+import styles from '../AdminTable/AdminTable.module.scss'
 
 export type TopicRow = {
   id: number
@@ -13,7 +14,7 @@ const columns: ColumnDef<TopicRow>[] = [
     key: 'icon',
     header: 'Icon',
     width: '3.5rem',
-    render: (item) => <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>,
+    render: (item) => <img src={item.icon} alt={item.name} className={styles.iconImg} />,
   },
   {
     key: 'name',
@@ -35,36 +36,13 @@ const columns: ColumnDef<TopicRow>[] = [
   },
 ]
 
-// Example mock data — replace with real data source
-const mockTopics: TopicRow[] = [
-  {
-    id: 1,
-    icon: '🥗',
-    name: 'Food & Drinks',
-    description: 'Essential vocabulary for dining and cooking',
-    wordsCount: 10,
-  },
-  {
-    id: 2,
-    icon: '✈️',
-    name: 'Travel',
-    description: 'Words for getting around and exploring',
-    wordsCount: 8,
-  },
-  { id: 3, icon: '🏠', name: 'Home', description: 'Household items and rooms', wordsCount: 12 },
-]
-
 interface AdminTopicsTableProps {
-  topics?: TopicRow[]
+  topics: TopicRow[]
   onEdit?: (topic: TopicRow) => void
   onDelete?: (topic: TopicRow) => void
 }
 
-export const AdminTopicsTable = ({
-  topics = mockTopics,
-  onEdit,
-  onDelete,
-}: AdminTopicsTableProps) => {
+export const AdminTopicsTable = ({ topics, onEdit, onDelete }: AdminTopicsTableProps) => {
   return (
     <AdminTable<TopicRow>
       columns={columns}

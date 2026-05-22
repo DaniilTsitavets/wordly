@@ -5,15 +5,18 @@ import { Button } from '../../atoms/Button'
 import { WordlyLogo } from '../../../assets/icons'
 import { IconFont } from '../../atoms/IconFont'
 import styles from './Header.module.scss'
+import { Link } from 'react-router-dom'
 
 interface HeaderAuthProps {
   isAuthenticated: true
   streak?: number
   gems?: number
+  isAdmin?: boolean
   onLogout: () => void
   onProfileClick?: () => void
   onVocabularyClick?: () => void
   onRecallClick?: () => void
+  onAdminClick?: () => void
   avatarSrc?: string
   onLoginClick?: never
   className?: string
@@ -48,9 +51,9 @@ export const Header = (props: HeaderProps) => {
 
   return (
     <header className={`${styles.header} ${className}`} role="banner">
-      <div className={styles.left}>
+      <Link to="/" className={styles.left} aria-label="Home">
         <WordlyLogo />
-      </div>
+      </Link>
 
       {isAuthenticated ? (
         <div className={styles.center}>
@@ -115,6 +118,17 @@ export const Header = (props: HeaderProps) => {
       )}
 
       <div className={styles.right}>
+        {isAuthenticated && props.isAdmin && (
+          <button
+            type="button"
+            className={styles.adminBtn}
+            aria-label="Admin Panel"
+            onClick={props.onAdminClick}
+          >
+            <IconFont name="settings" />
+            <span className={styles.tooltip}>Admin Panel</span>
+          </button>
+        )}
         {isAuthenticated ? (
           <div className={styles.avatarWrapper} ref={menuRef}>
             <Avatar
