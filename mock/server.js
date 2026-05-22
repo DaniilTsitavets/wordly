@@ -242,7 +242,12 @@ app.post('/api/v1/auth/logout', (req, res) => res.sendStatus(204));
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
-app.get('/api/v1/users/me', (req, res) => res.json(MOCK_USER));
+app.get('/api/v1/users/me', (req, res) => {
+  if (isGuest(req)) {
+    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, gems: 0 });
+  }
+  res.json(MOCK_USER);
+});
 app.put('/api/v1/users/me', (req, res) => {
   Object.assign(MOCK_USER, req.body);
   res.json(MOCK_USER);

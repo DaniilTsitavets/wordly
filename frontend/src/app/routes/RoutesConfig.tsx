@@ -12,72 +12,74 @@ import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/Wo
 import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
 import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
 
+export type RouteAccess = 'public' | 'protected' | 'game'
+
 interface IRoute {
   path: string
   element: JSX.Element
-  isProtected?: boolean
+  access: RouteAccess
 }
 
 export const routesConfig: IRoute[] = [
   {
     path: '/',
     element: <TopicPage />,
-    isProtected: false,
+    access: 'public',
   },
   {
     path: '/onboarding/daily-goal',
     element: <OnboardingPage />,
-    isProtected: false,
+    access: 'public',
   },
   {
     path: '/:topic/:subtopic/:subtopicId',
     element: <SubTopicPage />,
-    isProtected: false,
+    access: 'public',
   },
   {
     path: '/profile',
     element: <ProfilePage />,
-    isProtected: false,
+    access: 'protected',
   },
   {
     path: '/vocabulary',
     element: <VocabularyPage />,
-    isProtected: false,
+    access: 'protected',
   },
   {
     path: '/recall',
     element: <RecallPage />,
-    isProtected: false,
+    access: 'protected',
   },
   {
     path: '/recall/practice',
     element: <RecallMechanicPage />,
-    isProtected: false,
+    access: 'protected',
   },
   {
     path: '/subtopics/:subtopicId/matching',
     element: <WordsMatchingPage />,
-    isProtected: false,
+    access: 'game',
   },
   {
     path: '/subtopics/:subtopicId/flashcards',
     element: <FlashCardsPage />,
-    isProtected: false,
+    access: 'game',
   },
   {
     path: '/subtopics/:subtopicId/mnemonic-cards',
     element: <MnemonicCardsPage />,
-    isProtected: false,
+    access: 'game',
   },
   {
     path: '/subtopics/:subtopicId/word-builder',
     element: <WordBuilderPage />,
-    isProtected: false,
+    access: 'game',
   },
   {
     path: '/subtopics/:subtopicId/filling-gaps',
     element: <FillingGapsPage />,
-    isProtected: false,
+    access: 'game',
   },
 ]
 
