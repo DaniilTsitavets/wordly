@@ -86,7 +86,6 @@ export function RecallPage() {
         aria-label="Back to Home"
       >
         <IconFont name="arrow-back" size={18} decorative />
-        Back to Home
       </button>
 
       <div className={styles.heroBlock}>
