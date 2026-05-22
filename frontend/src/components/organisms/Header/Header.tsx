@@ -5,6 +5,7 @@ import { Button } from '../../atoms/Button'
 import { WordlyLogo } from '../../../assets/icons'
 import { IconFont } from '../../atoms/IconFont'
 import styles from './Header.module.scss'
+import { Link } from 'react-router-dom'
 
 interface HeaderAuthProps {
   isAuthenticated: true
@@ -50,9 +51,9 @@ export const Header = (props: HeaderProps) => {
 
   return (
     <header className={`${styles.header} ${className}`} role="banner">
-      <div className={styles.left}>
+      <Link to="/" className={styles.left} aria-label="Home">
         <WordlyLogo />
-      </div>
+      </Link>
 
       {isAuthenticated ? (
         <div className={styles.center}>

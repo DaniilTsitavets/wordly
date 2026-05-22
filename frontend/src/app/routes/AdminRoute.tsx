@@ -8,7 +8,6 @@ interface AdminRouteProps {
   children: React.ReactNode
 }
 
-
 export function AdminRoute({ children }: AdminRouteProps) {
   const dispatch = useAppDispatch()
   const token = useAppSelector((state) => state.auth.token)

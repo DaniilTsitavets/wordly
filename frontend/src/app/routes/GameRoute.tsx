@@ -7,7 +7,6 @@ interface GameRouteProps {
 
 const FIRST_SUBTOPIC_ID = '1'
 
-
 export function GameRoute({ children }: GameRouteProps) {
   const token = useAppSelector((state) => state.auth.token)
   const user = useAppSelector((state) => state.auth.user)
