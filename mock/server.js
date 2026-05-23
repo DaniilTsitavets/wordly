@@ -144,6 +144,13 @@ let nextTopicId = 2;
 let nextSubtopicId = 3;
 let nextWordId = 19;
 
+const dailyGames = [
+  { id: 1, idiom: 'Break a leg', option_1: 'Сломать ногу', option_2: 'Пожелать удачи', option_3: 'Убежать', option_4: 'Упасть', correct_option: 2, scheduled_date: null },
+  { id: 2, idiom: 'Hit the sack', option_1: 'Ударить мешок', option_2: 'Идти на рынок', option_3: 'Лечь спать', option_4: 'Уволиться', correct_option: 3, scheduled_date: null },
+  { id: 3, idiom: 'Bite the bullet', option_1: 'Стрелять в цель', option_2: 'Смириться и терпеть', option_3: 'Съесть быстро', option_4: 'Испугаться', correct_option: 2, scheduled_date: null },
+];
+let nextDailyGameId = 4;
+
 const mockUsers = [
   { id: 1, name: 'Alex', surname: 'Smith', email: 'mock@test.com',
     is_guest: false, role: 'ADMIN', streak: 5, gems: 150,
@@ -553,6 +560,63 @@ app.get('/api/v1/admin/users', (req, res) => {
   const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
   const start = (page - 1) * limit;
   res.json({ total: mockUsers.length, page, limit, users: mockUsers.slice(start, start + limit) });
+});
+
+// ─── ADMIN: DAILY GAMES ──────────────────────────────────────────────────────
+
+app.get('/api/v1/admin/daily-games', (req, res) => {
+  res.json(dailyGames);
+});
+
+app.post('/api/v1/admin/daily-games', (req, res) => {
+  const { idiom, option_1, option_2, option_3, option_4, correct_option } = req.body;
+  if (!idiom || !option_1 || !option_2 || !option_3 || !option_4 || !correct_option)
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'idiom, option_1-4 and correct_option are required' });
+  if (correct_option < 1 || correct_option > 4)
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'correct_option must be between 1 and 4' });
+  const game = { id: nextDailyGameId++, idiom, option_1, option_2, option_3, option_4, correct_option, scheduled_date: null };
+  dailyGames.push(game);
+  res.status(201).json(game);
+});
+
+app.put('/api/v1/admin/daily-games/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const idx = dailyGames.findIndex(g => g.id === id);
+  if (idx === -1) return res.status(404).json({ code: 'NOT_FOUND', message: 'Daily game not found' });
+  const { idiom, option_1, option_2, option_3, option_4, correct_option } = req.body;
+  if (!idiom || !option_1 || !option_2 || !option_3 || !option_4 || !correct_option)
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'idiom, option_1-4 and correct_option are required' });
+  if (correct_option < 1 || correct_option > 4)
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'correct_option must be between 1 and 4' });
+  dailyGames[idx] = { ...dailyGames[idx], idiom, option_1, option_2, option_3, option_4, correct_option };
+  res.json(dailyGames[idx]);
+});
+
+app.delete('/api/v1/admin/daily-games/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const idx = dailyGames.findIndex(g => g.id === id);
+  if (idx === -1) return res.status(404).json({ code: 'NOT_FOUND', message: 'Daily game not found' });
+  dailyGames.splice(idx, 1);
+  res.sendStatus(204);
+});
+
+// ─── DAILY GAME (public) ──────────────────────────────────────────────────────
+
+app.get('/api/v1/daily-game', (req, res) => {
+  const today = new Date().toLocaleDateString('sv', { timeZone: 'Europe/Paris' });
+  let game = dailyGames.find(g => g.scheduled_date === today);
+  if (!game) {
+    const unassigned = dailyGames.filter(g => !g.scheduled_date);
+    if (!unassigned.length) return res.status(404).json({ code: 'NOT_FOUND', message: 'No daily games available' });
+    game = unassigned[Math.floor(Math.random() * unassigned.length)];
+    game.scheduled_date = today;
+  }
+  res.json({
+    id: game.id,
+    idiom: game.idiom,
+    options: [game.option_1, game.option_2, game.option_3, game.option_4],
+    correct_option: game.correct_option,
+  });
 });
 
 // ─── AI CHAT ─────────────────────────────────────────────────────────────────
