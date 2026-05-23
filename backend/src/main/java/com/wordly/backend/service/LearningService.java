@@ -125,10 +125,12 @@ public class LearningService {
         progress.setCompletedAt(LocalDateTime.now());
         progressRepository.save(progress);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
-        user.setGems(user.getGems() + GEMS_PER_LEVEL);
-        userRepository.save(user);
+        if (!isGuest) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+            user.setGems(user.getGems() + GEMS_PER_LEVEL);
+            userRepository.save(user);
+        }
 
         applyWordStateTransition(subtopicId, userId, mechanicType);
 
@@ -148,7 +150,8 @@ public class LearningService {
             }
         }
 
-        return new LevelCompleteResultResponse(mechanicType, GEMS_PER_LEVEL, nextMechanic, nextMechanic == null);
+        int gemsEarned = isGuest ? 0 : GEMS_PER_LEVEL;
+        return new LevelCompleteResultResponse(mechanicType, gemsEarned, nextMechanic, nextMechanic == null);
     }
 
     private MechanicType resolveCurrentMechanic(
