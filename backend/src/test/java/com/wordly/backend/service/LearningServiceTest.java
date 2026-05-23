@@ -356,8 +356,8 @@ class LearningServiceTest {
         }
 
         @Test
-        @DisplayName("should throw IllegalStateException when the level is already completed")
-        void shouldThrowWhenAlreadyCompleted() {
+        @DisplayName("should return idempotent result when the level is already completed")
+        void shouldReturnIdempotentResultWhenAlreadyCompleted() {
             Subtopic s = subtopic(10L);
             UserSubtopicLevelMechanicProgress alreadyDone = progress(s, MechanicType.MATCHING, ProgressStatus.COMPLETED);
 
@@ -367,9 +367,13 @@ class LearningServiceTest {
             when(progressRepository.findByUserIdAndSubtopicIdAndMechanicType(1L, 10L, MechanicType.MATCHING))
                     .thenReturn(Optional.of(alreadyDone));
 
-            assertThatThrownBy(() -> learningService.completeLevel(
+            LevelCompleteResultResponse result = learningService.completeLevel(
                     10L, new CompleteSessionRequest(MechanicType.MATCHING), 1L, false
-            )).isInstanceOf(IllegalStateException.class);
+            );
+
+            assertThat(result.mechanicType()).isEqualTo(MechanicType.MATCHING);
+            assertThat(result.gemsEarned()).isEqualTo(0);
+            assertThat(result.subtopicCompleted()).isTrue();
         }
 
         @Test
