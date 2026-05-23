@@ -192,6 +192,29 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /users/me/daily-progress:
+    get:
+      tags: [Users]
+      summary: Get daily learning progress
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Words learned today vs daily goal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  words_learned_today:
+                    type: integer
+                    example: 12
+                  daily_goal_words:
+                    type: integer
+                    example: 10
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
   # ─── TOPICS ─────────────────────────────────────────────
 
   /topics:

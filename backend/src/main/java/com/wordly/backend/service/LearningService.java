@@ -117,7 +117,8 @@ public class LearningService {
                 });
 
         if (progress.getStatus() == ProgressStatus.COMPLETED) {
-            throw new IllegalStateException("Level already completed");
+            MechanicType alreadyNext = findNextMechanic(activeMechanics, mechanicType);
+            return new LevelCompleteResultResponse(mechanicType, 0, alreadyNext, alreadyNext == null);
         }
 
         progress.setStatus(ProgressStatus.COMPLETED);
