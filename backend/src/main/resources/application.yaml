@@ -50,5 +50,7 @@ logging:
   pattern:
     console: "%d{MM/dd/yyyy HH:mm:ss} %highlight(%-5level) [%logger{35}] %msg%n"
   level:
+    root: WARN
     com.wordly: DEBUG
-    org.springframework.security: INFO
+    org.flywaydb: INFO
+    org.springframework.boot.web.embedded: INFO

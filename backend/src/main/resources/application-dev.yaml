@@ -1,3 +1,3 @@
 logging:
   level:
-    org.springframework.security: DEBUG
+    com.wordly: DEBUG
