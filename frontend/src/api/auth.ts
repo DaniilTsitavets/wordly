@@ -41,4 +41,3 @@ export function logout(): Promise<void> {
 export function loginAsGuest(): Promise<AuthResponse> {
   return apiRequest<AuthResponse>('/auth/guest', { method: 'POST', auth: false })
 }
-
