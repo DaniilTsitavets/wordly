@@ -7,8 +7,12 @@ import { Button } from '@/components/atoms/Button'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { Tabs } from '@/components/molecules/Tabs'
 import type { UpdateUserPayload, UserProfile } from '@/api/user'
+import { updateMe } from '@/api/user'
 import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
+import { useAppDispatch } from '@/store/hooks'
+import { setUser } from '@/store/slices/authSlice'
 import { useProfile } from './hooks/useProfile'
+import { ChangeGoalModal } from './ChangeGoalModal'
 import styles from './ProfilePage.module.scss'
 
 const PASSWORD_PLACEHOLDER = '••••••••••••••••'
@@ -364,11 +368,41 @@ function FieldRow({
 }
 
 function StatisticsTabContent() {
-  const { wordsLearnedToday, dailyGoalWords, progress } = useDailyProgress()
+  const dispatch = useAppDispatch()
+  const { wordsLearnedToday, dailyGoalWords, progress, refetch } = useDailyProgress()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSaveGoal = async (words: number) => {
+    try {
+      setIsSaving(true)
+      const updated = await updateMe({ daily_goal_words: words })
+      dispatch(setUser(updated))
+      await refetch()
+      setIsModalOpen(false)
+    } catch {
+      // keep the modal open so the user can retry
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   return (
     <div className={styles.statsTab}>
-      <DailyGoalCard wordsLearned={wordsLearnedToday} target={dailyGoalWords} progress={progress} />
+      <DailyGoalCard
+        wordsLearned={wordsLearnedToday}
+        target={dailyGoalWords}
+        progress={progress}
+        onChangeGoal={() => setIsModalOpen(true)}
+      />
+      {isModalOpen && (
+        <ChangeGoalModal
+          currentWords={dailyGoalWords}
+          isSaving={isSaving}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveGoal}
+        />
+      )}
     </div>
   )
 }
@@ -377,9 +411,10 @@ interface DailyGoalCardProps {
   wordsLearned: number
   target: number
   progress: number
+  onChangeGoal: () => void
 }
 
-function DailyGoalCard({ wordsLearned, target, progress }: DailyGoalCardProps) {
+function DailyGoalCard({ wordsLearned, target, progress, onChangeGoal }: DailyGoalCardProps) {
   return (
     <section className={styles.dailyGoalCard}>
       <div className={styles.dailyGoalHeader}>
@@ -396,7 +431,7 @@ function DailyGoalCard({ wordsLearned, target, progress }: DailyGoalCardProps) {
 
       <ProgressBar value={progress} color="purple" size="sm" />
 
-      <Button variant="secondary" size="sm" className={styles.changeGoalBtn}>
+      <Button variant="secondary" size="sm" className={styles.changeGoalBtn} onClick={onChangeGoal}>
         Change Goal
       </Button>
     </section>

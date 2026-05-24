@@ -23,7 +23,7 @@ const isGuest = (req) => {
 
 const DEFAULT_USER = {
   id: 1, name: 'Alex', surname: 'Smith', email: 'mock@test.com',
-  is_guest: false, role: 'ADMIN', interface_language: 'ru', daily_goal_min: 10,
+  is_guest: false, role: 'ADMIN', interface_language: 'ru', daily_goal_min: 10, daily_goal_words: 10,
   notifications_enabled: true, color_theme: 'system',
   onboarding_completed: false,
   streak: 5, gems: 150,
@@ -38,9 +38,6 @@ const resetMockUser = (overrides = {}) => {
   Object.assign(MOCK_USER, DEFAULT_USER, overrides);
 };
 
-// Subtopic 1 — 9 words, 6 with mnemonics → Level 0 (mnemonic_cards) active
-const WORDS_1 = [
-  { id: 1, word_en: 'plate', transcription_en: 'pleɪt', translation_ru: 'тарелка',
 // ─── MUTABLE DATA STORES ─────────────────────────────────────────────────────
 
 const topics = [
@@ -288,7 +285,7 @@ app.put('/api/v1/users/me', (req, res) => {
 app.get('/api/v1/users/me/daily-progress', (req, res) => {
   res.json({
     words_learned_today: getWordsLearnedToday(),
-    daily_goal_words: MOCK_USER.daily_goal_min,
+    daily_goal_words: MOCK_USER.daily_goal_words,
   });
 });
 

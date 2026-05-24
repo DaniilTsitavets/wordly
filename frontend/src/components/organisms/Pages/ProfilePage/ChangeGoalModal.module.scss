@@ -1,0 +1,87 @@
+@use '../../../../styles/index' as *;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: $color-neutral-text-muted;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.options {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.option {
+  flex: 1;
+  min-width: 96px;
+  max-width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  border: 2px solid $color-neutral-gray-light;
+  background: $color-white;
+  color: $color-neutral-text-secondary;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
+
+  &:hover {
+    border-color: $color-primary-light;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.optionActive {
+  border-color: $color-primary;
+  background: #f5f3ff;
+  color: $color-primary;
+}
+
+.optionMinutes {
+  font-size: 18px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+
+  .optionActive & {
+    color: $color-primary;
+  }
+}
+
+.optionLabel {
+  font-size: 12px;
+  text-align: center;
+}
+
+.saveBtn {
+  margin-top: 16px;
+  width: 100%;
+  border-radius: 999px !important;
+}
