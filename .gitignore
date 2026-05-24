@@ -6,6 +6,9 @@
 target/
 hs_err_pid*
 
+# OpenAPI Generator output
+backend/src/main/gen/
+
 # Node
 node_modules/
 frontend/node_modules/

@@ -1,5 +1,6 @@
 package com.wordly.backend.config;
 
+import com.wordly.backend.entity.enums.Role;
 import com.wordly.backend.service.JwtService;
 import com.wordly.backend.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
@@ -42,12 +43,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (jwtService.isTokenValid(token) && !tokenBlacklistService.isRevoked(token)) {
             Long userId = jwtService.extractUserId(token);
             boolean isGuest = jwtService.extractIsGuest(token);
-            String role = isGuest ? "ROLE_GUEST" : "ROLE_USER";
+            Role role = jwtService.extractRole(token);
+
+            String authority;
+            if (isGuest) {
+                authority = "ROLE_GUEST";
+            } else if (role == Role.ADMIN) {
+                authority = "ROLE_ADMIN";
+            } else {
+                authority = "ROLE_USER";
+            }
+
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userId,
                             null,
-                            List.of(new SimpleGrantedAuthority(role))
+                            List.of(new SimpleGrantedAuthority(authority))
                     );
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

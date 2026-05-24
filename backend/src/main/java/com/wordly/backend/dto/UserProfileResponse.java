@@ -3,6 +3,7 @@ package com.wordly.backend.dto;
 import com.wordly.backend.entity.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordly.backend.entity.enums.ColorTheme;
+import com.wordly.backend.entity.enums.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +15,8 @@ public record UserProfileResponse(
         String email,
         @JsonProperty("is_guest")
         boolean isGuest,
+
+        Role role,
 
         @JsonProperty("interface_language")
         String interfaceLanguage,
@@ -43,6 +46,7 @@ public record UserProfileResponse(
                 user.getSurname(),
                 user.getEmail(),
                 user.isGuest(),
+                user.getRole() == null ? Role.USER : user.getRole(),
                 user.getInterfaceLanguage(),
                 user.getDailyGoalMin(),
                 user.getNotificationsEnabled(),

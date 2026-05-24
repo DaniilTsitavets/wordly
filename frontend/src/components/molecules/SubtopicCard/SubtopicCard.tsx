@@ -21,6 +21,8 @@ export function SubtopicCard({
   wordCount,
   topicTitle,
   status,
+  completedMechanicsCount,
+  totalMechanicsCount,
   themeIndex,
 }: SubtopicCardProps) {
   const navigate = useNavigate()
@@ -30,6 +32,8 @@ export function SubtopicCard({
       ((resolvedThemeIndex % CARD_THEMES.length) + CARD_THEMES.length) % CARD_THEMES.length
     ]
   const isLocked = status === 'locked'
+  const progress =
+    totalMechanicsCount > 0 ? Math.round((completedMechanicsCount / totalMechanicsCount) * 100) : 0
 
   return (
     <section
@@ -58,7 +62,7 @@ export function SubtopicCard({
             <IconFont name="star" size="1rem" />
           </div>
           <span className={styles.word__count}>{wordCount} words</span>
-          <ProgressBar value={50} showValue={true} />
+          <ProgressBar value={progress} showValue={true} />
         </div>
 
         {isLocked ? (

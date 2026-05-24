@@ -32,7 +32,7 @@ public class LearningService {
     private final UserWordStateRepository userWordStateRepository;
     private final ProgressComputationService progressComputationService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public SessionDataResponse getSession(Long subtopicId, Long userId, boolean isGuest) {
         Subtopic subtopic = subtopicService.getAccessibleSubtopic(subtopicId, isGuest);
         List<MechanicType> activeMechanics = progressComputationService.getActiveMechanics(subtopic);
@@ -48,6 +48,15 @@ public class LearningService {
                 ));
 
         MechanicType currentMechanic = resolveCurrentMechanic(activeMechanics, progressMap);
+
+        if (!progressMap.containsKey(currentMechanic)) {
+            progressRepository.save(UserSubtopicLevelMechanicProgress.builder()
+                    .userId(userId)
+                    .subtopic(subtopic)
+                    .mechanicType(currentMechanic)
+                    .status(ProgressStatus.IN_PROGRESS)
+                    .build());
+        }
 
         List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(subtopicId);
         List<SessionWordResponse> sessionWords = words.stream()
@@ -80,29 +89,51 @@ public class LearningService {
     public LevelCompleteResultResponse completeLevel(Long subtopicId, CompleteSessionRequest request, Long userId, boolean isGuest) {
         Subtopic subtopic = subtopicService.getAccessibleSubtopic(subtopicId, isGuest);
         MechanicType mechanicType = request.mechanicType();
+        List<MechanicType> activeMechanics = progressComputationService.getActiveMechanics(subtopic);
 
         UserSubtopicLevelMechanicProgress progress = progressRepository
                 .findByUserIdAndSubtopicIdAndMechanicType(userId, subtopicId, mechanicType)
-                .orElseThrow(() -> new LevelLockedException("Level not unlocked: " + mechanicType));
+                .orElseGet(() -> {
+                    int idx = activeMechanics.indexOf(mechanicType);
+                    if (idx < 0) {
+                        throw new LevelLockedException("Level not unlocked: " + mechanicType);
+                    }
+                    if (idx > 0) {
+                        MechanicType prev = activeMechanics.get(idx - 1);
+                        boolean prevCompleted = progressRepository
+                                .findByUserIdAndSubtopicIdAndMechanicType(userId, subtopicId, prev)
+                                .map(p -> p.getStatus() == ProgressStatus.COMPLETED)
+                                .orElse(false);
+                        if (!prevCompleted) {
+                            throw new LevelLockedException("Level not unlocked: " + mechanicType);
+                        }
+                    }
+                    return progressRepository.save(UserSubtopicLevelMechanicProgress.builder()
+                            .userId(userId)
+                            .subtopic(subtopic)
+                            .mechanicType(mechanicType)
+                            .status(ProgressStatus.IN_PROGRESS)
+                            .build());
+                });
 
         if (progress.getStatus() == ProgressStatus.COMPLETED) {
-            throw new IllegalStateException("Level already completed");
+            MechanicType alreadyNext = findNextMechanic(activeMechanics, mechanicType);
+            return new LevelCompleteResultResponse(mechanicType, 0, alreadyNext, alreadyNext == null);
         }
-
-        progress.setStatus(ProgressStatus.COMPLETED);
 
         progress.setStatus(ProgressStatus.COMPLETED);
         progress.setCompletedAt(LocalDateTime.now());
         progressRepository.save(progress);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
-        user.setGems(user.getGems() + GEMS_PER_LEVEL);
-        userRepository.save(user);
+        if (!isGuest) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+            user.setGems(user.getGems() + GEMS_PER_LEVEL);
+            userRepository.save(user);
+        }
 
         applyWordStateTransition(subtopicId, userId, mechanicType);
 
-        List<MechanicType> activeMechanics = progressComputationService.getActiveMechanics(subtopic);
         MechanicType nextMechanic = findNextMechanic(activeMechanics, mechanicType);
 
         if (nextMechanic != null) {
@@ -119,7 +150,8 @@ public class LearningService {
             }
         }
 
-        return new LevelCompleteResultResponse(mechanicType, GEMS_PER_LEVEL, nextMechanic, nextMechanic == null);
+        int gemsEarned = isGuest ? 0 : GEMS_PER_LEVEL;
+        return new LevelCompleteResultResponse(mechanicType, gemsEarned, nextMechanic, nextMechanic == null);
     }
 
     private MechanicType resolveCurrentMechanic(

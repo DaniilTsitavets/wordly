@@ -6,13 +6,16 @@ import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { Button } from '@/components/atoms/Button'
 import { IconFont } from '@/components/atoms/IconFont'
 import { RewardModal } from '@/components/molecules/RewardModal'
-import { useWords } from './hooks/useWords'
+import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import styles from './FlashCardsPage.module.scss'
 
 export const FlashCardsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
@@ -57,6 +60,7 @@ export const FlashCardsPage = () => {
     try {
       const result = await completeSession(Number(subtopicId), 'flashcards')
       setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
@@ -67,12 +71,22 @@ export const FlashCardsPage = () => {
 
   const handleCollect = () => {
     setShowReward(false)
+    sessionStorage.setItem('sessionCompleted', 'true')
+    navigate(-1)
+  }
+
+  const handleBack = () => {
     navigate(-1)
   }
 
   return (
     <section className={styles.container}>
-      <ProgressBar value={progress} />
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <ProgressBar value={progress} />
+      </div>
       <p>{`Card ${currentIndex + 1} of ${words.length}`}</p>
 
       <Card
@@ -81,8 +95,8 @@ export const FlashCardsPage = () => {
         transcriptionEn={word.transcription_en}
         translationRu={word.translation_ru}
         imageUrl={word.image_url || testImg}
-        hasMnemonic={word.has_mnemonic}
-        mnemonicText={word.mnemonic_text}
+        hasMnemonic={false}
+        mnemonicText={undefined}
         usageExampleEn={word.usage_example_en}
         usageExampleRu={word.usage_example_ru}
         isFlipped={isCardFlipped}

@@ -56,9 +56,12 @@ export function Layout() {
             isAuthenticated
             streak={user?.streak ?? 0}
             gems={user?.gems ?? 0}
+            isAdmin={user?.role === 'ADMIN'}
             onLogout={handleLogout}
             onProfileClick={() => navigate('/profile')}
             onVocabularyClick={() => navigate('/vocabulary')}
+            onRecallClick={() => navigate('/recall')}
+            onAdminClick={() => navigate('/admin/dashboard')}
           />
         ) : (
           <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />

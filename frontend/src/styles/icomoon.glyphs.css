@@ -22,11 +22,21 @@
 .icon-arrow-right:before { content: '\f00e'; }
 .icon-eye:before { content: '\f00f'; }
 .icon-cross2:before { content: '\f010'; }
+.icon-cross2-red {
+  color: #fb2c36 !important;
+  font-palette: --paletteRed;
+}
+.icon-cross2-red:before { content: '\f010'; }
 .icon-clock:before { content: '\f011'; }
 .icon-calendar:before { content: '\f012'; }
 .icon-lock2:before { content: '\f013'; }
 .icon-attention:before { content: '\f014'; }
 .icon-tick3:before { content: '\f015'; }
+.icon-tick3-green {
+  color: #1db881 !important;
+  font-palette: --paletteGreen;
+}
+.icon-tick3-green:before { content: '\f015'; }
 .icon-joystick:before { content: '\f016'; }
 .icon-info:before { content: '\f017'; }
 .icon-google:before { content: '\f018'; }

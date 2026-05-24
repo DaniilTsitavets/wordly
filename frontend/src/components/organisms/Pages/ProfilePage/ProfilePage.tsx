@@ -7,13 +7,12 @@ import { Button } from '@/components/atoms/Button'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { Tabs } from '@/components/molecules/Tabs'
 import type { UpdateUserPayload, UserProfile } from '@/api/user'
+import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
 import { useProfile } from './hooks/useProfile'
 import styles from './ProfilePage.module.scss'
 
 const PASSWORD_PLACEHOLDER = '••••••••••••••••'
 const WORDS_LEARNED_STUB = 30
-const DAILY_GOAL_MINUTES_STUDIED_STUB = 8
-const DAILY_GOAL_TARGET_STUB = 10
 
 type ColorTheme = UserProfile['color_theme']
 const THEME_OPTIONS: ColorTheme[] = ['light', 'dark', 'system']
@@ -87,7 +86,7 @@ export function ProfilePage() {
           {
             id: 'statistics',
             label: 'My statistics',
-            content: <StatisticsTab />,
+            content: <StatisticsTabContent />,
           },
         ]}
       />
@@ -364,25 +363,23 @@ function FieldRow({
   )
 }
 
-function StatisticsTab() {
+function StatisticsTabContent() {
+  const { wordsLearnedToday, dailyGoalWords, progress } = useDailyProgress()
+
   return (
     <div className={styles.statsTab}>
-      <DailyGoalCard
-        minutesStudied={DAILY_GOAL_MINUTES_STUDIED_STUB}
-        target={DAILY_GOAL_TARGET_STUB}
-      />
+      <DailyGoalCard wordsLearned={wordsLearnedToday} target={dailyGoalWords} progress={progress} />
     </div>
   )
 }
 
 interface DailyGoalCardProps {
-  minutesStudied: number
+  wordsLearned: number
   target: number
+  progress: number
 }
 
-function DailyGoalCard({ minutesStudied, target }: DailyGoalCardProps) {
-  const progress = target > 0 ? Math.round((minutesStudied / target) * 100) : 0
-
+function DailyGoalCard({ wordsLearned, target, progress }: DailyGoalCardProps) {
   return (
     <section className={styles.dailyGoalCard}>
       <div className={styles.dailyGoalHeader}>
@@ -391,9 +388,9 @@ function DailyGoalCard({ minutesStudied, target }: DailyGoalCardProps) {
       </div>
 
       <div className={styles.dailyGoalProgressRow}>
-        <span className={styles.dailyGoalLabel}>Minutes studied</span>
+        <span className={styles.dailyGoalLabel}>Words learned today</span>
         <span className={styles.dailyGoalValue}>
-          {minutesStudied} / {target}
+          {wordsLearned} / {target}
         </span>
       </div>
 

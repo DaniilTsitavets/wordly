@@ -1,0 +1,95 @@
+name: Release Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      context:
+        description: Build docker from the directory
+        default: .
+        required: false
+        type: string
+      runner:
+        description: Runner to use
+        default: ubuntu-latest
+        required: false
+        type: string
+      registries:
+        description: AWS ECR registries
+        required: true
+        type: string
+      repository:
+        description: AWS ECR repository
+        required: true
+        type: string
+      prefix:
+        description: Docker Image Prefix
+        required: false
+        type: string
+        default: ""
+      region:
+        description: AWS region
+        required: true
+        type: string
+      role-to-assume:
+        description: AWS role to assume
+        required: true
+        type: string
+      role-session-name:
+        description: AWS role session name
+        required: false
+        type: string
+        default: wordly_github_actions
+      platforms:
+        description: Docker platforms to build
+        required: false
+        type: string
+        default: linux/arm64
+
+jobs:
+  build:
+    name: Docker Image
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.role-to-assume }}
+          role-session-name: ${{ inputs.role-session-name }}
+          aws-region: ${{ inputs.region }}
+          mask-aws-account-id: "true"
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: ${{ inputs.registries }}
+
+      - name: Docker tags settings
+        id: meta
+        uses: docker/metadata-action@v5
+        env:
+          DOCKER_METADATA_SHORT_SHA_LENGTH: 8
+        with:
+          images: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.repository }}
+          tags: |
+            type=sha,prefix=${{ inputs.prefix }}
+            type=raw,prefix=${{ inputs.prefix }},value=latest
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          platforms: ${{ inputs.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ inputs.repository }}:${{ inputs.prefix }}buildcache,mode=max,image-manifest=true,oci-mediatypes=true
+          cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ inputs.repository }}:${{ inputs.prefix }}buildcache

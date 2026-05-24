@@ -3,6 +3,8 @@
 Локальный mock для разработки фронтенда без реального бэкенда.
 Возвращает реалистичные данные по контракту из `openapi.yaml`.
 
+Данные хранятся в памяти и **мутабельны** — создание/редактирование/удаление через admin-эндпоинты сохраняется до перезапуска сервера. Подробнее: [ADMIN.md](./ADMIN.md).
+
 ## Запуск
 
 Нужен Docker. Из корня репо:
@@ -114,7 +116,6 @@ POST /auth/guest
 ```
 POST /auth/logout
 Header: Authorization: Bearer <token>
-(без body)
 → 204
 ```
 
@@ -124,7 +125,13 @@ Header: Authorization: Bearer <token>
 
 ```
 GET /users/me
-→ { id, name, surname, email, is_guest, gems, streak, daily_goal_min, ... }
+→ { id, name, surname, email, is_guest, role, gems, streak, daily_goal_min, ... }
+```
+
+```
+PUT /users/me
+{ "daily_goal_min": 15, "color_theme": "dark", ... }
+→ обновлённый профиль
 ```
 
 ---
@@ -134,7 +141,7 @@ GET /users/me
 ```
 GET /topics
 → {
-    "topics": [ { id, name, description, image_url, subtopics_total, subtopics_completed } ],
+    "topics": [ { id, name, description, image_url, sort_order, subtopics_total, subtopics_completed } ],
     "current_position": { "subtopic_id": 1, "mechanic_type": "mnemonic_cards" }
   }
 ```
@@ -150,9 +157,7 @@ GET /topics/1
 
 ```
 POST /subtopics/batch
-{
-  "ids": [1, 2]
-}
+{ "ids": [1, 2] }
 → [ { id, name, description, image_url, sort_order, words_count, disabled_mechanics, status } ]
 ```
 
@@ -175,7 +180,7 @@ GET /subtopics/2
 ```
 GET /subtopics/1/words
 GET /subtopics/2/words
-→ { "words": [ { id, word_en, transcription_en, translation_ru, image_url, has_mnemonic } ] }
+→ { "words": [ { id, word_en, transcription_en, translation_ru, image_url, has_mnemonic, mnemo_description } ] }
 ```
 
 ---
@@ -183,40 +188,34 @@ GET /subtopics/2/words
 ### SESSION (учебная сессия)
 
 ```
-GET /subtopics/1/session
-→ { "mechanic_type": "mnemonic_cards", "words": [ { ...word, mnemonic: { image_url, mnemo_text } } ] }
-
-GET /subtopics/2/session
-→ { "mechanic_type": "flashcards", "words": [ { ...word, mnemonic: null } ] }
+GET /subtopics/:id/session
+→ { "subtopic_id": 1, "mechanic_type": "word_builder", "words": [ { ...word, mnemonic: null } ] }
 ```
+
+> При `mechanic_type: mnemonic_cards` поле `mnemonic` заполнено: `{ image_url, mnemo_text }`. Для остальных механик — `null`.
 
 ```
 POST /subtopics/:id/session/answer
-{
-  "word_id": 1,
-  "mechanic_type": "matching",   // matching | filling_gaps | word_builder
-  "user_answer": "plate"
-}
+{ "word_id": 1, "user_answer": "plate" }
 → { "word_id": 1, "is_correct": true, "correct_answer": "plate" }
-
-// is_correct = true если ответ совпадает со словом (регистр не важен)
 ```
+
+`is_correct = true` если ответ совпадает со словом (без учёта регистра и пробелов по краям).
 
 ```
 POST /subtopics/:id/session/complete
-{
-  "mechanic_type": "mnemonic_cards"
-  // mnemonic_cards | flashcards | matching | filling_gaps | word_builder
-}
+{ "mechanic_type": "mnemonic_cards" }
 → {
     "mechanic_type": "mnemonic_cards",
     "gems_earned": 5,
-    "next_mechanic": "flashcards",   // null если subtopic завершён
+    "next_mechanic": "flashcards",
     "subtopic_completed": false
   }
+```
 
-// Цепочка механик:
-// mnemonic_cards → flashcards → matching → filling_gaps → word_builder → (null, subtopic_completed: true)
+Порядок механик:
+```
+mnemonic_cards → flashcards → matching → filling_gaps → word_builder → (null, subtopic_completed: true)
 ```
 
 ---
@@ -230,16 +229,12 @@ GET /recall
 
 ```
 POST /recall/answer
-{
-  "word_id": 1,
-  "user_answer": "plate"
-}
+{ "word_id": 1, "user_answer": "plate" }
 → { "word_id": 1, "is_correct": true, "correct_answer": "plate" }
 ```
 
 ```
 POST /recall/complete
-(без body)
 → { "total_words": 3, "correct": 2, "failed": 1, "gems_earned": 5 }
 ```
 
@@ -249,6 +244,5 @@ POST /recall/complete
 
 ```
 GET /vocabulary
-GET /vocabulary?status=learning   // new | learning | recalling | long_term_memory
 → { "total": 9, "page": 1, "words": [ { id, word_en, transcription_en, translation_ru, image_url, status, next_recall } ] }
 ```
