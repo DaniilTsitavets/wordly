@@ -11,6 +11,7 @@ import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPag
 import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
 import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
 import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
+import { AiChatPage } from '@/components/organisms/Pages/AiChatPage'
 
 export type RouteAccess = 'public' | 'protected' | 'game'
 
@@ -54,6 +55,11 @@ export const routesConfig: IRoute[] = [
   {
     path: '/recall/practice',
     element: <RecallMechanicPage />,
+    access: 'protected',
+  },
+  {
+    path: '/ai-chat',
+    element: <AiChatPage />,
     access: 'protected',
   },
   {

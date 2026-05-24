@@ -4,6 +4,7 @@ import { StatButton } from '../../atoms/StatButton'
 import { Button } from '../../atoms/Button'
 import { WordlyLogo } from '../../../assets/icons'
 import { IconFont } from '../../atoms/IconFont'
+import { MessageCircle } from 'lucide-react'
 import styles from './Header.module.scss'
 import { Link } from 'react-router-dom'
 
@@ -16,6 +17,7 @@ interface HeaderAuthProps {
   onProfileClick?: () => void
   onVocabularyClick?: () => void
   onRecallClick?: () => void
+  onAiChatClick?: () => void
   onAdminClick?: () => void
   avatarSrc?: string
   onLoginClick?: never
@@ -103,6 +105,15 @@ export const Header = (props: HeaderProps) => {
             <button className={styles.navBtn} aria-label="Progress">
               <IconFont name="increase" />
               <span className={styles.tooltip}>Progress</span>
+            </button>
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="AI Chat"
+              onClick={props.onAiChatClick}
+            >
+              <MessageCircle size={26} />
+              <span className={styles.tooltip}>AI Chat</span>
             </button>
           </div>
         </div>
