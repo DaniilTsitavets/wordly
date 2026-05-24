@@ -38,9 +38,6 @@ const resetMockUser = (overrides = {}) => {
   Object.assign(MOCK_USER, DEFAULT_USER, overrides);
 };
 
-// Subtopic 1 — 9 words, 6 with mnemonics → Level 0 (mnemonic_cards) active
-const WORDS_1 = [
-  { id: 1, word_en: 'plate', transcription_en: 'pleɪt', translation_ru: 'тарелка',
 // ─── MUTABLE DATA STORES ─────────────────────────────────────────────────────
 
 const topics = [
