@@ -2,8 +2,10 @@ package com.wordly.backend.controller;
 
 import com.wordly.backend.dto.AuthResponse;
 import com.wordly.backend.dto.LoginRequest;
+import com.wordly.backend.dto.OAuthCallbackRequest;
 import com.wordly.backend.dto.RegisterRequest;
 import com.wordly.backend.service.AuthService;
+import com.wordly.backend.service.OAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final OAuthService oAuthService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,5 +42,10 @@ public class AuthController {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             authService.logout(authHeader.substring(7));
         }
+    }
+
+    @PostMapping("/oauth/google")
+    public AuthResponse oauthGoogle(@Valid @RequestBody OAuthCallbackRequest request) {
+        return oAuthService.loginWithGoogle(request.code(), request.redirectUri());
     }
 }

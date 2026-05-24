@@ -36,6 +36,11 @@ admin:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
+oauth:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+
 openrouter:
   api-key: ${OPENROUTER_API_KEY}
   model: ${OPENROUTER_MODEL}

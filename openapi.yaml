@@ -125,6 +125,51 @@ paths:
         '204':
           description: Logged out successfully
 
+  /auth/oauth/google:
+    post:
+      tags: [Auth]
+      summary: Sign in with Google
+      description: |
+        Exchanges an authorization code obtained by the frontend after the Google OAuth redirect
+        for a JWT token. Creates a new user if no account with the given email exists, or links
+        the Google identity to an existing email-password account.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, redirect_uri]
+              properties:
+                code:
+                  type: string
+                  description: Authorization code returned by Google after user consent
+                  example: 4/0AY0e-g6...
+                redirect_uri:
+                  type: string
+                  description: Must exactly match the redirect URI used when initiating the OAuth flow
+                  example: https://app.wordly.quest/oauth/callback
+      responses:
+        '200':
+          description: Sign-in successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Missing or invalid code / redirect_uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Google rejected the authorization code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   # ─── USERS ──────────────────────────────────────────────
 
   /users/me:
