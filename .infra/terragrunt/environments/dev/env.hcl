@@ -28,7 +28,9 @@ locals {
         "CORS_ALLOWED_ORIGINS",
         "OPENROUTER_API_KEY",
         "OPENROUTER_MODEL",
-        "OPENROUTER_BASE_URL"
+        "OPENROUTER_BASE_URL",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET"
       ]
       env_vars = [
         {

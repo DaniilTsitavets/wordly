@@ -269,6 +269,15 @@ app.post('/api/v1/auth/guest', (req, res) => {
 
 app.post('/api/v1/auth/logout', (req, res) => res.sendStatus(204));
 
+app.post('/api/v1/auth/oauth/google', (req, res) => {
+  const { code, redirect_uri } = req.body;
+  if (!code || !redirect_uri) {
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'code and redirect_uri are required' });
+  }
+  Object.assign(MOCK_USER, { name: 'Alex', surname: 'Smith', email: 'mock@google.com', onboarding_completed: true });
+  res.json({ access_token: FAKE_TOKEN, user: MOCK_USER });
+});
+
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
 app.get('/api/v1/users/me', (req, res) => {
