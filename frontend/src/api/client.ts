@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4010/api/v1'
+export const API_BASE_URL = import.meta.env.VITE_BASE_API_URL ?? 'http://localhost:4010/api/v1'
 
 // Demo backend = the local mock. Explicit VITE_AI_DEMO wins; otherwise inferred
 // from the base URL, so the "Demo Mode" badge auto-hides once a real backend is wired.
