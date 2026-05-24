@@ -24,6 +24,9 @@ public record UserProfileResponse(
         @JsonProperty("daily_goal_min")
         Integer dailyGoalMin,
 
+        @JsonProperty("daily_goal_words")
+        Integer dailyGoalWords,
+
         @JsonProperty("notifications_enabled")
         Boolean notificationsEnabled,
 
@@ -49,6 +52,7 @@ public record UserProfileResponse(
                 user.getRole() == null ? Role.USER : user.getRole(),
                 user.getInterfaceLanguage(),
                 user.getDailyGoalMin(),
+                user.getDailyGoalWords(),
                 user.getNotificationsEnabled(),
                 ColorTheme.fromValue(user.getColorTheme()),
                 user.getStreak(),

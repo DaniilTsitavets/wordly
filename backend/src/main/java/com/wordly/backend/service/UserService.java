@@ -74,6 +74,10 @@ public class UserService {
             user.setDailyGoalMin(request.dailyGoalMin());
         }
 
+        if (request.dailyGoalWords() != null) {
+            user.setDailyGoalWords(request.dailyGoalWords());
+        }
+
         if (request.notificationsEnabled() != null) {
             user.setNotificationsEnabled(request.notificationsEnabled());
         }
@@ -107,7 +111,7 @@ public class UserService {
             }
         }
 
-        int dailyGoal = user.getDailyGoalMin() != null ? user.getDailyGoalMin() : 10;
+        int dailyGoal = user.getDailyGoalWords() != null ? user.getDailyGoalWords() : 10;
         return new DailyProgressResponse(wordsLearnedToday, dailyGoal);
     }
 

@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN daily_goal_words INTEGER DEFAULT 10;

@@ -26,6 +26,11 @@ public record UpdateUserProfileRequest(
         @Max(value = 1440, message = "Daily goal must be at most 1440 minutes")
         Integer dailyGoalMin,
 
+        @JsonProperty("daily_goal_words")
+        @Min(value = 1, message = "Daily goal must be at least 1 word")
+        @Max(value = 500, message = "Daily goal must be at most 500 words")
+        Integer dailyGoalWords,
+
         @JsonProperty("notifications_enabled")
         Boolean notificationsEnabled,
 

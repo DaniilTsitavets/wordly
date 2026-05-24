@@ -47,6 +47,10 @@ public class User {
     @Builder.Default
     private Integer dailyGoalMin = 10;
 
+    @Column(name = "daily_goal_words")
+    @Builder.Default
+    private Integer dailyGoalWords = 10;
+
     @Column(name = "notifications_enabled")
     @Builder.Default
     private Boolean notificationsEnabled = true;
