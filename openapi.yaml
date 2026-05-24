@@ -221,6 +221,8 @@ paths:
                   example: 10
                 daily_goal_words:
                   type: integer
+                  minimum: 5
+                  maximum: 20
                   example: 10
                 notifications_enabled:
                   type: boolean

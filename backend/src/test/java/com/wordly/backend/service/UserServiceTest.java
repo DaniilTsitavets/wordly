@@ -95,7 +95,7 @@ class UserServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(guest));
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    "New", null, null, null, null, null, null, null
+                    "New", null, null, null, null, null, null, null, null
             );
 
             assertThatThrownBy(() -> userService.updateCurrentUserProfile(1L, request))
@@ -109,7 +109,7 @@ class UserServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    "  NewName  ", "  NewSurname  ", null, null, null, null, null, null
+                    "  NewName  ", "  NewSurname  ", null, null, null, null, null, null, null
             );
 
             userService.updateCurrentUserProfile(1L, request);
@@ -126,7 +126,7 @@ class UserServiceTest {
             when(userRepository.existsByEmailAndIdNot("newemail@example.com", 1L)).thenReturn(false);
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, "  NEWEMAIL@Example.COM  ", null, null, null, null, null
+                    null, null, "  NEWEMAIL@Example.COM  ", null, null, null, null, null, null
             );
 
             userService.updateCurrentUserProfile(1L, request);
@@ -142,7 +142,7 @@ class UserServiceTest {
             when(userRepository.existsByEmailAndIdNot("taken@example.com", 1L)).thenReturn(true);
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, "taken@example.com", null, null, null, null, null
+                    null, null, "taken@example.com", null, null, null, null, null, null
             );
 
             assertThatThrownBy(() -> userService.updateCurrentUserProfile(1L, request))
@@ -156,7 +156,7 @@ class UserServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, "alex@example.com", null, null, null, null, null
+                    null, null, "alex@example.com", null, null, null, null, null, null
             );
 
             userService.updateCurrentUserProfile(1L, request);
@@ -172,7 +172,7 @@ class UserServiceTest {
             when(passwordEncoder.encode("newpassword")).thenReturn("new-hash");
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, null, "newpassword", null, null, null, null
+                    null, null, null, "newpassword", null, null, null, null, null
             );
 
             userService.updateCurrentUserProfile(1L, request);
@@ -187,7 +187,7 @@ class UserServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, null, "   ", null, null, null, null
+                    null, null, null, "   ", null, null, null, null, null
             );
 
             userService.updateCurrentUserProfile(1L, request);
@@ -203,7 +203,7 @@ class UserServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, null, null, "en", 30, false, ColorTheme.DARK
+                    null, null, null, null, "en", 30, null, false, ColorTheme.DARK
             );
 
             userService.updateCurrentUserProfile(1L, request);
@@ -221,7 +221,7 @@ class UserServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-                    null, null, null, null, null, null, null, null
+                    null, null, null, null, null, null, null, null, null
             );
 
             userService.updateCurrentUserProfile(1L, request);
