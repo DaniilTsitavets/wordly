@@ -9,6 +9,7 @@ export interface UserProfile {
   role: 'ADMIN' | 'USER'
   interface_language: string
   daily_goal_min: number
+  daily_goal_words: number
   notifications_enabled: boolean
   color_theme: 'light' | 'dark' | 'system'
   onboarding_completed: boolean
@@ -26,6 +27,7 @@ export type UpdateUserPayload = Partial<
     | 'email'
     | 'interface_language'
     | 'daily_goal_min'
+    | 'daily_goal_words'
     | 'notifications_enabled'
     | 'color_theme'
     | 'onboarding_completed'
