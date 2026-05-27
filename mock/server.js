@@ -615,8 +615,18 @@ app.get('/api/v1/daily-game', (req, res) => {
     id: game.id,
     idiom: game.idiom,
     options: [game.option_1, game.option_2, game.option_3, game.option_4],
-    correct_option: game.correct_option,
   });
+});
+
+app.post('/api/v1/daily-game/answer', (req, res) => {
+  const { daily_game_id, selected_option } = req.body;
+  if (!daily_game_id || !selected_option)
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'daily_game_id and selected_option are required' });
+  if (selected_option < 1 || selected_option > 4)
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'selected_option must be between 1 and 4' });
+  const game = dailyGames.find(g => g.id === daily_game_id);
+  if (!game) return res.status(404).json({ code: 'NOT_FOUND', message: 'Daily game not found' });
+  res.json({ is_correct: selected_option === game.correct_option, correct_option: game.correct_option });
 });
 
 // ─── AI CHAT ─────────────────────────────────────────────────────────────────

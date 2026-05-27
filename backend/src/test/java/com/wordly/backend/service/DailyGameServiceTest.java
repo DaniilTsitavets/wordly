@@ -76,7 +76,6 @@ class DailyGameServiceTest {
             assertThat(response.id()).isEqualTo(1L);
             assertThat(response.idiom()).isEqualTo("Break a leg");
             assertThat(response.options()).hasSize(4);
-            assertThat(response.correctOption()).isEqualTo(2);
             verify(dailyGameRepository, never()).findRandomUnassignedForUpdate();
         }
 
@@ -177,7 +176,6 @@ class DailyGameServiceTest {
             DailyGameResponse r = DailyGameResponse.of(g);
 
             assertThat(r.options()).containsExactly("A", "B", "C", "D");
-            assertThat(r.correctOption()).isEqualTo(3);
         }
     }
 }

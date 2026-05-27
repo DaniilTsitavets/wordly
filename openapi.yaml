@@ -1082,6 +1082,32 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /daily-game/answer:
+    post:
+      tags: [Game]
+      summary: Submit answer for today's daily game
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyGameAnswerRequest'
+      responses:
+        '200':
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyGameAnswerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 # ─── COMPONENTS ─────────────────────────────────────────────
 
 components:
@@ -1837,6 +1863,25 @@ components:
             type: string
           minItems: 4
           maxItems: 4
+
+    DailyGameAnswerRequest:
+      type: object
+      required: [daily_game_id, selected_option]
+      properties:
+        daily_game_id:
+          type: integer
+          format: int64
+        selected_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+
+    DailyGameAnswerResponse:
+      type: object
+      properties:
+        is_correct:
+          type: boolean
         correct_option:
           type: integer
           minimum: 1

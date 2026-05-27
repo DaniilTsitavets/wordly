@@ -1,11 +1,12 @@
 package com.wordly.backend.controller;
 
+import com.wordly.backend.dto.DailyGameAnswerRequest;
+import com.wordly.backend.dto.DailyGameAnswerResponse;
 import com.wordly.backend.dto.DailyGameResponse;
 import com.wordly.backend.service.DailyGameService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/daily-game")
@@ -17,5 +18,10 @@ public class DailyGameController {
     @GetMapping
     public DailyGameResponse getToday() {
         return dailyGameService.getToday();
+    }
+
+    @PostMapping("/answer")
+    public DailyGameAnswerResponse submitAnswer(@Valid @RequestBody DailyGameAnswerRequest request) {
+        return dailyGameService.checkAnswer(request);
     }
 }
