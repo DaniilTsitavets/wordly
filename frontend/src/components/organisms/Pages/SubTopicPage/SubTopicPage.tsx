@@ -9,6 +9,7 @@ import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
 import { useSubtopic } from './hooks/useSubtopic'
 import { MECHANIC_INFO } from './utils/mechanics'
 import styles from './SubTopicPage.module.scss'
+import { useAppSelector } from '@/store/hooks'
 
 export function SubTopicPage() {
   const { subtopicId } = useParams<{ subtopicId: string }>()
@@ -22,6 +23,8 @@ export function SubTopicPage() {
     progress: dailyProgress,
     refetch: refetchDaily,
   } = useDailyProgress()
+
+  const user = useAppSelector((state) => state.auth)
 
   const checkSessionCompleted = useCallback(() => {
     const sessionCompleted = sessionStorage.getItem('sessionCompleted')
@@ -79,16 +82,18 @@ export function SubTopicPage() {
             <p className={styles.description}>{subtopic.description}</p>
           </div>
         </div>
-
-        <div className={styles.dailyGoal}>
-          <div className={styles.dailyGoalRow}>
-            <span className={styles.dailyGoalLabel}>Daily Goal</span>
-            <span className={styles.dailyGoalValue}>
-              {wordsLearnedToday} / {dailyGoalWords} words
-            </span>
+       
+        {!user.user && (
+          <div className={styles.dailyGoal}>
+            <div className={styles.dailyGoalRow}>
+              <span className={styles.dailyGoalLabel}>Daily Goal</span>
+              <span className={styles.dailyGoalValue}>
+                {wordsLearnedToday} / {dailyGoalWords} words
+              </span>
+            </div>
+            <ProgressBar value={dailyProgress} color="green" size="sm" />
           </div>
-          <ProgressBar value={dailyProgress} color="green" size="sm" />
-        </div>
+        )}
       </div>
 
       {currentLevel && (
