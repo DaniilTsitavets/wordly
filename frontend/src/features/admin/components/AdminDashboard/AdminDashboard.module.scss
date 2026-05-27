@@ -135,3 +135,24 @@
   color: $color-neutral-text-muted;
   flex-shrink: 0;
 }
+
+@media (max-width: 64rem) {
+  .dashboard {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .statsGrid {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 40rem) {
+  .statValue {
+    font-size: 2.25rem;
+  }
+
+  .activityItem {
+    align-items: flex-start;
+  }
+}

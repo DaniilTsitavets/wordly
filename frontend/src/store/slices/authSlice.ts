@@ -50,9 +50,10 @@ const authSlice = createSlice({
       }
     },
     logoutSuccess(state) {
+      localStorage.removeItem('access_token')
+
       state.token = null
       state.user = null
-      localStorage.removeItem('access_token')
     },
   },
 })

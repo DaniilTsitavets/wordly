@@ -108,16 +108,18 @@
 
 .answerPlate {
   width: 100%;
-  min-height: 80px;
+  min-height: 72px;
   border: 2px solid $color-neutral-gray-light;
   border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   background: $color-white;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s;
 }
-
 .placeholder {
   font-size: 0.875rem;
   color: $color-neutral-text-placeholder;

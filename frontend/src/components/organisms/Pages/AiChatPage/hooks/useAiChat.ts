@@ -38,7 +38,6 @@ export function useAiChat(subtopicId: number): UseAiChatResult {
   const messagesRef = useRef<ChatDisplayMessage[]>([])
   messagesRef.current = messages
 
-  // Fetch the assistant's opening message (mock keys off an empty history).
   useEffect(() => {
     let cancelled = false
     const bootstrap = async () => {

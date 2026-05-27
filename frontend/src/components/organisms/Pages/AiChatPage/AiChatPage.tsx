@@ -71,38 +71,40 @@ export function AiChatPage() {
         )}
       </header>
 
-      <div className={styles.messages} ref={scrollRef}>
-        {isBootstrapping ? (
-          <div className={styles.centered}>
-            <Spinner />
+      <div className={styles.chat}>
+        <div className={styles.messages} ref={scrollRef}>
+          {isBootstrapping ? (
+            <div className={styles.centered}>
+              <Spinner />
+            </div>
+          ) : (
+            <>
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} />
+              ))}
+              {isSending && <TypingBubble />}
+            </>
+          )}
+        </div>
+
+        {showPrompts && (
+          <div className={styles.prompts}>
+            <p className={styles.promptsLabel}>Try these prompts:</p>
+            <div className={styles.promptsList}>
+              {SUGGESTED_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  className={styles.promptChip}
+                  onClick={() => handleSend(prompt)}
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
-        ) : (
-          <>
-            {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))}
-            {isSending && <TypingBubble />}
-          </>
         )}
       </div>
-
-      {showPrompts && (
-        <div className={styles.prompts}>
-          <p className={styles.promptsLabel}>Try these prompts:</p>
-          <div className={styles.promptsList}>
-            {SUGGESTED_PROMPTS.map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                className={styles.promptChip}
-                onClick={() => handleSend(prompt)}
-              >
-                {prompt}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {error && (
         <p className={styles.error} role="alert">

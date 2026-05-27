@@ -42,7 +42,6 @@ export const RewardModal = ({
             <IconFont name="diamond" size={28} color="#ffffff" decorative />
           </div>
           <div className={styles.rewardInfo}>
-            <span className={styles.rewardLabel}>Reward</span>
             <span className={styles.rewardValue}>{reward}</span>
           </div>
         </div>

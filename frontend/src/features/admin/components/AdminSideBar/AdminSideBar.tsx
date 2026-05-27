@@ -2,8 +2,13 @@ import styles from './AdminSideBar.module.scss'
 import { NavLink } from 'react-router-dom'
 import { AdminPanelNavLinks } from './AdminNavLinks'
 import type { AdminPanelNavLink } from './AdminNavLinks'
+import { Button } from '@/components/atoms/Button'
+import { IconFont } from '@/components/atoms/IconFont'
+import { useNavigate } from 'react-router-dom'
 
 export const AdminSideBar = () => {
+  const navigate = useNavigate()
+
   return (
     <div className={styles.container}>
       <div className={styles.title}>
@@ -24,6 +29,10 @@ export const AdminSideBar = () => {
           ))}
         </ul>
       </nav>
+      <Button variant="ghost" className={styles.backButton} onClick={() => navigate('/')}>
+        <IconFont name="arrow-back2" size={12} />
+        Back to Wordly
+      </Button>
     </div>
   )
 }

@@ -2,9 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Avatar } from '../../atoms/Avatar'
 import { StatButton } from '../../atoms/StatButton'
 import { Button } from '../../atoms/Button'
-import { WordlyLogo } from '../../../assets/icons'
+import { WordlyLogo, ChatIcon } from '../../../assets/icons'
 import { IconFont } from '../../atoms/IconFont'
-import { MessageCircle } from 'lucide-react'
 import styles from './Header.module.scss'
 import { Link } from 'react-router-dom'
 
@@ -112,7 +111,7 @@ export const Header = (props: HeaderProps) => {
               aria-label="AI Chat"
               onClick={props.onAiChatClick}
             >
-              <MessageCircle size={26} />
+              <ChatIcon size={26} />
               <span className={styles.tooltip}>AI Chat</span>
             </button>
           </div>
