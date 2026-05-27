@@ -1,0 +1,1 @@
+ALTER TABLE daily_games ALTER COLUMN correct_option TYPE INTEGER;
