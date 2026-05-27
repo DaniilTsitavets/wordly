@@ -71,7 +71,8 @@ export function AiChatPage() {
         )}
       </header>
 
-      <div className={styles.messages} ref={scrollRef}>
+        <div className={styles.chat}>
+          <div className={styles.messages} ref={scrollRef}>
         {isBootstrapping ? (
           <div className={styles.centered}>
             <Spinner />
@@ -104,6 +105,8 @@ export function AiChatPage() {
         </div>
       )}
 
+        </div>
+      
       {error && (
         <p className={styles.error} role="alert">
           {error}
