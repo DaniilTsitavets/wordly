@@ -74,6 +74,12 @@
   font-weight: 700;
 }
 
+.backButton{
+  color: $color-neutral-text-tertiary !important;
+  font-size: 0.875rem !important;
+  margin-top: 27rem;
+}
+
 @media (max-width: 56.25rem) {
   .container {
     max-width: none;
