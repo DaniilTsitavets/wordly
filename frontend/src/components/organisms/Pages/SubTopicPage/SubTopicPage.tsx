@@ -184,7 +184,7 @@ function CurrentLevelCard({
         <img src={imageUrl} alt={info.label} loading="lazy" />
         <span className={styles.cardsBadge}>
           <IconFont name="image" size={14} decorative />
-          {wordsCount} New Cards
+          {wordsCount} New Words
         </span>
       </div>
     </div>

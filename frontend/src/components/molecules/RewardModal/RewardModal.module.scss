@@ -54,6 +54,7 @@
 .rewardBox {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -76,10 +77,10 @@
 }
 
 .rewardInfo {
-  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 0.125rem;
 }
 
