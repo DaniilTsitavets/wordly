@@ -82,7 +82,7 @@ export function SubTopicPage() {
             <p className={styles.description}>{subtopic.description}</p>
           </div>
         </div>
-       
+
         {user.token && (
           <div className={styles.dailyGoal}>
             <div className={styles.dailyGoalRow}>

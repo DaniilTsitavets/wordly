@@ -30,7 +30,7 @@ export const AdminSideBar = () => {
         </ul>
       </nav>
       <Button variant="ghost" className={styles.backButton} onClick={() => navigate('/')}>
-        <IconFont name="arrow-back2" size={12} /> 
+        <IconFont name="arrow-back2" size={12} />
         Back to Wordly
       </Button>
     </div>
