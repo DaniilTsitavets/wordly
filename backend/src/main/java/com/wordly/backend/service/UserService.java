@@ -1,5 +1,6 @@
 package com.wordly.backend.service;
 
+import com.wordly.backend.dto.DailyGoalClaimResponse;
 import com.wordly.backend.dto.DailyProgressResponse;
 import com.wordly.backend.dto.UpdateUserProfileRequest;
 import com.wordly.backend.dto.UserProfileResponse;
@@ -26,6 +27,8 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final int GEMS_PER_DAILY_GOAL = 10;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -92,6 +95,49 @@ public class UserService {
     @Transactional(readOnly = true)
     public DailyProgressResponse getDailyProgress(Long userId) {
         User user = getUserOrThrow(userId);
+        int wordsLearnedToday = countWordsLearnedToday(userId);
+        return new DailyProgressResponse(wordsLearnedToday, resolveDailyGoal(user));
+    }
+
+    /**
+     * Claims the BRD §10.1 daily-goal bonus (+10 gems). Awards once per local day the first time
+     * the goal is reached; idempotent afterwards via {@code dailyGoalAwardedDate}. Exposed as its
+     * own endpoint so the frontend can surface a dedicated reward screen, decoupled from the
+     * level/topic/recall completion flows.
+     */
+    @Transactional
+    public DailyGoalClaimResponse claimDailyGoal(Long userId) {
+        User user = getUserOrThrow(userId);
+        LocalDate today = LocalDate.now();
+
+        // Guests never accumulate gems (consistent with level/recall awards).
+        if (user.isGuest()) {
+            return new DailyGoalClaimResponse(false, 0);
+        }
+
+        boolean reached = isDailyGoalReached(userId, user);
+        boolean alreadyClaimed = today.equals(user.getDailyGoalAwardedDate());
+
+        if (!reached || alreadyClaimed) {
+            return new DailyGoalClaimResponse(reached, 0);
+        }
+
+        user.setGems(user.getGems() + GEMS_PER_DAILY_GOAL);
+        user.setDailyGoalAwardedDate(today);
+        userRepository.save(user);
+        return new DailyGoalClaimResponse(true, GEMS_PER_DAILY_GOAL);
+    }
+
+    /**
+     * Single source of truth for "is today's daily goal met". Currently word-based
+     * (BRD divergence noted in CLAUDE.md); swap this body for a minutes-based check
+     * when the daily goal moves to time tracking (BRD §9.1).
+     */
+    private boolean isDailyGoalReached(Long userId, User user) {
+        return countWordsLearnedToday(userId) >= resolveDailyGoal(user);
+    }
+
+    private int countWordsLearnedToday(Long userId) {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
@@ -111,8 +157,11 @@ public class UserService {
             }
         }
 
-        int dailyGoal = user.getDailyGoalWords() != null ? user.getDailyGoalWords() : 10;
-        return new DailyProgressResponse(wordsLearnedToday, dailyGoal);
+        return wordsLearnedToday;
+    }
+
+    private int resolveDailyGoal(User user) {
+        return user.getDailyGoalWords() != null ? user.getDailyGoalWords() : 10;
     }
 
     private MechanicType firstAvailableMechanic(List<String> disabledMechanics) {

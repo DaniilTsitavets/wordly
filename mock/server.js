@@ -215,6 +215,11 @@ const dailyProgress = {
   completedSubtopicFirstMechanics: new Set([1]), // subtopic 1 already passed first mechanic
 };
 
+// Gem-award bookkeeping (all reset on server restart; mock has no persistence)
+const awardedTopicBonus = new Set();   // topic ids that already granted the +15 bonus
+const recallAnswers = new Map();       // word_id -> is_correct for the current recall session
+let dailyGoalClaimed = false;          // dedupes the +10 daily-goal bonus (per server run)
+
 function getWordsLearnedToday() {
   let total = 0;
   for (const subtopicId of dailyProgress.completedSubtopicFirstMechanics) {
@@ -296,6 +301,18 @@ app.get('/api/v1/users/me/daily-progress', (req, res) => {
     words_learned_today: getWordsLearnedToday(),
     daily_goal_words: MOCK_USER.daily_goal_words,
   });
+});
+
+app.post('/api/v1/users/me/daily-goal/claim', (req, res) => {
+  // Guests never accumulate gems (mirrors backend UserService.claimDailyGoal)
+  if (MOCK_USER.is_guest) return res.json({ reached: false, gems_awarded: 0 });
+
+  const reached = getWordsLearnedToday() >= MOCK_USER.daily_goal_words;
+  if (!reached || dailyGoalClaimed) return res.json({ reached, gems_awarded: 0 });
+
+  dailyGoalClaimed = true;
+  MOCK_USER.gems = (MOCK_USER.gems ?? 0) + 10;
+  res.json({ reached: true, gems_awarded: 10 });
 });
 
 // ─── TOPICS ──────────────────────────────────────────────────────────────────
@@ -404,9 +421,20 @@ app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
     dailyProgress.completedSubtopicFirstMechanics.add(id);
   }
   console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}, words today: ${getWordsLearnedToday()}`);
-  const gemsEarned = 5;
+
+  // +5 per level; +15 once when this completion finishes the whole topic (mirrors LearningService)
+  let gemsEarned = 5;
+  const subtopicCompleted = next === null;
+  if (subtopicCompleted && s) {
+    const siblings = subtopics.filter(sub => sub.topic_id === s.topic_id);
+    const topicCompleted = siblings.every(sub => subtopicProgress[sub.id] === null);
+    if (topicCompleted && !awardedTopicBonus.has(s.topic_id)) {
+      awardedTopicBonus.add(s.topic_id);
+      gemsEarned += 15;
+    }
+  }
   MOCK_USER.gems = (MOCK_USER.gems ?? 0) + gemsEarned;
-  res.json({ mechanic_type, gems_earned: gemsEarned, next_mechanic: next, subtopic_completed: next === null });
+  res.json({ mechanic_type, gems_earned: gemsEarned, next_mechanic: next, subtopic_completed: subtopicCompleted });
 });
 
 // ─── RECALL ──────────────────────────────────────────────────────────────────
@@ -425,13 +453,22 @@ app.post('/api/v1/recall/answer', (req, res) => {
   const { word_id, user_answer } = req.body;
   const word = words.find(w => w.id === word_id);
   const is_correct = user_answer?.toLowerCase().trim() === (word?.word_en || '').toLowerCase();
+  recallAnswers.set(word_id, is_correct); // remember for gem scoring on complete
   res.json({ word_id, is_correct, correct_answer: word?.word_en || '' });
 });
 
 app.post('/api/v1/recall/complete', (req, res) => {
-  const gemsEarned = 5;
+  const total = recallAnswers.size;
+  const correct = [...recallAnswers.values()].filter(Boolean).length;
+  const failed = total - correct;
+  recallAnswers.clear(); // session is consumed
+
+  if (total === 0) return res.json({ total_words: 0, correct: 0, failed: 0, gems_earned: 0 });
+
+  // +10 if every word was correct, otherwise +5 (mirrors RecallService)
+  const gemsEarned = failed === 0 ? 10 : 5;
   MOCK_USER.gems = (MOCK_USER.gems ?? 0) + gemsEarned;
-  res.json({ total_words: 3, correct: 2, failed: 1, gems_earned: gemsEarned });
+  res.json({ total_words: total, correct, failed, gems_earned: gemsEarned });
 });
 
 // ─── VOCABULARY ───────────────────────────────────────────────────────────────

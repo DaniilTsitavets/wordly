@@ -51,6 +51,9 @@ public class User {
     @Builder.Default
     private Integer dailyGoalWords = 10;
 
+    @Column(name = "daily_goal_awarded_date")
+    private LocalDate dailyGoalAwardedDate;
+
     @Column(name = "notifications_enabled")
     @Builder.Default
     private Boolean notificationsEnabled = true;

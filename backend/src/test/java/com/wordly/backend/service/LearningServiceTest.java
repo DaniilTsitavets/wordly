@@ -9,6 +9,7 @@ import com.wordly.backend.entity.Subtopic;
 import com.wordly.backend.entity.Topic;
 import com.wordly.backend.entity.User;
 import com.wordly.backend.entity.UserSubtopicLevelMechanicProgress;
+import com.wordly.backend.entity.UserTopicBonusAward;
 import com.wordly.backend.entity.UserWordState;
 import com.wordly.backend.entity.Word;
 import com.wordly.backend.entity.enums.MechanicType;
@@ -16,6 +17,8 @@ import com.wordly.backend.entity.enums.ProgressStatus;
 import com.wordly.backend.entity.enums.WordStatus;
 import com.wordly.backend.exception.LevelLockedException;
 import com.wordly.backend.exception.NotFoundException;
+import com.wordly.backend.repository.SubtopicRepository;
+import com.wordly.backend.repository.UserTopicBonusAwardRepository;
 import com.wordly.backend.repository.UserRepository;
 import com.wordly.backend.repository.UserSubtopicLevelMechanicProgressRepository;
 import com.wordly.backend.repository.UserWordStateRepository;
@@ -35,7 +38,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,6 +61,10 @@ class LearningServiceTest {
     private UserWordStateRepository userWordStateRepository;
     @Mock
     private ProgressComputationService progressComputationService;
+    @Mock
+    private SubtopicRepository subtopicRepository;
+    @Mock
+    private UserTopicBonusAwardRepository topicBonusAwardRepository;
 
     @InjectMocks
     private LearningService learningService;
@@ -353,6 +362,85 @@ class LearningServiceTest {
 
             assertThat(result.subtopicCompleted()).isTrue();
             assertThat(result.nextMechanic()).isNull();
+        }
+
+        @Test
+        @DisplayName("should award +15 topic bonus on top of +5 when the last subtopic of the topic is completed")
+        void shouldAwardTopicBonusWhenTopicCompleted() {
+            Subtopic s = subtopic(10L);
+            UserSubtopicLevelMechanicProgress lastProgress = progress(s, MechanicType.MATCHING, ProgressStatus.IN_PROGRESS);
+            User user = User.builder().id(1L).gems(0).build();
+
+            when(subtopicService.getAccessibleSubtopic(10L, false)).thenReturn(s);
+            when(progressComputationService.getActiveMechanics(s))
+                    .thenReturn(List.of(MechanicType.FLASHCARDS, MechanicType.MATCHING));
+            when(progressRepository.findByUserIdAndSubtopicIdAndMechanicType(1L, 10L, MechanicType.MATCHING))
+                    .thenReturn(Optional.of(lastProgress));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(subtopicRepository.findAllByTopicIdOrderBySortOrderAscIdAsc(1L)).thenReturn(List.of(s));
+            when(progressComputationService.isSubtopicCompleted(eq(s), anyList())).thenReturn(true);
+            when(topicBonusAwardRepository.existsByUserIdAndTopicId(1L, 1L)).thenReturn(false);
+
+            LevelCompleteResultResponse result = learningService.completeLevel(
+                    10L, new CompleteSessionRequest(MechanicType.MATCHING), 1L, false
+            );
+
+            assertThat(result.subtopicCompleted()).isTrue();
+            assertThat(result.gemsEarned()).isEqualTo(20);
+            assertThat(user.getGems()).isEqualTo(20);
+            verify(topicBonusAwardRepository).save(any(UserTopicBonusAward.class));
+        }
+
+        @Test
+        @DisplayName("should not re-award the topic bonus when it was already granted for the topic")
+        void shouldNotReAwardTopicBonusWhenAlreadyGranted() {
+            Subtopic s = subtopic(10L);
+            UserSubtopicLevelMechanicProgress lastProgress = progress(s, MechanicType.MATCHING, ProgressStatus.IN_PROGRESS);
+            User user = User.builder().id(1L).gems(0).build();
+
+            when(subtopicService.getAccessibleSubtopic(10L, false)).thenReturn(s);
+            when(progressComputationService.getActiveMechanics(s))
+                    .thenReturn(List.of(MechanicType.FLASHCARDS, MechanicType.MATCHING));
+            when(progressRepository.findByUserIdAndSubtopicIdAndMechanicType(1L, 10L, MechanicType.MATCHING))
+                    .thenReturn(Optional.of(lastProgress));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(subtopicRepository.findAllByTopicIdOrderBySortOrderAscIdAsc(1L)).thenReturn(List.of(s));
+            when(progressComputationService.isSubtopicCompleted(eq(s), anyList())).thenReturn(true);
+            when(topicBonusAwardRepository.existsByUserIdAndTopicId(1L, 1L)).thenReturn(true);
+
+            LevelCompleteResultResponse result = learningService.completeLevel(
+                    10L, new CompleteSessionRequest(MechanicType.MATCHING), 1L, false
+            );
+
+            assertThat(result.subtopicCompleted()).isTrue();
+            assertThat(result.gemsEarned()).isEqualTo(5);
+            assertThat(user.getGems()).isEqualTo(5);
+            verify(topicBonusAwardRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should not award the topic bonus when other subtopics of the topic are still incomplete")
+        void shouldNotAwardTopicBonusWhenTopicIncomplete() {
+            Subtopic s = subtopic(10L);
+            UserSubtopicLevelMechanicProgress lastProgress = progress(s, MechanicType.MATCHING, ProgressStatus.IN_PROGRESS);
+            User user = User.builder().id(1L).gems(0).build();
+
+            when(subtopicService.getAccessibleSubtopic(10L, false)).thenReturn(s);
+            when(progressComputationService.getActiveMechanics(s))
+                    .thenReturn(List.of(MechanicType.FLASHCARDS, MechanicType.MATCHING));
+            when(progressRepository.findByUserIdAndSubtopicIdAndMechanicType(1L, 10L, MechanicType.MATCHING))
+                    .thenReturn(Optional.of(lastProgress));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(subtopicRepository.findAllByTopicIdOrderBySortOrderAscIdAsc(1L)).thenReturn(List.of(s, subtopic(11L)));
+            when(progressComputationService.isSubtopicCompleted(any(), anyList())).thenReturn(false);
+
+            LevelCompleteResultResponse result = learningService.completeLevel(
+                    10L, new CompleteSessionRequest(MechanicType.MATCHING), 1L, false
+            );
+
+            assertThat(result.subtopicCompleted()).isTrue();
+            assertThat(result.gemsEarned()).isEqualTo(5);
+            assertThat(user.getGems()).isEqualTo(5);
         }
 
         @Test

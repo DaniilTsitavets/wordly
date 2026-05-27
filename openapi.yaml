@@ -265,6 +265,34 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /users/me/daily-goal/claim:
+    post:
+      tags: [Users]
+      summary: Claim the daily-goal gem bonus
+      description: >
+        Awards the +10 daily-goal bonus the first time today's goal is reached; idempotent per
+        local day. Decoupled from level/topic/recall completion so the client can show a
+        standalone reward screen. Returns whether the goal is reached and how many gems were
+        awarded by this call (0 if not reached or already claimed today).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daily-goal claim result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reached:
+                    type: boolean
+                    example: true
+                  gems_awarded:
+                    type: integer
+                    example: 10
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
   # ─── TOPICS ─────────────────────────────────────────────
 
   /topics:

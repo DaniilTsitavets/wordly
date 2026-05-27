@@ -24,12 +24,15 @@ import java.util.stream.Collectors;
 public class LearningService {
 
     private static final int GEMS_PER_LEVEL = 5;
+    private static final int GEMS_PER_TOPIC = 15;
 
     private final SubtopicService subtopicService;
     private final WordRepository wordRepository;
     private final UserRepository userRepository;
+    private final SubtopicRepository subtopicRepository;
     private final UserSubtopicLevelMechanicProgressRepository progressRepository;
     private final UserWordStateRepository userWordStateRepository;
+    private final UserTopicBonusAwardRepository topicBonusAwardRepository;
     private final ProgressComputationService progressComputationService;
 
     @Transactional
@@ -125,16 +128,10 @@ public class LearningService {
         progress.setCompletedAt(LocalDateTime.now());
         progressRepository.save(progress);
 
-        if (!isGuest) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new NotFoundException("User not found: " + userId));
-            user.setGems(user.getGems() + GEMS_PER_LEVEL);
-            userRepository.save(user);
-        }
-
         applyWordStateTransition(subtopicId, userId, mechanicType);
 
         MechanicType nextMechanic = findNextMechanic(activeMechanics, mechanicType);
+        boolean subtopicCompleted = nextMechanic == null;
 
         if (nextMechanic != null) {
             boolean nextExists = progressRepository
@@ -150,8 +147,31 @@ public class LearningService {
             }
         }
 
-        int gemsEarned = isGuest ? 0 : GEMS_PER_LEVEL;
-        return new LevelCompleteResultResponse(mechanicType, gemsEarned, nextMechanic, nextMechanic == null);
+        int gemsEarned = 0;
+        if (!isGuest) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+
+            int sessionGems = GEMS_PER_LEVEL;
+            if (subtopicCompleted && isTopicCompleted(subtopic, userId)) {
+                Long topicId = subtopic.getTopic().getId();
+                // Guard the +15 bonus with a persisted per-(user, topic) marker so it is granted
+                // exactly once, even if the topic is re-completed after its subtopic set changes.
+                if (!topicBonusAwardRepository.existsByUserIdAndTopicId(userId, topicId)) {
+                    topicBonusAwardRepository.save(UserTopicBonusAward.builder()
+                            .userId(userId)
+                            .topicId(topicId)
+                            .awardedAt(LocalDateTime.now())
+                            .build());
+                    sessionGems += GEMS_PER_TOPIC;
+                }
+            }
+            user.setGems(user.getGems() + sessionGems);
+            userRepository.save(user);
+            gemsEarned = sessionGems;
+        }
+
+        return new LevelCompleteResultResponse(mechanicType, gemsEarned, nextMechanic, subtopicCompleted);
     }
 
     private MechanicType resolveCurrentMechanic(
@@ -200,6 +220,19 @@ public class LearningService {
                 word.getUsageExampleEnTranslationRu(),
                 mnemonic
         );
+    }
+
+    /**
+     * A topic is complete once every one of its subtopics has all active mechanics completed.
+     * Called only at the moment a subtopic's final level transitions to COMPLETED, so the
+     * +15 topic bonus is granted exactly once per topic completion.
+     */
+    private boolean isTopicCompleted(Subtopic subtopic, Long userId) {
+        Long topicId = subtopic.getTopic().getId();
+        List<Subtopic> siblings = subtopicRepository.findAllByTopicIdOrderBySortOrderAscIdAsc(topicId);
+        List<UserSubtopicLevelMechanicProgress> allProgress = progressRepository.findByUserId(userId);
+        return siblings.stream()
+                .allMatch(s -> progressComputationService.isSubtopicCompleted(s, allProgress));
     }
 
     private MechanicType findNextMechanic(List<MechanicType> activeMechanics, MechanicType current) {

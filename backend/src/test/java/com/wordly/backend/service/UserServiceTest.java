@@ -1,13 +1,20 @@
 package com.wordly.backend.service;
 
+import com.wordly.backend.dto.DailyGoalClaimResponse;
 import com.wordly.backend.dto.UpdateUserProfileRequest;
 import com.wordly.backend.dto.UserProfileResponse;
+import com.wordly.backend.entity.Subtopic;
+import com.wordly.backend.entity.Topic;
 import com.wordly.backend.entity.User;
+import com.wordly.backend.entity.UserSubtopicLevelMechanicProgress;
 import com.wordly.backend.entity.enums.ColorTheme;
+import com.wordly.backend.entity.enums.MechanicType;
+import com.wordly.backend.entity.enums.ProgressStatus;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.exception.GuestOperationNotAllowedException;
 import com.wordly.backend.exception.NotFoundException;
 import com.wordly.backend.repository.UserRepository;
+import com.wordly.backend.repository.UserSubtopicLevelMechanicProgressRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,12 +24,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +47,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private UserSubtopicLevelMechanicProgressRepository progressRepository;
 
     @InjectMocks
     private UserService userService;
@@ -229,6 +243,101 @@ class UserServiceTest {
             assertThat(user.getName()).isEqualTo("Alex");
             assertThat(user.getSurname()).isEqualTo("Smith");
             assertThat(user.getEmail()).isEqualTo("alex@example.com");
+        }
+    }
+
+    @Nested
+    @DisplayName("claimDailyGoal")
+    class ClaimDailyGoal {
+
+        private Subtopic subtopicWithWords(int wordsCount) {
+            return Subtopic.builder()
+                    .id(10L)
+                    .topic(Topic.builder().id(1L).name("T").description("").imageUrl("").sortOrder(0).build())
+                    .name("Sub")
+                    .description("")
+                    .imageUrl("")
+                    .sortOrder(0)
+                    .wordsCount(wordsCount)
+                    .build();
+        }
+
+        private UserSubtopicLevelMechanicProgress firstMechanicCompletion(Subtopic subtopic) {
+            return UserSubtopicLevelMechanicProgress.builder()
+                    .userId(1L)
+                    .subtopic(subtopic)
+                    .mechanicType(MechanicType.MNEMONIC_CARDS)
+                    .status(ProgressStatus.COMPLETED)
+                    .build();
+        }
+
+        private void stubTodayCompletions(List<UserSubtopicLevelMechanicProgress> completions) {
+            when(progressRepository.findByUserIdAndStatusAndCompletedAtBetween(
+                    eq(1L), eq(ProgressStatus.COMPLETED), any(LocalDateTime.class), any(LocalDateTime.class)))
+                    .thenReturn(completions);
+        }
+
+        @Test
+        @DisplayName("should award +10 once when today's learned words reach the goal")
+        void shouldAwardWhenGoalReached() {
+            User user = regularUser(1L);
+            user.setDailyGoalWords(5);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubTodayCompletions(List.of(firstMechanicCompletion(subtopicWithWords(5))));
+
+            DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
+
+            assertThat(response.reached()).isTrue();
+            assertThat(response.gemsAwarded()).isEqualTo(10);
+            assertThat(user.getGems()).isEqualTo(10);
+            assertThat(user.getDailyGoalAwardedDate()).isEqualTo(LocalDate.now());
+        }
+
+        @Test
+        @DisplayName("should report reached but award nothing when already claimed today")
+        void shouldNotAwardTwiceSameDay() {
+            User user = regularUser(1L);
+            user.setDailyGoalWords(5);
+            user.setDailyGoalAwardedDate(LocalDate.now());
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubTodayCompletions(List.of(firstMechanicCompletion(subtopicWithWords(5))));
+
+            DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
+
+            assertThat(response.reached()).isTrue();
+            assertThat(response.gemsAwarded()).isZero();
+            assertThat(user.getGems()).isZero();
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should never award the bonus to a guest user")
+        void shouldNotAwardForGuest() {
+            User guest = User.builder().id(1L).guest(true).gems(0).dailyGoalWords(5).build();
+            when(userRepository.findById(1L)).thenReturn(Optional.of(guest));
+
+            DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
+
+            assertThat(response.reached()).isFalse();
+            assertThat(response.gemsAwarded()).isZero();
+            assertThat(guest.getGems()).isZero();
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should not award when today's learned words are below the goal")
+        void shouldNotAwardWhenBelowGoal() {
+            User user = regularUser(1L);
+            user.setDailyGoalWords(10);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubTodayCompletions(List.of(firstMechanicCompletion(subtopicWithWords(3))));
+
+            DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
+
+            assertThat(response.reached()).isFalse();
+            assertThat(response.gemsAwarded()).isZero();
+            assertThat(user.getGems()).isZero();
+            assertThat(user.getDailyGoalAwardedDate()).isNull();
         }
     }
 }
