@@ -24,7 +24,8 @@ import java.util.List;
 public class RecallService {
 
     private static final int[] RECALL_INTERVALS = {1, 3, 7, 14, 21, 30};
-    private static final int GEMS_PER_RECALL_SESSION = 10;
+    private static final int GEMS_RECALL_ALL_CORRECT = 10;
+    private static final int GEMS_RECALL_PARTIAL = 5;
 
     private final UserWordStateRepository userWordStateRepository;
     private final UserRepository userRepository;
@@ -73,9 +74,12 @@ public class RecallService {
             return new RecallCompleteResponse(0, 0, 0, 0);
         }
 
+        // MVP scoring: all words correct → 10 gems, otherwise → 5 gems
+        int gemsEarned = (failed == 0) ? GEMS_RECALL_ALL_CORRECT : GEMS_RECALL_PARTIAL;
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
-        user.setGems(user.getGems() + GEMS_PER_RECALL_SESSION);
+        user.setGems(user.getGems() + gemsEarned);
         userRepository.save(user);
 
         sessionStates.forEach(s -> {
@@ -84,7 +88,7 @@ public class RecallService {
         });
         userWordStateRepository.saveAll(sessionStates);
 
-        return new RecallCompleteResponse(total, (int) correct, (int) failed, GEMS_PER_RECALL_SESSION);
+        return new RecallCompleteResponse(total, (int) correct, (int) failed, gemsEarned);
     }
 
     private void advanceInterval(UserWordState state) {

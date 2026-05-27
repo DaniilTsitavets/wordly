@@ -203,8 +203,8 @@ class RecallServiceTest {
     class CompleteRecall {
 
         @Test
-        @DisplayName("should return session stats and award gems")
-        void shouldReturnStatsAndAwardGems() {
+        @DisplayName("should award 5 gems for a partially-correct session and return stats")
+        void shouldAwardPartialGemsWhenNotAllCorrect() {
             Word w1 = word(1L, "plate");
             Word w2 = word(2L, "fork");
             Word w3 = word(3L, "knife");
@@ -229,9 +229,35 @@ class RecallServiceTest {
             assertThat(response.correct()).isEqualTo(2);
             assertThat(response.failed()).isEqualTo(1);
             assertThat(response.totalWords()).isEqualTo(3);
+            assertThat(response.gemsEarned()).isEqualTo(5);
+            assertThat(user.getGems()).isEqualTo(55);
+            verify(userRepository).save(user);
+        }
+
+        @Test
+        @DisplayName("should award 10 gems when every word in the session is correct")
+        void shouldAwardFullGemsWhenAllCorrect() {
+            Word w1 = word(1L, "plate");
+            Word w2 = word(2L, "fork");
+            UserWordState s1 = state(10L, w1, 1, LocalDate.now());
+            UserWordState s2 = state(10L, w2, 1, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s1));
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 2L)).thenReturn(Optional.of(s2));
+            when(userWordStateRepository.findByUserIdAndSessionDate(10L, LocalDate.now()))
+                    .thenReturn(List.of(s1, s2));
+
+            User user = User.builder().id(10L).gems(50).build();
+            when(userRepository.findById(10L)).thenReturn(Optional.of(user));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(2L, "fork"), 10L);
+
+            RecallCompleteResponse response = recallService.completeRecall(10L);
+
+            assertThat(response.correct()).isEqualTo(2);
+            assertThat(response.failed()).isZero();
             assertThat(response.gemsEarned()).isEqualTo(10);
             assertThat(user.getGems()).isEqualTo(60);
-            verify(userRepository).save(user);
         }
 
         @Test

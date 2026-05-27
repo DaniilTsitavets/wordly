@@ -1,5 +1,6 @@
 package com.wordly.backend.controller;
 
+import com.wordly.backend.dto.DailyGoalClaimResponse;
 import com.wordly.backend.dto.DailyProgressResponse;
 import com.wordly.backend.dto.UpdateUserProfileRequest;
 import com.wordly.backend.dto.UserProfileResponse;
@@ -24,6 +25,11 @@ public class UserController {
     @GetMapping("/me/daily-progress")
     public DailyProgressResponse getDailyProgress(@AuthenticationPrincipal Long userId) {
         return userService.getDailyProgress(userId);
+    }
+
+    @PostMapping("/me/daily-goal/claim")
+    public DailyGoalClaimResponse claimDailyGoal(@AuthenticationPrincipal Long userId) {
+        return userService.claimDailyGoal(userId);
     }
 
     @PutMapping("/me")
