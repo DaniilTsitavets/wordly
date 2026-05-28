@@ -89,6 +89,10 @@ public class UserService {
             user.setColorTheme(request.colorTheme().getValue());
         }
 
+        if (request.onboardingCompleted() != null) {
+            user.setOnboardingCompleted(request.onboardingCompleted());
+        }
+
         return UserProfileResponse.from(user);
     }
 

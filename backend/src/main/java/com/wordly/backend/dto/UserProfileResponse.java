@@ -36,6 +36,9 @@ public record UserProfileResponse(
         Integer streak,
         Integer gems,
 
+        @JsonProperty("onboarding_completed")
+        boolean onboardingCompleted,
+
         @JsonProperty("last_active_date")
         LocalDate lastActiveDate,
 
@@ -57,6 +60,7 @@ public record UserProfileResponse(
                 ColorTheme.fromValue(user.getColorTheme()),
                 user.getStreak(),
                 user.getGems(),
+                user.isOnboardingCompleted(),
                 user.getLastActiveDate(),
                 user.getCreatedAt()
         );

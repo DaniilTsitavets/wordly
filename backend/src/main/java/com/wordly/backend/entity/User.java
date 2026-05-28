@@ -73,6 +73,10 @@ public class User {
     @Column(name = "last_active_date")
     private LocalDate lastActiveDate;
 
+    @Column(name = "onboarding_completed", nullable = false)
+    @Builder.Default
+    private boolean onboardingCompleted = false;
+
     @Column(name = "oauth_provider", length = 20)
     private String oauthProvider;
 

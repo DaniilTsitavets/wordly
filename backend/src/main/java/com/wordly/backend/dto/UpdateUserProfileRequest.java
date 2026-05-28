@@ -35,5 +35,8 @@ public record UpdateUserProfileRequest(
         Boolean notificationsEnabled,
 
         @JsonProperty("color_theme")
-        ColorTheme colorTheme
+        ColorTheme colorTheme,
+
+        @JsonProperty("onboarding_completed")
+        Boolean onboardingCompleted
 ) {}
