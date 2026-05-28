@@ -1,18 +1,19 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/atoms/Button'
-import { createAdminTopic } from '@/api/admin'
+import { createAdminTopic, updateAdminTopic, type AdminTopic } from '@/api/admin'
 import { validateTopicForm, hasErrors } from '@/features/admin/utils/formValidation'
 import styles from './AdminTopicForm.module.scss'
 
 interface AdminTopicFormProps {
   onClose: () => void
   onSuccess?: () => void
+  topic?: AdminTopic
 }
 
-export const AdminTopicForm = ({ onClose, onSuccess }: AdminTopicFormProps) => {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [emoji, setEmoji] = useState('')
+export const AdminTopicForm = ({ onClose, onSuccess, topic }: AdminTopicFormProps) => {
+  const [name, setName] = useState(topic?.name || '')
+  const [description, setDescription] = useState(topic?.description || '')
+  const [emoji, setEmoji] = useState(topic?.image_url || '')
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -40,16 +41,22 @@ export const AdminTopicForm = ({ onClose, onSuccess }: AdminTopicFormProps) => {
 
     setIsLoading(true)
     try {
-      await createAdminTopic({
+      const payload = {
         name: name.trim(),
         description: description.trim() || undefined,
         image_url: emoji || undefined,
-      })
+      }
+
+      if (topic) {
+        await updateAdminTopic(topic.id, payload)
+      } else {
+        await createAdminTopic(payload)
+      }
       resetForm()
       onSuccess?.()
       onClose()
     } catch (error) {
-      console.error('Failed to create topic:', error)
+      console.error('Failed to save topic:', error)
     } finally {
       setIsLoading(false)
     }
@@ -63,7 +70,7 @@ export const AdminTopicForm = ({ onClose, onSuccess }: AdminTopicFormProps) => {
   return (
     <div className={styles.card}>
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <h3 className={styles.title}>New Topic</h3>
+        <h3 className={styles.title}>{topic ? 'Edit Topic' : 'New Topic'}</h3>
 
         <div className={styles.fieldGroup}>
           <label htmlFor="topic-name" className={styles.label}>
@@ -108,22 +115,20 @@ export const AdminTopicForm = ({ onClose, onSuccess }: AdminTopicFormProps) => {
           <label htmlFor="topic-emoji" className={styles.label}>
             Emoji Icon / Image
           </label>
-          <div className={styles.emojiPicker}>
-            <div className={styles.emojiDisplay}>{emoji}</div>
-            <input
-              id="topic-emoji"
-              type="text"
-              className={styles.emojiInput}
-              value={emoji}
-              onChange={(e) => setEmoji(e.target.value)}
-              maxLength={2}
-            />
-          </div>
+          <input
+            id="topic-emoji"
+            type="text"
+            className={styles.input}
+            placeholder="e.g., 🍎"
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value)}
+            maxLength={2}
+          />
         </div>
 
         <div className={styles.buttons}>
           <Button type="submit" variant="gradient" size="sm" isLoading={isLoading}>
-            Create Topic
+            {topic ? 'Update Topic' : 'Create Topic'}
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
             Cancel

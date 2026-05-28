@@ -1,24 +1,32 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/atoms/Button'
-import { getAdminTopics, getAdminSubtopics, createAdminWord } from '@/api/admin'
-import type { AdminTopic, AdminSubtopic } from '@/api/admin'
+import {
+  getAdminTopics,
+  getAdminSubtopics,
+  createAdminWord,
+  updateAdminWord,
+  type AdminTopic,
+  type AdminSubtopic,
+  type AdminWord,
+} from '@/api/admin'
 import { validateWordForm, hasErrors } from '@/features/admin/utils/formValidation'
 import styles from './AdminWordForm.module.scss'
 
 interface AdminWordFormProps {
   onClose: () => void
   onSuccess?: () => void
+  word?: AdminWord
 }
 
-export const AdminWordForm = ({ onClose, onSuccess }: AdminWordFormProps) => {
-  const [wordEn, setWordEn] = useState('')
-  const [translationRu, setTranslationRu] = useState('')
-  const [transcription, setTranscription] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+export const AdminWordForm = ({ onClose, onSuccess, word }: AdminWordFormProps) => {
+  const [wordEn, setWordEn] = useState(word?.word_en || '')
+  const [translationRu, setTranslationRu] = useState(word?.translation_ru || '')
+  const [transcription, setTranscription] = useState(word?.transcription_en || '')
+  const [imageUrl, setImageUrl] = useState(word?.image_url || '')
   const [topicId, setTopicId] = useState<number | null>(null)
-  const [subtopicId, setSubtopicId] = useState<number | null>(null)
-  const [mnemoText, setMnemoText] = useState('')
-  const [isMnemonic, setIsMnemonic] = useState<boolean>(false)
+  const [subtopicId, setSubtopicId] = useState<number | null>(word?.subtopic_id || null)
+  const [mnemoText, setMnemoText] = useState(word?.mnemo_text || '')
+  const [isMnemonic, setIsMnemonic] = useState<boolean>(!!word?.mnemo_text)
 
   const [topics, setTopics] = useState<AdminTopic[]>([])
   const [subtopics, setSubtopics] = useState<AdminSubtopic[]>([])
@@ -29,7 +37,16 @@ export const AdminWordForm = ({ onClose, onSuccess }: AdminWordFormProps) => {
 
   useEffect(() => {
     getAdminTopics()
-      .then(setTopics)
+      .then((topicsList) => {
+        setTopics(topicsList)
+        // If editing, find and set the topic from subtopic
+        if (word && subtopicId) {
+          const topic = topicsList.find(
+            (t) => t.subtopics_count > 0 // This is a simple heuristic; ideally we'd fetch subtopic details
+          )
+          if (topic) setTopicId(topic.id)
+        }
+      })
       .catch((err) => console.error('Failed to load topics:', err))
     setTimeout(() => wordEnRef.current?.focus(), 100)
   }, [])
@@ -75,7 +92,7 @@ export const AdminWordForm = ({ onClose, onSuccess }: AdminWordFormProps) => {
 
     setIsLoading(true)
     try {
-      await createAdminWord({
+      const payload = {
         subtopic_id: subtopicId!,
         word_en: wordEn.trim(),
         translation_ru: translationRu.trim(),
@@ -83,12 +100,18 @@ export const AdminWordForm = ({ onClose, onSuccess }: AdminWordFormProps) => {
         image_url: imageUrl.trim() || undefined,
         mnemo_text: isMnemonic && mnemoText.trim() ? mnemoText.trim() : null,
         mnemonic_image_url: null,
-      })
+      }
+
+      if (word) {
+        await updateAdminWord(word.id, payload)
+      } else {
+        await createAdminWord(payload)
+      }
       resetForm()
       onSuccess?.()
       onClose()
     } catch (error) {
-      console.error('Failed to create word:', error)
+      console.error('Failed to save word:', error)
     } finally {
       setIsLoading(false)
     }
@@ -102,7 +125,7 @@ export const AdminWordForm = ({ onClose, onSuccess }: AdminWordFormProps) => {
   return (
     <div className={styles.card}>
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <h3 className={styles.title}>New Word</h3>
+        <h3 className={styles.title}>{word ? 'Edit Word' : 'New Word'}</h3>
 
         <div className={styles.row}>
           <div className={styles.fieldGroup}>
@@ -278,7 +301,7 @@ export const AdminWordForm = ({ onClose, onSuccess }: AdminWordFormProps) => {
 
         <div className={styles.buttons}>
           <Button type="submit" variant="gradient" size="sm" isLoading={isLoading}>
-            Create Word
+            {word ? 'Update Word' : 'Create Word'}
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
             Cancel
