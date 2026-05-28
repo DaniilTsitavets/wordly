@@ -404,7 +404,7 @@ app.get('/api/v1/subtopics/:id/session', (req, res) => {
     ? subtopicProgress[id]
     : (s.disabled_mechanics.includes('mnemonic_cards') ? 'flashcards' : 'mnemonic_cards');
   const subWords = words.filter(w => w.subtopic_id === id);
-е  const sessionWords = mechanic === 'mnemonic_cards'
+  const sessionWords = mechanic === 'mnemonic_cards'
     ? subWords.filter(w => w.mnemonic_image_url || w.mnemo_text)
     : subWords;
   res.json({ subtopic_id: id, mechanic_type: mechanic, words: sessionWords.map(w => toSessionWord(w, mechanic)) });

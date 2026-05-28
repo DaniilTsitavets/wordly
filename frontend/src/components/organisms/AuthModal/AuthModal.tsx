@@ -8,6 +8,8 @@ import { WordlyLogo } from '@/assets/icons'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setLoading, setError, loginSuccess } from '@/store/slices/authSlice'
 import { login, register } from '@/api/auth'
+import { IS_DEMO_API } from '@/api/client'
+import { GOOGLE_CLIENT_ID, buildGoogleAuthorizeUrl } from '@/utils/oauth'
 import styles from './AuthModal.module.scss'
 
 type AuthTab = 'login' | 'signup'
@@ -117,7 +119,7 @@ const LoginForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </Button>
 
       <SocialDivider label="or continue with" />
-      <SocialButtons />
+      <SocialButtons onClose={onSuccess} />
     </div>
   )
 }
@@ -219,7 +221,7 @@ const SignupForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </Button>
 
       <SocialDivider label="or sign up with" />
-      <SocialButtons />
+      <SocialButtons onClose={onSuccess} />
     </div>
   )
 }
@@ -232,15 +234,35 @@ const SocialDivider = ({ label }: { label: string }) => (
   </div>
 )
 
-const SocialButtons = () => (
-  <div className={styles.socialGrid}>
-    <button className={styles.socialBtn}>
-      <IconFont name="google" size={20} decorative />
-      Google
-    </button>
-    <button className={styles.socialBtn}>
-      <IconFont name="github" size={20} decorative />
-      GitHub
-    </button>
-  </div>
-)
+const SocialButtons = ({ onClose }: { onClose: () => void }) => {
+  const navigate = useNavigate()
+
+  const handleGoogle = () => {
+    onClose()
+    if (IS_DEMO_API) {
+      // Mock backend: skip the real Google round-trip and hit our callback directly.
+      navigate('/oauth/callback?code=mock-google-code')
+      return
+    }
+    if (!GOOGLE_CLIENT_ID) {
+      alert('Google sign-in is not configured. Set VITE_GOOGLE_CLIENT_ID to enable it.')
+      return
+    }
+    // OAuth requires a cross-origin redirect to accounts.google.com,
+    // so this is the one place we step outside React Router.
+    window.location.href = buildGoogleAuthorizeUrl()
+  }
+
+  return (
+    <div className={styles.socialGrid}>
+      <button type="button" className={styles.socialBtn} onClick={handleGoogle}>
+        <IconFont name="google" size={20} decorative />
+        Google
+      </button>
+      <button type="button" className={styles.socialBtn}>
+        <IconFont name="github" size={20} decorative />
+        GitHub
+      </button>
+    </div>
+  )
+}
