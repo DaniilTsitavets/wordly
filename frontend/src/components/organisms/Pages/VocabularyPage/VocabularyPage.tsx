@@ -66,7 +66,6 @@ interface WordCardProps {
 
 function WordCard({ word, colorClass }: WordCardProps) {
   const reviewIn = formatReviewIn(word.next_recall)
-  const interval = formatInterval(word.next_recall)
 
   return (
     <article className={`${styles.card} ${colorClass}`}>
@@ -86,7 +85,6 @@ function WordCard({ word, colorClass }: WordCardProps) {
 
       <div className={styles.cardAside}>
         {reviewIn && <span className={styles.reviewBadge}>Review {reviewIn}</span>}
-        {interval && <span className={styles.intervalLabel}>Interval: {interval}</span>}
       </div>
     </article>
   )

@@ -6,6 +6,8 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { getRecall, type RecallWord, recallAnswer, recallComplete } from '@/api/recall'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 
 type GameState = 'building' | 'correct' | 'incorrect'
 
@@ -13,8 +15,6 @@ interface LetterItem {
   letter: string
   id: number
 }
-
-/* ── helpers ─────────────────────────────────────────────────────────────── */
 
 const EXTRA_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -57,19 +57,16 @@ function saveBestTime(wordId: number, time: number): void {
   }
 }
 
-/* ── component ───────────────────────────────────────────────────────────── */
-
 export function RecallMechanicPage() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const [searchParams] = useSearchParams()
   const intervalFilter = searchParams.get('interval')
 
-  /* data */
   const [words, setWords] = useState<RecallWord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  /* game state */
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedIndices, setSelectedIndices] = useState<number[]>([])
   const [gameState, setGameState] = useState<GameState>('building')
@@ -77,12 +74,10 @@ export function RecallMechanicPage() {
   const [gemsEarned, setGemsEarned] = useState(0)
   const [isCompleting, setIsCompleting] = useState(false)
 
-  /* timer */
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const startTimeRef = useRef<number>(Date.now())
 
-  /* ── fetch words ────────────────────────────────────────────────────────── */
   useEffect(() => {
     let cancelled = false
     const load = async () => {
@@ -108,7 +103,6 @@ export function RecallMechanicPage() {
     }
   }, [intervalFilter])
 
-  /* ── timer logic ────────────────────────────────────────────────────────── */
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current)
@@ -125,13 +119,11 @@ export function RecallMechanicPage() {
     }, 100)
   }, [stopTimer])
 
-  // Start timer on mount and word change
   useEffect(() => {
     if (words.length > 0) startTimer()
     return stopTimer
   }, [currentIndex, words.length, startTimer, stopTimer])
 
-  /* ── derived ────────────────────────────────────────────────────────────── */
   const word = words[currentIndex]
   const isLast = currentIndex >= words.length - 1
 
@@ -149,10 +141,8 @@ export function RecallMechanicPage() {
     [selectedIndices, shuffledLetters]
   )
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const bestTime = useMemo(() => (word ? getBestTime(word.id) : null), [word, gameState])
+  const bestTime = useMemo(() => (word ? getBestTime(word.id) : null), [word])
 
-  /* ── handlers ───────────────────────────────────────────────────────────── */
   const handleLetterClick = useCallback(
     (idx: number) => {
       if (gameState !== 'building') return
@@ -183,7 +173,6 @@ export function RecallMechanicPage() {
         setGameState('incorrect')
       }
     } catch {
-      // fallback: local check
       const isCorrect = currentAnswer.toLowerCase() === word.word_en.toLowerCase()
       if (isCorrect) {
         saveBestTime(word.id, elapsed)
@@ -212,13 +201,14 @@ export function RecallMechanicPage() {
     try {
       const result = await recallComplete()
       setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       setShowReward(true)
     } finally {
       setIsCompleting(false)
     }
-  }, [isCompleting])
+  }, [dispatch, isCompleting])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)
@@ -229,8 +219,6 @@ export function RecallMechanicPage() {
     stopTimer()
     navigate('/recall')
   }, [navigate, stopTimer])
-
-  /* ── render ─────────────────────────────────────────────────────────────── */
 
   if (isLoading) {
     return <div className={styles.centered}>Loading...</div>
@@ -253,7 +241,6 @@ export function RecallMechanicPage() {
 
   return (
     <div className={styles.page}>
-      {/* top bar */}
       <div className={styles.topBar}>
         <button className={styles.backBtn} onClick={handleBack} aria-label="Go back">
           <IconFont name="arrow-back" size={18} />
@@ -267,7 +254,6 @@ export function RecallMechanicPage() {
         </div>
       </div>
 
-      {/* word prompt */}
       <div className={styles.promptSection}>
         <div className={styles.wordImageWrap}>
           <span className={styles.wordEmoji} role="img" aria-label="word illustration">
@@ -280,7 +266,6 @@ export function RecallMechanicPage() {
         </h2>
       </div>
 
-      {/* answer plate */}
       <div
         className={`${styles.answerPlate} ${
           gameState === 'correct'
@@ -310,7 +295,6 @@ export function RecallMechanicPage() {
         )}
       </div>
 
-      {/* personal best */}
       {bestTime !== null && (
         <div className={styles.bestTime}>
           <span className={styles.bestTimeIcon}>🏆</span>
@@ -318,7 +302,6 @@ export function RecallMechanicPage() {
         </div>
       )}
 
-      {/* letter pool */}
       <div className={styles.lettersPool}>
         {shuffledLetters.map((item, idx) => {
           const isUsed = selectedIndices.includes(idx)
@@ -334,7 +317,6 @@ export function RecallMechanicPage() {
         })}
       </div>
 
-      {/* feedback banner */}
       {gameState !== 'building' && (
         <div
           className={`${styles.feedback} ${gameState === 'correct' ? styles.feedbackCorrect : styles.feedbackIncorrect}`}
@@ -358,7 +340,6 @@ export function RecallMechanicPage() {
         </div>
       )}
 
-      {/* action buttons */}
       <div className={styles.actions}>
         {gameState === 'correct' ? (
           isLast ? (
@@ -386,7 +367,6 @@ export function RecallMechanicPage() {
         )}
       </div>
 
-      {/* progress dots */}
       <div className={styles.progressDots}>
         {words.map((_, i) => (
           <span
@@ -400,6 +380,7 @@ export function RecallMechanicPage() {
         isOpen={showReward}
         onClose={() => setShowReward(false)}
         onCollect={handleCollect}
+        completionTarget="Recall"
         reward={`+${gemsEarned} Gems`}
       />
     </div>

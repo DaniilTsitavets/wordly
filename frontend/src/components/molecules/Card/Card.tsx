@@ -12,9 +12,7 @@ export interface WordCardProps {
   usageExampleEn?: string
   usageExampleRu?: string
   onPlayAudio?: () => void
-  /** Controlled flip state */
   isFlipped?: boolean
-  /** Callback when card is clicked to flip */
   onFlip?: () => void
 }
 

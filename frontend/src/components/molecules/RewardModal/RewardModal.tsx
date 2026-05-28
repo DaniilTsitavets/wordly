@@ -6,7 +6,7 @@ interface RewardModalProps {
   isOpen: boolean
   onClose: () => void
   onCollect: () => void
-  level?: number
+  completionTarget?: number | string
   reward?: string
 }
 
@@ -14,9 +14,14 @@ export const RewardModal = ({
   isOpen,
   onClose,
   onCollect,
-  level = 1,
+  completionTarget = 1,
   reward = '+10 Gems',
 }: RewardModalProps) => {
+  let completionText = String(completionTarget)
+  if (typeof completionTarget === 'number') {
+    completionText = `level ${completionTarget}`
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} ariaLabel="Reward modal">
       <div className={styles.modal}>
@@ -34,7 +39,7 @@ export const RewardModal = ({
 
         <div className={styles.texts}>
           <h2 className={styles.title}>Level Complete!</h2>
-          <p className={styles.subtitle}>Congratulations on completing level {level}</p>
+          <p className={styles.subtitle}>Congratulations on completing {completionText}</p>
         </div>
 
         <div className={styles.rewardBox} aria-label={`Reward: ${reward}`}>

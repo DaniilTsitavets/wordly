@@ -4,17 +4,22 @@ import { Spinner } from '@/components/atoms/Spinner'
 import { IconFont } from '@/components/atoms/IconFont'
 import { Button } from '@/components/atoms/Button'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
+import { RewardModal } from '@/components/molecules/RewardModal'
 import type { LevelProgress } from '@/api/topics'
 import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
+import { claimDailyGoal } from '@/api/user'
 import { useSubtopic } from './hooks/useSubtopic'
 import { MECHANIC_INFO } from './utils/mechanics'
 import styles from './SubTopicPage.module.scss'
-import { useAppSelector } from '@/store/hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
+import { useState } from 'react'
 
 export function SubTopicPage() {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const dispatch = useAppDispatch()
   const id = Number(subtopicId)
   const { subtopic, isLoading, error, refetch } = useSubtopic(id)
   const {
@@ -25,6 +30,8 @@ export function SubTopicPage() {
   } = useDailyProgress()
 
   const user = useAppSelector((state) => state.auth)
+  const [dailyGoalReward, setDailyGoalReward] = useState(0)
+  const [showDailyGoalReward, setShowDailyGoalReward] = useState(false)
 
   const checkSessionCompleted = useCallback(() => {
     const sessionCompleted = sessionStorage.getItem('sessionCompleted')
@@ -32,8 +39,23 @@ export function SubTopicPage() {
       sessionStorage.removeItem('sessionCompleted')
       refetch()
       refetchDaily()
+
+      const claimReward = async () => {
+        try {
+          const result = await claimDailyGoal()
+          if (result.gems_awarded > 0) {
+            setDailyGoalReward(result.gems_awarded)
+            setShowDailyGoalReward(true)
+            dispatch(addGems(result.gems_awarded))
+          }
+        } catch {
+          // silently ignore claim errors
+        }
+      }
+
+      claimReward()
     }
-  }, [refetch, refetchDaily])
+  }, [dispatch, refetch, refetchDaily])
 
   useEffect(() => {
     checkSessionCompleted()
@@ -132,6 +154,14 @@ export function SubTopicPage() {
           />
         ))}
       </section>
+
+      <RewardModal
+        isOpen={showDailyGoalReward}
+        onClose={() => setShowDailyGoalReward(false)}
+        onCollect={() => setShowDailyGoalReward(false)}
+        completionTarget="Daily Goal"
+        reward={`+${dailyGoalReward} Gems`}
+      />
     </div>
   )
 }

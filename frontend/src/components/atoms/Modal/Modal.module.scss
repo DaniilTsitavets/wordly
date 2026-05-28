@@ -22,6 +22,15 @@
   flex-direction: column;
 }
 
+.modalCompact {
+  width: 27rem;
+  min-height: 0;
+
+  .content {
+    padding: 2.25rem 2rem;
+  }
+}
+
 .decorTop {
   position: absolute;
   top: -2rem;

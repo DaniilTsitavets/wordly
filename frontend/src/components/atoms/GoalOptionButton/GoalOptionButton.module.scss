@@ -1,44 +1,14 @@
-@use '../../../../styles/index' as *;
-
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 4px;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 800;
-  color: $color-neutral-dark;
-  margin: 0;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: $color-neutral-text-muted;
-  margin: 0 0 12px;
-  text-align: center;
-}
-
-.options {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+@use '../../../styles/index' as *;
 
 .option {
-  flex: 1;
-  min-width: 96px;
-  max-width: 130px;
+  width: 112px;
+  min-height: 156px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 16px 12px;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
   border-radius: 16px;
   border: 2px solid $color-neutral-gray-light;
   background: $color-white;
@@ -68,6 +38,9 @@
 .optionMinutes {
   font-size: 18px;
   font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
   color: $color-neutral-dark;
 
   .optionActive & {
@@ -76,12 +49,8 @@
 }
 
 .optionLabel {
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
-}
-
-.saveBtn {
-  margin-top: 16px;
-  width: 100%;
-  border-radius: 999px !important;
+  line-height: 1.35;
+  min-height: 30px;
 }

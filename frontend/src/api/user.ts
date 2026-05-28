@@ -50,3 +50,15 @@ export interface DailyProgress {
 export function getDailyProgress(): Promise<DailyProgress> {
   return apiRequest<DailyProgress>('/users/me/daily-progress')
 }
+
+export interface DailyGoalClaimResponse {
+  reached: boolean
+  gems_awarded: number
+}
+
+export function claimDailyGoal(): Promise<DailyGoalClaimResponse> {
+  return apiRequest<DailyGoalClaimResponse>('/users/me/daily-goal/claim', {
+    method: 'POST',
+    body: {},
+  })
+}

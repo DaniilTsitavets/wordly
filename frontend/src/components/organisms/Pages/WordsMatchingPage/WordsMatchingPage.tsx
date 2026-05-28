@@ -49,7 +49,7 @@ export const WordsMatchingPage = () => {
   const [wrongPair, setWrongPair] = useState<{ en: number; ru: number } | null>(null)
   const [page, setPage] = useState(0)
   const [showReward, setShowReward] = useState(false)
-  const [gemsEarned, setGemsEarned] = useState(10)
+  const [gemsEarned, setGemsEarned] = useState(0)
   const [isCompleting, setIsCompleting] = useState(false)
   const [pages, setPages] = useState<PageType[]>([])
   const pagesInitializedRef = useRef(false)
@@ -132,9 +132,8 @@ export const WordsMatchingPage = () => {
       const complete = async () => {
         try {
           const result = await completeSession(Number(subtopicId), 'matching')
-          const earned = result.gems_earned ?? 10
-          setGemsEarned(earned)
-          dispatch(addGems(earned))
+          setGemsEarned(result.gems_earned)
+          dispatch(addGems(result.gems_earned))
         } catch (e) {
           console.error('Failed to complete session:', e)
         }
@@ -248,6 +247,7 @@ export const WordsMatchingPage = () => {
         isOpen={showReward}
         onClose={() => setShowReward(false)}
         onCollect={handleCollect}
+        completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
       />
     </div>
