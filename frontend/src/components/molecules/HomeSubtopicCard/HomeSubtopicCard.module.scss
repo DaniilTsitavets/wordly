@@ -1,0 +1,142 @@
+@use '../../../styles/index' as *;
+
+.card {
+  position: relative;
+  width: 20rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: $color-white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease;
+}
+
+.active {
+  background: #fde2c8;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.locked {
+  background: $color-white;
+  border: 1px solid $color-neutral-gray-light;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: $color-neutral-gray-light;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .locked & img {
+    filter: grayscale(0.4) brightness(0.95);
+  }
+}
+
+.heroFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $color-neutral-text-tertiary;
+}
+
+.cornerRight {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-neutral-text-secondary;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .active & {
+    color: $color-secondary-orange;
+  }
+}
+
+.body {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: $color-neutral-dark;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: $color-neutral-text-secondary;
+  flex: 1;
+}
+
+.stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $color-neutral-text-secondary;
+}
+
+.startBtn,
+.lockedBtn {
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 999px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.25rem;
+}
+
+.startBtn {
+  background: $color-secondary-orange !important;
+  color: $color-white !important;
+
+  &:hover {
+    background: #e85d00 !important;
+  }
+}
+
+.lockedBtn {
+  background: $color-neutral-gray-light !important;
+  color: $color-neutral-text-muted !important;
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 30rem) {
+  .card {
+    width: 100%;
+  }
+}

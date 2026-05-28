@@ -1,0 +1,16 @@
+@use '../../../../styles/index' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0 3rem;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: $color-neutral-text-tertiary;
+}

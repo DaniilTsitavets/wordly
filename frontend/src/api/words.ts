@@ -7,7 +7,8 @@ export interface WordDetails {
   translation_ru: string
   image_url: string
   has_mnemonic: boolean
-  mnemonic_text?: string
+  mnemonic_image_url?: string | null
+  mnemonic_text?: string | null
   usage_example_en?: string
   usage_example_ru?: string
 }

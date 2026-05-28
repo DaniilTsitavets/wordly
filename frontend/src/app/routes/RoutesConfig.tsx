@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { TopicPage } from '@/components/organisms/Pages/TopicPage'
+import { HomePage } from '@/components/organisms/Pages/HomePage'
 import { SubTopicPage } from '@/components/organisms/Pages/SubTopicPage/SubTopicPage'
 import { OnboardingPage } from '@/components/organisms/Pages/OnboardingPage'
 import { ProfilePage } from '@/components/organisms/Pages/ProfilePage'
@@ -26,7 +26,7 @@ interface IRoute {
 export const routesConfig: IRoute[] = [
   {
     path: '/',
-    element: <TopicPage />,
+    element: <HomePage />,
     access: 'public',
   },
   {
