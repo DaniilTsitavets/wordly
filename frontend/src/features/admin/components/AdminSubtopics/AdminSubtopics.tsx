@@ -2,9 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import styles from './AdminSubtopics.module.scss'
 import { AdminSubtopicsTable } from '@/features/admin/components/AdminSubtopicsTable'
 import { AdminSubtopicForm } from '@/features/admin/components/AdminSubtopicForm'
+import { DeleteConfirmModal } from '@/features/admin/components/DeleteConfirmModal'
 import { Button } from '@/components/atoms/Button'
-import { getAdminTopics, getAdminSubtopics, deleteAdminSubtopic } from '@/api/admin'
-import type { AdminTopic } from '@/api/admin'
+import {
+  getAdminTopics,
+  getAdminSubtopics,
+  deleteAdminSubtopic,
+  type AdminTopic,
+  type AdminSubtopic,
+} from '@/api/admin'
 import type { SubtopicRow } from '@/features/admin/components/AdminSubtopicsTable/AdminSubtopicsTable'
 
 export const AdminSubtopics = () => {
@@ -13,6 +19,10 @@ export const AdminSubtopics = () => {
   const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null)
   const [subtopics, setSubtopics] = useState<SubtopicRow[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedSubtopic, setSelectedSubtopic] = useState<AdminSubtopic | undefined>()
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [subtopicToDelete, setSubtopicToDelete] = useState<SubtopicRow | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     getAdminTopics()
@@ -52,24 +62,61 @@ export const AdminSubtopics = () => {
   }, [fetchSubtopics])
 
   const handleEditSubtopic = (subtopic: SubtopicRow) => {
-    console.log('Edit subtopic:', subtopic)
+    const allSubtopics = subtopics
+    const fullSubtopic = allSubtopics.find((s) => s.id === subtopic.id)
+    if (fullSubtopic) {
+      const adminSubtopic: AdminSubtopic = {
+        id: fullSubtopic.id,
+        topic_id: selectedTopicId!,
+        name: fullSubtopic.name,
+        description: fullSubtopic.description || null,
+        image_url: fullSubtopic.icon || null,
+        sort_order: null,
+        words_count: fullSubtopic.wordsCount,
+        disabled_mechanics: [],
+      }
+      setSelectedSubtopic(adminSubtopic)
+      setIsFormOpen(true)
+    }
   }
 
-  const handleDeleteSubtopic = async (subtopic: SubtopicRow) => {
-    if (!confirm(`Delete subtopic "${subtopic.name}"?`)) return
+  const handleDeleteSubtopic = (subtopic: SubtopicRow) => {
+    setSubtopicToDelete(subtopic)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDeleteSubtopic = async () => {
+    if (!subtopicToDelete) return
+    setIsDeleting(true)
     try {
-      await deleteAdminSubtopic(subtopic.id)
+      await deleteAdminSubtopic(subtopicToDelete.id)
+      setIsDeleteModalOpen(false)
+      setSubtopicToDelete(null)
       fetchSubtopics()
     } catch (err) {
       console.error('Failed to delete subtopic:', err)
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false)
+    setSelectedSubtopic(undefined)
   }
 
   return (
     <section className={styles.container}>
       <div className={styles.container__header}>
         <h2 className={styles.container__title}>Manage Subtopics</h2>
-        <Button variant="admin" size="sm" onClick={() => setIsFormOpen(true)}>
+        <Button
+          variant="admin"
+          size="sm"
+          onClick={() => {
+            setSelectedSubtopic(undefined)
+            setIsFormOpen(true)
+          }}
+        >
           + Add New Subtopic
         </Button>
       </div>
@@ -96,8 +143,23 @@ export const AdminSubtopics = () => {
       </div>
 
       {isFormOpen && (
-        <AdminSubtopicForm onClose={() => setIsFormOpen(false)} onSuccess={fetchSubtopics} />
+        <AdminSubtopicForm
+          onClose={handleCloseForm}
+          onSuccess={fetchSubtopics}
+          subtopic={selectedSubtopic}
+        />
       )}
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        itemName={subtopicToDelete?.name || ''}
+        onConfirm={confirmDeleteSubtopic}
+        onCancel={() => {
+          setIsDeleteModalOpen(false)
+          setSubtopicToDelete(null)
+        }}
+        isLoading={isDeleting}
+      />
 
       {isLoading ? (
         <p>Loading...</p>

@@ -118,15 +118,6 @@ function formatReviewIn(nextRecall: string | null): string | null {
   return `in ${days}d`
 }
 
-function formatInterval(nextRecall: string | null): string | null {
-  if (!nextRecall) return null
-  const target = new Date(nextRecall)
-  if (Number.isNaN(target.getTime())) return null
-  const today = startOfDay(new Date())
-  const days = Math.max(1, diffInDays(today, startOfDay(target)))
-  return `${days}d`
-}
-
 function startOfDay(d: Date): Date {
   const copy = new Date(d)
   copy.setHours(0, 0, 0, 0)

@@ -7,7 +7,6 @@ export type WordRow = {
   english: string
   russian: string
   topic: string
-  interval: string
 }
 
 const columns: ColumnDef<WordRow>[] = [
@@ -34,12 +33,7 @@ const columns: ColumnDef<WordRow>[] = [
     header: 'Topic',
     render: (item) => <span className={styles.topicLabel}>{item.topic}</span>,
   },
-  {
-    key: 'interval',
-    header: 'Interval',
-    width: '4rem',
-    render: (item) => item.interval,
-  },
+
 ]
 
 interface AdminWordsTableProps {

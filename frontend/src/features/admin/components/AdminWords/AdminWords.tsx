@@ -2,9 +2,17 @@ import { useState, useEffect, useCallback } from 'react'
 import styles from './AdminWords.module.scss'
 import { AdminWordsTable } from '@/features/admin/components/AdminWordsTable'
 import { AdminWordForm } from '@/features/admin/components/AdminWordForm'
+import { DeleteConfirmModal } from '@/features/admin/components/DeleteConfirmModal'
 import { Button } from '@/components/atoms/Button'
-import { getAdminTopics, getAdminSubtopics, getAdminWords, deleteAdminWord } from '@/api/admin'
-import type { AdminTopic, AdminSubtopic } from '@/api/admin'
+import {
+  getAdminTopics,
+  getAdminSubtopics,
+  getAdminWords,
+  deleteAdminWord,
+  type AdminTopic,
+  type AdminSubtopic,
+  type AdminWord,
+} from '@/api/admin'
 import type { WordRow } from '@/features/admin/components/AdminWordsTable/AdminWordsTable'
 
 export const AdminWords = () => {
@@ -15,6 +23,10 @@ export const AdminWords = () => {
   const [selectedSubtopicId, setSelectedSubtopicId] = useState<number | null>(null)
   const [words, setWords] = useState<WordRow[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedWord, setSelectedWord] = useState<AdminWord | undefined>()
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [wordToDelete, setWordToDelete] = useState<WordRow | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     getAdminTopics()
@@ -71,24 +83,66 @@ export const AdminWords = () => {
   }, [fetchWords])
 
   const handleEditWord = (word: WordRow) => {
-    console.log('Edit word:', word)
+    const fullWord = words.find((w) => w.id === word.id)
+    if (fullWord && selectedSubtopicId) {
+      // Find the corresponding AdminWord from subtopics
+      const adminWords = subtopics.find((s) => s.id === selectedSubtopicId)?.words_count
+      // For now, we'll create an AdminWord object from the WordRow data
+      // In a real scenario, we might need to fetch the full word details
+      const adminWord: AdminWord = {
+        id: fullWord.id,
+        subtopic_id: selectedSubtopicId,
+        word_en: fullWord.english,
+        translation_ru: fullWord.russian,
+        transcription_en: null,
+        image_url: fullWord.image || null,
+        usage_example_en: null,
+        usage_example_en_translation_ru: null,
+        mnemonic_image_url: null,
+        mnemo_text: null,
+      }
+      setSelectedWord(adminWord)
+      setIsFormOpen(true)
+    }
   }
 
-  const handleDeleteWord = async (word: WordRow) => {
-    if (!confirm(`Delete word "${word.english}"?`)) return
+  const handleDeleteWord = (word: WordRow) => {
+    setWordToDelete(word)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDeleteWord = async () => {
+    if (!wordToDelete) return
+    setIsDeleting(true)
     try {
-      await deleteAdminWord(word.id)
+      await deleteAdminWord(wordToDelete.id)
+      setIsDeleteModalOpen(false)
+      setWordToDelete(null)
       fetchWords()
     } catch (err) {
       console.error('Failed to delete word:', err)
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false)
+    setSelectedWord(undefined)
   }
 
   return (
     <section className={styles.container}>
       <div className={styles.container__header}>
         <h2 className={styles.container__title}>Manage Words</h2>
-        <Button variant="admin" size="sm" onClick={() => setIsFormOpen(true)}>
+        <Button
+          variant="admin"
+          size="sm"
+          onClick={() => {
+            setSelectedWord(undefined)
+            setIsFormOpen(true)
+          }}
+        >
           + Add New Word
         </Button>
       </div>
@@ -138,7 +192,20 @@ export const AdminWords = () => {
         </div>
       </div>
 
-      {isFormOpen && <AdminWordForm onClose={() => setIsFormOpen(false)} onSuccess={fetchWords} />}
+      {isFormOpen && (
+        <AdminWordForm onClose={handleCloseForm} onSuccess={fetchWords} word={selectedWord} />
+      )}
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        itemName={wordToDelete?.english || ''}
+        onConfirm={confirmDeleteWord}
+        onCancel={() => {
+          setIsDeleteModalOpen(false)
+          setWordToDelete(null)
+        }}
+        isLoading={isDeleting}
+      />
 
       {isLoading ? (
         <p>Loading...</p>

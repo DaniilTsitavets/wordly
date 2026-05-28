@@ -1,20 +1,26 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/atoms/Button'
-import { getAdminTopics, createAdminSubtopic } from '@/api/admin'
-import type { AdminTopic } from '@/api/admin'
+import {
+  getAdminTopics,
+  createAdminSubtopic,
+  updateAdminSubtopic,
+  type AdminTopic,
+  type AdminSubtopic,
+} from '@/api/admin'
 import { validateSubtopicForm, hasErrors } from '@/features/admin/utils/formValidation'
 import styles from './AdminSubtopicForm.module.scss'
 
 interface AdminSubtopicFormProps {
   onClose: () => void
   onSuccess?: () => void
+  subtopic?: AdminSubtopic
 }
 
-export const AdminSubtopicForm = ({ onClose, onSuccess }: AdminSubtopicFormProps) => {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [topicId, setTopicId] = useState<number | null>(null)
-  const [emoji, setEmoji] = useState('')
+export const AdminSubtopicForm = ({ onClose, onSuccess, subtopic }: AdminSubtopicFormProps) => {
+  const [name, setName] = useState(subtopic?.name || '')
+  const [description, setDescription] = useState(subtopic?.description || '')
+  const [topicId, setTopicId] = useState<number | null>(subtopic?.topic_id || null)
+  const [emoji, setEmoji] = useState(subtopic?.image_url || '')
   const [topics, setTopics] = useState<AdminTopic[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -47,17 +53,23 @@ export const AdminSubtopicForm = ({ onClose, onSuccess }: AdminSubtopicFormProps
 
     setIsLoading(true)
     try {
-      await createAdminSubtopic({
+      const payload = {
         topic_id: topicId!,
         name: name.trim(),
         description: description.trim() || undefined,
         image_url: emoji || undefined,
-      })
+      }
+
+      if (subtopic) {
+        await updateAdminSubtopic(subtopic.id, payload)
+      } else {
+        await createAdminSubtopic(payload)
+      }
       resetForm()
       onSuccess?.()
       onClose()
     } catch (error) {
-      console.error('Failed to create subtopic:', error)
+      console.error('Failed to save subtopic:', error)
     } finally {
       setIsLoading(false)
     }
@@ -71,7 +83,7 @@ export const AdminSubtopicForm = ({ onClose, onSuccess }: AdminSubtopicFormProps
   return (
     <div className={styles.card}>
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <h3 className={styles.title}>New Subtopic</h3>
+        <h3 className={styles.title}>{subtopic ? 'Edit Subtopic' : 'New Subtopic'}</h3>
 
         <div className={styles.fieldGroup}>
           <label htmlFor="subtopic-name" className={styles.label}>
@@ -148,22 +160,20 @@ export const AdminSubtopicForm = ({ onClose, onSuccess }: AdminSubtopicFormProps
           <label htmlFor="subtopic-emoji" className={styles.label}>
             Emoji Icon
           </label>
-          <div className={styles.emojiPicker}>
-            <div className={styles.emojiDisplay}>{emoji}</div>
-            <input
-              id="subtopic-emoji"
-              type="text"
-              className={styles.emojiInput}
-              value={emoji}
-              onChange={(e) => setEmoji(e.target.value)}
-              maxLength={2}
-            />
-          </div>
+          <input
+            id="subtopic-emoji"
+            type="text"
+            className={styles.input}
+            placeholder="e.g., 🍎"
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value)}
+            maxLength={2}
+          />
         </div>
 
         <div className={styles.buttons}>
           <Button type="submit" variant="gradient" size="sm" isLoading={isLoading}>
-            Create Subtopic
+            {subtopic ? 'Update Subtopic' : 'Create Subtopic'}
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
             Cancel
