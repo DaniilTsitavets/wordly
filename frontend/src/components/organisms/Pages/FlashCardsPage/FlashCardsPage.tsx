@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card } from '@/components/molecules/Card/Card'
 import testImg from '@/assets/test_img/test_img2.jpg'
@@ -22,6 +22,15 @@ export const FlashCardsPage = () => {
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
   const [isCompleting, setIsCompleting] = useState(false)
+
+  const handlePlayAudio = useCallback(() => {
+    const currentWord = words?.[currentIndex]
+    if ('speechSynthesis' in window && currentWord?.word_en) {
+      const utterance = new SpeechSynthesisUtterance(currentWord.word_en)
+      utterance.lang = 'en-US'
+      speechSynthesis.speak(utterance)
+    }
+  }, [words, currentIndex])
 
   if (isLoading) {
     return <div className={styles.centered}>Loading...</div>
@@ -101,6 +110,7 @@ export const FlashCardsPage = () => {
         usageExampleRu={word.usage_example_ru}
         isFlipped={isCardFlipped}
         onFlip={() => setIsCardFlipped((prev) => !prev)}
+        onPlayAudio={handlePlayAudio}
       />
 
       <div className={styles.cardsActions}>

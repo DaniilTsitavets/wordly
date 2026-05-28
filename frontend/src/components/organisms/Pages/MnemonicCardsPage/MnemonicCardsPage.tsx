@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card } from '@/components/molecules/Card/Card'
 import testImg from '@/assets/test_img/test_img2.jpg'
@@ -23,8 +23,17 @@ export const MnemonicCardsPage = () => {
   const [gemsEarned, setGemsEarned] = useState(0)
   const [isCompleting, setIsCompleting] = useState(false)
 
-  // Filter only words with mnemonic
   const words = allWords?.filter((w) => w.has_mnemonic) ?? []
+
+  const handlePlayAudio = useCallback(() => {
+    const filteredWords = allWords?.filter((w) => w.has_mnemonic) ?? []
+    const currentWord = filteredWords[currentIndex]
+    if ('speechSynthesis' in window && currentWord?.word_en) {
+      const utterance = new SpeechSynthesisUtterance(currentWord.word_en)
+      utterance.lang = 'en-US'
+      speechSynthesis.speak(utterance)
+    }
+  }, [allWords, currentIndex])
 
   if (isLoading) {
     return <div className={styles.centered}>Loading...</div>
@@ -104,6 +113,7 @@ export const MnemonicCardsPage = () => {
         usageExampleRu={word.usage_example_ru}
         isFlipped={isCardFlipped}
         onFlip={() => setIsCardFlipped((prev) => !prev)}
+        onPlayAudio={handlePlayAudio}
       />
 
       <div className={styles.cardsActions}>
