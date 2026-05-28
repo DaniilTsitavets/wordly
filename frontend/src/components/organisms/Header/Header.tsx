@@ -117,14 +117,7 @@ export const Header = (props: HeaderProps) => {
           </div>
         </div>
       ) : (
-        <div className={styles.center}>
-          <button className={styles.navBtn} aria-label="Games">
-            <IconFont name="joystick" />
-          </button>
-          <button className={styles.navBtn} aria-label="Info">
-            <IconFont name="info" />
-          </button>
-        </div>
+        <div className={styles.center} />
       )}
 
       <div className={styles.right}>
