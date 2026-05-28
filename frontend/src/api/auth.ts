@@ -41,3 +41,16 @@ export function logout(): Promise<void> {
 export function loginAsGuest(): Promise<AuthResponse> {
   return apiRequest<AuthResponse>('/auth/guest', { method: 'POST', auth: false })
 }
+
+interface GoogleOAuthPayload {
+  code: string
+  redirect_uri: string
+}
+
+export function signInWithGoogle(payload: GoogleOAuthPayload): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>('/auth/oauth/google', {
+    method: 'POST',
+    body: payload,
+    auth: false,
+  })
+}
