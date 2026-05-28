@@ -59,6 +59,8 @@ jobs:
         working-directory: frontend
         env:
           VITE_BASE_API_URL: ${{ vars.VITE_BASE_API_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_OAUTH_REDIRECT_URI: ${{ vars.VITE_OAUTH_REDIRECT_URI }}
           VITE_BUILD_VERSION: ${{ github.sha }}
         run: |
           npm ci
