@@ -39,10 +39,10 @@ export const AdminWordForm = ({ onClose, onSuccess, word }: AdminWordFormProps) 
     getAdminTopics()
       .then((topicsList) => {
         setTopics(topicsList)
-        // If editing, find and set the topic from subtopic
+       
         if (word && subtopicId) {
           const topic = topicsList.find(
-            (t) => t.subtopics_count > 0 // This is a simple heuristic; ideally we'd fetch subtopic details
+            (t) => t.subtopics_count > 0 
           )
           if (topic) setTopicId(topic.id)
         }
