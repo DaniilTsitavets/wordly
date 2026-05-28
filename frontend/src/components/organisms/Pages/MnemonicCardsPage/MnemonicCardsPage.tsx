@@ -125,6 +125,7 @@ export const MnemonicCardsPage = () => {
         isOpen={showReward}
         onClose={() => setShowReward(false)}
         onCollect={handleCollect}
+        completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
       />
     </section>

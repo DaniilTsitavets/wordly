@@ -400,6 +400,7 @@ export function RecallMechanicPage() {
         isOpen={showReward}
         onClose={() => setShowReward(false)}
         onCollect={handleCollect}
+        completionTarget="Recall"
         reward={`+${gemsEarned} Gems`}
       />
     </div>
