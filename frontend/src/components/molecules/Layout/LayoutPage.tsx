@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Header } from '@/components/organisms/Header'
 import { AuthModal } from '@/components/organisms/AuthModal'
-import { DailyChallengeBanner } from '@/components/organisms/DailyChallengeBanner'
 import { Spinner } from '@/components/atoms/Spinner'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { setUser, logoutSuccess, loginSuccess } from '@/store/slices/authSlice'
@@ -70,10 +69,7 @@ export function Layout() {
             onAdminClick={() => navigate('/admin/dashboard')}
           />
         ) : (
-          <>
-            <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />
-            <DailyChallengeBanner />
-          </>
+          <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />
         ))}
 
       {token ? (

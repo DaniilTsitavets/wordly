@@ -1,10 +1,12 @@
 import styles from './DailyChallengeBanner.module.scss'
+import { useNavigate } from 'react-router-dom'
 
-interface DailyChallengeBannerProps {
-  onPlayClick?: () => void
-}
+export const DailyChallengeBanner = () => {
+  const navigate = useNavigate()
 
-export const DailyChallengeBanner = ({ onPlayClick }: DailyChallengeBannerProps) => {
+  const handlePlayClick = () => {
+    navigate('/daily-challenge')
+  }
   return (
     <div className={styles.wrapper}>
       <div className={styles.banner} role="region" aria-label="Daily Challenge">
@@ -33,7 +35,7 @@ export const DailyChallengeBanner = ({ onPlayClick }: DailyChallengeBannerProps)
           </div>
         </div>
 
-        <button type="button" className={styles.playBtn} onClick={onPlayClick}>
+        <button type="button" className={styles.playBtn} onClick={handlePlayClick}>
           Play Now →
         </button>
       </div>
