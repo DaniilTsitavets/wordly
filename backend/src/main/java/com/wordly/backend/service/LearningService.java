@@ -63,6 +63,7 @@ public class LearningService {
 
         List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(subtopicId);
         List<SessionWordResponse> sessionWords = words.stream()
+                .filter(word -> currentMechanic != MechanicType.MNEMONIC_CARDS || word.hasMnemonic())
                 .map(word -> toSessionWord(word, currentMechanic))
                 .toList();
 

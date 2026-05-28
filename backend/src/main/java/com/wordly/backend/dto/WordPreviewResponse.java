@@ -20,6 +20,9 @@ public record WordPreviewResponse(
         @JsonProperty("has_mnemonic")
         boolean hasMnemonic,
 
-        @JsonProperty("mnemo_description")
+        @JsonProperty("mnemonic_image_url")
+        String mnemonicImageUrl,
+
+        @JsonProperty("mnemonic_text")
         String mnemoDescription
 ) {}

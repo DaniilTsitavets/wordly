@@ -68,6 +68,7 @@ public class SubtopicService {
                         word.getTranslationRu(),
                         word.getImageUrl(),
                         word.hasMnemonic(),
+                        word.hasMnemonic() ? word.getMnemonicImageUrl() : null,
                         word.hasMnemonic() ? word.getMnemoText() : null
                 ))
                 .toList();

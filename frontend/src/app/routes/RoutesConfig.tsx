@@ -11,6 +11,7 @@ import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPag
 import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
 import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
 import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
+import { OAuthCallbackPage } from '@/components/organisms/Pages/OAuthCallbackPage'
 import { AiChatPage } from '@/components/organisms/Pages/AiChatPage'
 
 export type RouteAccess = 'public' | 'protected' | 'game'
@@ -30,6 +31,11 @@ export const routesConfig: IRoute[] = [
   {
     path: '/onboarding/daily-goal',
     element: <OnboardingPage />,
+    access: 'public',
+  },
+  {
+    path: '/oauth/callback',
+    element: <OAuthCallbackPage />,
     access: 'public',
   },
   {

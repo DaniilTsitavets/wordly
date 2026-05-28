@@ -20,6 +20,7 @@ tags:
     description: |
       Admin endpoints for content management. Require ADMIN role on the JWT.
       Access is controlled by `hasAuthority('ROLE_ADMIN')` — non-admin tokens get 403.
+  - name: Game
   - name: AI Chat
 
 paths:
@@ -1064,6 +1065,150 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /admin/daily-games:
+    get:
+      tags: [Admin]
+      summary: List all daily games (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of daily games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminDailyGame'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin]
+      summary: Create a daily game (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDailyGameRequest'
+      responses:
+        '201':
+          description: Created daily game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDailyGame'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/daily-games/{id}:
+    put:
+      tags: [Admin]
+      summary: Update a daily game (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDailyGameRequest'
+      responses:
+        '200':
+          description: Updated daily game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDailyGame'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Admin]
+      summary: Delete a daily game (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /daily-game:
+    get:
+      tags: [Game]
+      summary: Get today's daily game
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Today's daily game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyGame'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /daily-game/answer:
+    post:
+      tags: [Game]
+      summary: Submit answer for today's daily game
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyGameAnswerRequest'
+      responses:
+        '200':
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyGameAnswerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 # ─── COMPONENTS ─────────────────────────────────────────────
 
 components:
@@ -1378,7 +1523,11 @@ components:
           type: string
         has_mnemonic:
           type: boolean
-        mnemo_description:
+        mnemonic_image_url:
+          type: string
+          nullable: true
+          description: Mnemonic image URL. Present only when has_mnemonic is true.
+        mnemonic_text:
           type: string
           nullable: true
           description: Mnemonic memory hint text. Present only when has_mnemonic is true.
@@ -1758,3 +1907,93 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AdminUser'
+
+    AdminDailyGameRequest:
+      type: object
+      required: [idiom, option_1, option_2, option_3, option_4, correct_option]
+      properties:
+        idiom:
+          type: string
+          maxLength: 500
+          example: Break a leg
+        option_1:
+          type: string
+          maxLength: 500
+        option_2:
+          type: string
+          maxLength: 500
+        option_3:
+          type: string
+          maxLength: 500
+        option_4:
+          type: string
+          maxLength: 500
+        correct_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+
+    AdminDailyGame:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        idiom:
+          type: string
+        option_1:
+          type: string
+        option_2:
+          type: string
+        option_3:
+          type: string
+        option_4:
+          type: string
+        correct_option:
+          type: integer
+        scheduled_date:
+          type: string
+          format: date
+          nullable: true
+
+    DailyGame:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        idiom:
+          type: string
+          example: Break a leg
+        options:
+          type: array
+          items:
+            type: string
+          minItems: 4
+          maxItems: 4
+
+    DailyGameAnswerRequest:
+      type: object
+      required: [daily_game_id, selected_option]
+      properties:
+        daily_game_id:
+          type: integer
+          format: int64
+        selected_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+
+    DailyGameAnswerResponse:
+      type: object
+      properties:
+        is_correct:
+          type: boolean
+        correct_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+
