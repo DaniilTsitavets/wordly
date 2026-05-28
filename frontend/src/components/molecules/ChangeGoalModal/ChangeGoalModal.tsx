@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Modal } from '@/components/atoms/Modal'
 import { Button } from '@/components/atoms/Button'
-import { IconFont } from '@/components/atoms/IconFont'
+import { GoalOptionButton } from '@/components/atoms/GoalOptionButton'
 import styles from './ChangeGoalModal.module.scss'
 
 interface GoalOption {
@@ -23,38 +23,36 @@ interface ChangeGoalModalProps {
   onSave: (words: number) => void
 }
 
-export function ChangeGoalModal({ currentWords, isSaving, onClose, onSave }: ChangeGoalModalProps) {
+export function ChangeGoalModal({
+  currentWords,
+  isSaving,
+  onClose,
+  onSave,
+}: ChangeGoalModalProps) {
   const [selected, setSelected] = useState(currentWords)
 
   return (
-    <Modal isOpen onClose={onClose} ariaLabel="Change daily word goal">
+    <Modal isOpen onClose={onClose} ariaLabel="Change daily word goal" size="compact">
       <div className={styles.content}>
         <h2 className={styles.title}>Daily Word Goal</h2>
         <p className={styles.subtitle}>How many words do you want to learn each day?</p>
 
         <div className={styles.options} role="radiogroup" aria-label="Daily word goal">
-          {GOAL_OPTIONS.map((option) => {
-            const isActive = selected === option.words
-            return (
-              <button
-                key={option.words}
-                type="button"
-                role="radio"
-                aria-checked={isActive}
-                className={`${styles.option} ${isActive ? styles.optionActive : ''}`}
-                onClick={() => setSelected(option.words)}
-              >
-                <IconFont name={option.icon} size={22} decorative />
-                <span className={styles.optionMinutes}>{option.words} words</span>
-                <span className={styles.optionLabel}>{option.label}</span>
-              </button>
-            )
-          })}
+          {GOAL_OPTIONS.map((option) => (
+            <GoalOptionButton
+              key={option.words}
+              words={option.words}
+              label={option.label}
+              icon={option.icon}
+              isActive={selected === option.words}
+              onSelect={setSelected}
+            />
+          ))}
         </div>
 
         <Button
           variant="gradient"
-          size="lg"
+          size="md"
           className={styles.saveBtn}
           isLoading={isSaving}
           disabled={selected === currentWords}

@@ -8,9 +8,16 @@ interface ModalProps {
   onClose: () => void
   children?: ReactNode
   ariaLabel?: string
+  size?: 'default' | 'compact'
 }
 
-export const Modal = ({ isOpen, onClose, children, ariaLabel = 'Modal' }: ModalProps) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  children,
+  ariaLabel = 'Modal',
+  size = 'default',
+}: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null)
 
   // закрытие по Escape — AA requirement
@@ -41,7 +48,7 @@ export const Modal = ({ isOpen, onClose, children, ariaLabel = 'Modal' }: ModalP
     <div className={styles.overlay} onClick={onClose} role="presentation">
       <div
         ref={modalRef}
-        className={styles.modal}
+        className={`${styles.modal} ${size === 'compact' ? styles.modalCompact : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}

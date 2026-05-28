@@ -1,0 +1,40 @@
+@use '../../../styles/index' as *;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  color: $color-neutral-dark;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: $color-neutral-text-muted;
+  margin: 2px 0 12px;
+  text-align: center;
+  line-height: 1.45;
+  max-width: 280px;
+}
+
+.options {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.saveBtn {
+  margin-top: 14px;
+  width: 100%;
+  border-radius: 999px !important;
+}
