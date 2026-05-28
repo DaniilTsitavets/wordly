@@ -45,15 +45,9 @@ export function DailyChallengePage() {
       })
       if (result.is_correct) setScore((s) => s + 1)
       setPhase('answered')
-    } catch {
-      const isCorrect = optionIndex === game.correct_option
-      setAnswered({
-        selectedOption: optionIndex,
-        isCorrect,
-        correctOption: game.correct_option,
-      })
-      if (isCorrect) setScore((s) => s + 1)
-      setPhase('answered')
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to submit answer')
+      setPhase('error')
     }
   }
 
