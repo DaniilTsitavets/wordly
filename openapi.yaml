@@ -1523,7 +1523,11 @@ components:
           type: string
         has_mnemonic:
           type: boolean
-        mnemo_description:
+        mnemonic_image_url:
+          type: string
+          nullable: true
+          description: Mnemonic image URL. Present only when has_mnemonic is true.
+        mnemonic_text:
           type: string
           nullable: true
           description: Mnemonic memory hint text. Present only when has_mnemonic is true.

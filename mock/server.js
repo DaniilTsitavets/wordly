@@ -174,7 +174,8 @@ const toPreview = (w) => ({
   id: w.id, word_en: w.word_en, transcription_en: w.transcription_en,
   translation_ru: w.translation_ru, image_url: w.image_url,
   has_mnemonic: !!(w.mnemonic_image_url || w.mnemo_text),
-  mnemo_description: w.mnemo_text || null,
+  mnemonic_image_url: w.mnemonic_image_url || null,
+  mnemonic_text: w.mnemo_text || null,
 });
 
 const toSessionWord = (w, mechanic) => ({
@@ -403,7 +404,10 @@ app.get('/api/v1/subtopics/:id/session', (req, res) => {
     ? subtopicProgress[id]
     : (s.disabled_mechanics.includes('mnemonic_cards') ? 'flashcards' : 'mnemonic_cards');
   const subWords = words.filter(w => w.subtopic_id === id);
-  res.json({ subtopic_id: id, mechanic_type: mechanic, words: subWords.map(w => toSessionWord(w, mechanic)) });
+е  const sessionWords = mechanic === 'mnemonic_cards'
+    ? subWords.filter(w => w.mnemonic_image_url || w.mnemo_text)
+    : subWords;
+  res.json({ subtopic_id: id, mechanic_type: mechanic, words: sessionWords.map(w => toSessionWord(w, mechanic)) });
 });
 
 app.post('/api/v1/subtopics/:id/session/answer', (req, res) => {
