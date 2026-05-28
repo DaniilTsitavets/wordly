@@ -8,6 +8,8 @@ import { Input } from '@/components/atoms/Input'
 import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
 import { RewardModal } from '@/components/molecules/RewardModal'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
 
@@ -45,6 +47,7 @@ const normalizeAnswer = (str: string): string => {
 export const FillingGapsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -99,13 +102,14 @@ export const FillingGapsPage = () => {
     try {
       const result = await completeSession(Number(subtopicId), 'filling_gaps')
       setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
     } finally {
       setIsCompleting(false)
     }
-  }, [isCompleting, subtopicId])
+  }, [dispatch, isCompleting, subtopicId])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)

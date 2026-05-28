@@ -6,6 +6,8 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { getRecall, type RecallWord, recallAnswer, recallComplete } from '@/api/recall'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 
 type GameState = 'building' | 'correct' | 'incorrect'
 
@@ -57,6 +59,7 @@ function saveBestTime(wordId: number, time: number): void {
 
 export function RecallMechanicPage() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const [searchParams] = useSearchParams()
   const intervalFilter = searchParams.get('interval')
 
@@ -198,13 +201,14 @@ export function RecallMechanicPage() {
     try {
       const result = await recallComplete()
       setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       setShowReward(true)
     } finally {
       setIsCompleting(false)
     }
-  }, [isCompleting])
+  }, [dispatch, isCompleting])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)
