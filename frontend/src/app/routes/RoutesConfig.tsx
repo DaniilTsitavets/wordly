@@ -13,6 +13,7 @@ import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/Fi
 import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
 import { OAuthCallbackPage } from '@/components/organisms/Pages/OAuthCallbackPage'
 import { AiChatPage } from '@/components/organisms/Pages/AiChatPage'
+import { DailyChallengePage } from '@/components/organisms/Pages/DailyChallengePage/DailyChallengePage'
 
 export type RouteAccess = 'public' | 'protected' | 'game'
 
@@ -92,6 +93,11 @@ export const routesConfig: IRoute[] = [
     path: '/subtopics/:subtopicId/filling-gaps',
     element: <FillingGapsPage />,
     access: 'game',
+  },
+  {
+    path: '/daily-challenge',
+    element: <DailyChallengePage />,
+    access: 'public',
   },
 ]
 

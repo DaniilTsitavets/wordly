@@ -1,3 +1,4 @@
+export { AlarmIcon } from './AlarmIcon'
 export { BookIcon } from './BookIcon'
 export { GlobeIcon } from './GlobeIcon'
 export { LightningIcon } from './LightningIcon'
