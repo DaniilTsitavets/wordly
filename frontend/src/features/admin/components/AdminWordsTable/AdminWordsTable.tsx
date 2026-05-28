@@ -33,7 +33,6 @@ const columns: ColumnDef<WordRow>[] = [
     header: 'Topic',
     render: (item) => <span className={styles.topicLabel}>{item.topic}</span>,
   },
-
 ]
 
 interface AdminWordsTableProps {
