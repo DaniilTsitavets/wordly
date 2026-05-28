@@ -85,8 +85,6 @@ export const AdminWords = () => {
   const handleEditWord = (word: WordRow) => {
     const fullWord = words.find((w) => w.id === word.id)
     if (fullWord && selectedSubtopicId) {
-      // Find the corresponding AdminWord from subtopics
-      const adminWords = subtopics.find((s) => s.id === selectedSubtopicId)?.words_count
       // For now, we'll create an AdminWord object from the WordRow data
       // In a real scenario, we might need to fetch the full word details
       const adminWord: AdminWord = {

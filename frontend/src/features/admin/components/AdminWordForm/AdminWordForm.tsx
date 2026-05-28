@@ -39,16 +39,16 @@ export const AdminWordForm = ({ onClose, onSuccess, word }: AdminWordFormProps) 
     getAdminTopics()
       .then((topicsList) => {
         setTopics(topicsList)
-       
+
         if (word && subtopicId) {
-          const topic = topicsList.find(
-            (t) => t.subtopics_count > 0 
-          )
+          const topic = topicsList.find((t) => t.subtopics_count > 0)
           if (topic) setTopicId(topic.id)
         }
       })
       .catch((err) => console.error('Failed to load topics:', err))
     setTimeout(() => wordEnRef.current?.focus(), 100)
+    // Mount-only: defaults are picked from word/subtopicId once on open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
