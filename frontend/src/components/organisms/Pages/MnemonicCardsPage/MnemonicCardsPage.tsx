@@ -106,9 +106,9 @@ export const MnemonicCardsPage = () => {
         wordEn={word.word_en}
         transcriptionEn={word.transcription_en}
         translationRu={word.translation_ru}
-        imageUrl={word.image_url || testImg}
+        imageUrl={word.mnemonic_image_url || word.image_url || testImg}
         hasMnemonic={true}
-        mnemonicText={word.mnemonic_text}
+        mnemonicText={word.mnemonic_text ?? undefined}
         usageExampleEn={word.usage_example_en}
         usageExampleRu={word.usage_example_ru}
         isFlipped={isCardFlipped}
