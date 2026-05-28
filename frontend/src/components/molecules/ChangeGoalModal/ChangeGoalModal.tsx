@@ -23,7 +23,12 @@ interface ChangeGoalModalProps {
   onSave: (words: number) => void
 }
 
-export function ChangeGoalModal({ currentWords, isSaving, onClose, onSave }: ChangeGoalModalProps) {
+export function ChangeGoalModal({
+  currentWords,
+  isSaving,
+  onClose,
+  onSave,
+}: ChangeGoalModalProps) {
   const [selected, setSelected] = useState(currentWords)
 
   return (

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Header } from '@/components/organisms/Header'
 import { AuthModal } from '@/components/organisms/AuthModal'
+import { Spinner } from '@/components/atoms/Spinner'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { setUser, logoutSuccess, loginSuccess } from '@/store/slices/authSlice'
 import { getMe } from '@/api/user'
@@ -17,6 +18,7 @@ export function Layout() {
   const { token, user } = useAppSelector((state) => state.auth)
   const isRealAuth = !!token && user !== null && !user?.is_guest
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [bootstrapError, setBootstrapError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!token) {
@@ -24,7 +26,9 @@ export function Layout() {
         .then(({ access_token, user: guestUser }) =>
           dispatch(loginSuccess({ token: access_token, user: guestUser }))
         )
-        .catch(() => {})
+        .catch((err) => {
+          setBootstrapError(err instanceof Error ? err.message : 'Failed to start session')
+        })
       return
     }
     if (!user) {
@@ -68,7 +72,20 @@ export function Layout() {
           <Header isAuthenticated={false} onLoginClick={() => setAuthModalOpen(true)} />
         ))}
 
-      <Outlet key={token ?? 'guest'} />
+      {token ? (
+        <Outlet key={token} />
+      ) : bootstrapError ? (
+        <div className={styles.bootstrapState} role="alert">
+          <p>Couldn't start the session: {bootstrapError}</p>
+          <button type="button" onClick={() => window.location.reload()}>
+            Try again
+          </button>
+        </div>
+      ) : (
+        <div className={styles.bootstrapState}>
+          <Spinner />
+        </div>
+      )}
 
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
