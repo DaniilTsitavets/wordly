@@ -1,6 +1,7 @@
 import { Spinner } from '@/components/atoms/Spinner'
 import { HomeTopicRow } from '@/components/molecules/HomeTopicRow/HomeTopicRow'
 import type { HomeRowLockMode } from '@/components/molecules/HomeTopicRow/HomeTopicRow'
+import { DailyChallengeBanner } from '@/components/organisms/DailyChallengeBanner'
 import { useAppSelector } from '@/store/hooks'
 import { useTopics } from './hooks/useTopics'
 import styles from './HomePage.module.scss'
@@ -28,6 +29,7 @@ export function HomePage() {
 
   return (
     <div className={styles.page}>
+      {isGuest && <DailyChallengeBanner />}
       {topics.map((topic, index) => {
         let lockMode: HomeRowLockMode = 'auto'
         if (isGuest) {
