@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:4010/api/v1/topics -H \"Authorization: Bearer guest-token-test\")",
+      "Bash(npm install *)",
+      "Bash(npm test *)",
+      "Bash(awk '$3 ~ /^[0-7][0-9]\\\\./ || $3 ~ /^[0-9]\\\\./ {print}')",
+      "Bash(sort -t'|' -k4 -n)",
+      "Bash(awk -F'|' '$4+0 < 80 && $4 != \"\" {print $1, \"lines=\" $5, \"funcs=\" $4}')",
+      "Bash(awk -F'|' '$3+0 < 70 && $3 != \"\" {print $1, \"br=\" $3}')"
+    ]
+  }
+}
