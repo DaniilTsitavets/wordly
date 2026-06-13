@@ -26,11 +26,8 @@ export function applyTheme(preference: ThemePreference): void {
   }
 }
 
-
 export function useTheme(): void {
-  const colorTheme = useAppSelector(
-    (state) => state.auth.user?.color_theme ?? 'system',
-  )
+  const colorTheme = useAppSelector((state) => state.auth.user?.color_theme ?? 'system')
 
   useEffect(() => {
     applyTheme(colorTheme)
