@@ -168,8 +168,8 @@ const words = [
     mnemonic_image_url: null, mnemo_text: null },
 ];
 
-let nextTopicId = 2;
-let nextSubtopicId = 3;
+let nextTopicId = 3;
+let nextSubtopicId = 5;
 let nextWordId = 19;
 
 const dailyGames = [
@@ -563,7 +563,7 @@ app.post('/api/v1/admin/subtopics', (req, res) => {
   const { topic_id, name, description, image_url, sort_order, disabled_mechanics } = req.body;
   if (!topic_id || !name) return res.status(400).json({ code: 'BAD_REQUEST', message: 'topic_id and name are required' });
   if (!topics.find(t => t.id === topic_id)) return res.status(404).json({ code: 'NOT_FOUND', message: 'Topic not found' });
-  const subtopic = { id: nextSubtopicId++, topic_id, name, description: description || null, image_url: image_url || null, sort_order: sort_order ?? null, disabled_mechanics: disabled_mechanics || [], status: 'unblocked' };
+  const subtopic = { id: nextSubtopicId++, topic_id, name, description: description || null, image_url: image_url || null, sort_order: sort_order ?? null, disabled_mechanics: disabled_mechanics || [], status: 'locked' };
   subtopics.push(subtopic);
   res.status(201).json(toAdminSubtopic(subtopic));
 });

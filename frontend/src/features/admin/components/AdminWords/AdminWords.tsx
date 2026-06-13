@@ -58,6 +58,7 @@ export const AdminWords = () => {
       return
     }
     setIsLoading(true)
+    setWords([])
     try {
       const data = await getAdminWords(selectedSubtopicId)
       const topicName = topics.find((t) => t.id === selectedTopicId)?.name ?? ''
@@ -73,6 +74,7 @@ export const AdminWords = () => {
       )
     } catch (err) {
       console.error('Failed to load words:', err)
+      setWords([])
     } finally {
       setIsLoading(false)
     }
@@ -191,7 +193,13 @@ export const AdminWords = () => {
       </div>
 
       {isFormOpen && (
-        <AdminWordForm onClose={handleCloseForm} onSuccess={fetchWords} word={selectedWord} />
+        <AdminWordForm
+          onClose={handleCloseForm}
+          onSuccess={fetchWords}
+          word={selectedWord}
+          initialTopicId={selectedTopicId}
+          initialSubtopicId={selectedWord ? undefined : selectedSubtopicId}
+        />
       )}
 
       <DeleteConfirmModal

@@ -147,6 +147,7 @@ export const AdminSubtopics = () => {
           onClose={handleCloseForm}
           onSuccess={fetchSubtopics}
           subtopic={selectedSubtopic}
+          initialTopicId={selectedSubtopic ? undefined : selectedTopicId}
         />
       )}
 
