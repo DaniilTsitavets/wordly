@@ -11,14 +11,14 @@
 .title {
   font-size: 22px;
   font-weight: 800;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
 .subtitle {
   font-size: 13px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   margin: 2px 0 12px;
   text-align: center;
   line-height: 1.45;

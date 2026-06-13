@@ -3,7 +3,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: $color-overlay-dark;
+  background: var(--overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,7 +14,7 @@
   position: relative;
   width: 30rem;
   min-height: 38.925rem;
-  background: $color-bg;
+  background: var(--surface);
   border-radius: 2rem;
   box-shadow: 0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -68,16 +68,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $color-text-secondary;
+  color: var(--text-secondary);
   transition: background 0.2s;
   z-index: 1;
 
   &:hover {
-    background: $color-overlay-primary-purple;
+    background: var(--accent-surface);
   }
 
   &:focus-visible {
-    outline: 0.125rem solid $color-primary;
+    outline: 0.125rem solid var(--focus-purple);
     outline-offset: 0.125rem;
   }
 }

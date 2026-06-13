@@ -1,9 +1,9 @@
 @use '../../../../styles/index' as *;
 
 .card {
-  background: $color-bg;
+  background: var(--surface-elevated);
   border-radius: 1.25rem;
-  border: 0.0625rem solid $color-neutral-gray-light;
+  border: 0.0625rem solid var(--border-subtle);
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
 }
@@ -17,7 +17,7 @@
 .title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
 }
 
 .fieldGroup {
@@ -29,7 +29,7 @@
 .label {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: $color-neutral-text-tertiary;
+  color: var(--text-muted);
 }
 
 .input {
@@ -37,15 +37,15 @@
   height: 2.75rem;
   padding: 0.625rem 0.875rem;
   border-radius: 0.5rem;
-  border: 0.0625rem solid $color-border;
-  background: $color-bg;
+  border: 0.0625rem solid var(--border-strong);
+  background: var(--surface-elevated);
   font-size: 0.875rem;
-  color: $color-text;
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s;
 
   &::placeholder {
-    color: $color-neutral-text-placeholder;
+    color: var(--text-muted);
   }
 
   &:focus {
@@ -53,7 +53,7 @@
   }
 
   &.error {
-    border-color: $color-error;
+    border-color: var(--error);
   }
 }
 
@@ -62,10 +62,10 @@
   height: 2.75rem;
   padding: 0.625rem 0.875rem;
   border-radius: 0.5rem;
-  border: 0.0625rem solid $color-border;
-  background: $color-bg;
+  border: 0.0625rem solid var(--border-strong);
+  background: var(--surface-elevated);
   font-size: 0.875rem;
-  color: $color-text;
+  color: var(--text-primary);
   outline: none;
   cursor: pointer;
   appearance: none;
@@ -85,17 +85,17 @@
   }
 
   &.error {
-    border-color: $color-error;
+    border-color: var(--error);
   }
 
   &.placeholder {
-    color: $color-neutral-text-placeholder;
+    color: var(--text-muted);
   }
 }
 
 .errorText {
   font-size: 0.75rem;
-  color: $color-error;
+  color: var(--error);
 }
 
 .buttons {

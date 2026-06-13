@@ -1,7 +1,7 @@
 @use '../../../../styles/index' as *;
 
 .container {
-  background: $color-white;
+  background: var(--header-bg);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -25,7 +25,7 @@
     font-size: 0.75rem;
     font-weight: 300;
     line-height: 1.125rem;
-    color: $color-neutral-text-tertiary;
+    color: var(--text-muted);
   }
 }
 
@@ -50,7 +50,7 @@
   display: block;
   font-weight: 500;
   font-size: 1rem;
-  color: $color-neutral-text-tertiary;
+  color: var(--text-muted);
   line-height: 1.25rem;
   padding: 0.75rem 1.25rem;
   border-radius: 2.5rem;
@@ -58,26 +58,26 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: $gradient-blue-purple;
-    color: $color-admin-panel-text-active;
+    background: var(--blue-tint-bg);
+    color: var(--brand-blue);
     font-weight: 700;
   }
 
   &:focus-visible {
-    outline: 0.125rem solid $color-primary;
+    outline: 0.125rem solid var(--focus-purple);
     outline-offset: 0.125rem;
     border-radius: 2.5rem;
   }
 }
 
 .active {
-  background: $gradient-blue-purple;
-  color: $color-admin-panel-text-active;
+  background: var(--blue-tint-bg);
+  color: var(--brand-blue);
   font-weight: 700;
 }
 
 .backButton {
-  color: $color-neutral-text-tertiary !important;
+  color: var(--text-muted) !important;
   font-size: 0.875rem !important;
   margin-top: auto;
   align-self: flex-start;

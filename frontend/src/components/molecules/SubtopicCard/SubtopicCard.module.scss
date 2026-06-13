@@ -34,8 +34,8 @@
 .image__container {
   position: absolute;
   border-radius: 1677718.75rem;
-  border: 1.6px solid $color-white;
-  background-color: $color-white;
+  border: 1.6px solid var(--surface);
+  background-color: var(--surface);
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -70,7 +70,7 @@
   &__description {
     display: flex;
     flex-direction: row;
-    color: $color-neutral-text-tertiary;
+    color: var(--text-muted);
     font-family: 'Be Vietnam Pro';
     font-size: 0.875rem;
     font-style: normal;
@@ -85,11 +85,11 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  color: $color-neutral-text-tertiary;
+  color: var(--text-muted);
 }
 
 .icon__container {
-  background-color: $color-white;
+  background-color: var(--surface);
   border-radius: 0.625rem;
   display: flex;
   padding: 0.25rem;
@@ -124,7 +124,7 @@
 }
 
 .button__start:focus-visible {
-  outline: 0.125rem solid $color-neutral-dark;
+  outline: 0.125rem solid var(--text-primary);
   outline-offset: 0.125rem;
   box-shadow: 0 0 0 0.25rem rgba($color-white, 0.9);
 }
@@ -154,7 +154,7 @@
 }
 
 .card--locked {
-  background: #f5f5f8;
+  background: var(--locked-bg);
   opacity: 0.85;
 }
 
@@ -165,7 +165,7 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: #6631db;
+  background: var(--brand-purple);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,8 +182,8 @@
   font-style: normal;
   font-weight: 700;
   line-height: 1.5rem;
-  color: #9ca3af;
-  background: #e5e7eb;
+  color: var(--text-muted);
+  background: var(--toggle-disabled);
   cursor: not-allowed;
   display: flex;
   align-items: center;

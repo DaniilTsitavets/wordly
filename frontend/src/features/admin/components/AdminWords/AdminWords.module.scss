@@ -17,7 +17,7 @@
     font-size: 1.75rem;
     line-height: 2.62rem;
     font-weight: 600;
-    color: $color-neutral-text-primary;
+    color: var(--text-primary);
   }
 }
 
@@ -37,17 +37,17 @@
   &__label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: $color-neutral-text-tertiary;
+    color: var(--text-muted);
   }
 
   &__select {
     height: 2.5rem;
     padding: 0.5rem 2rem 0.5rem 0.75rem;
     border-radius: 0.5rem;
-    border: 0.0625rem solid $color-border;
-    background: $color-bg;
+    border: 0.0625rem solid var(--border-strong);
+    background: var(--surface-elevated);
     font-size: 0.875rem;
-    color: $color-text;
+    color: var(--text-primary);
     outline: none;
     cursor: pointer;
     appearance: none;

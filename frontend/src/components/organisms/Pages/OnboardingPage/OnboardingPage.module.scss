@@ -4,12 +4,12 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: #f3f5f9;
+  background: var(--background);
 }
 
 .error {
   margin-top: 12px;
-  color: #d33;
+  color: var(--error);
   font-size: 14px;
   text-align: center;
 }

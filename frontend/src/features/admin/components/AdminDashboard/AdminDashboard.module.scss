@@ -11,7 +11,7 @@
 .title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
   line-height: 2.25rem;
 }
 
@@ -65,12 +65,12 @@
 .statLabel {
   font-size: 0.875rem;
   font-weight: 500;
-  color: $color-neutral-text-secondary;
+  color: var(--text-secondary);
   margin-top: 0.5rem;
 }
 
 .activitySection {
-  background: $color-white;
+  background: var(--surface);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -79,7 +79,7 @@
 .activityTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
@@ -98,11 +98,11 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  background: $color-neutral-bg-secondary;
+  background: var(--surface-elevated);
   transition: background 0.15s ease;
 
   &:hover {
-    background: $color-neutral-gray-light;
+    background: var(--accent-surface);
   }
 }
 
@@ -121,18 +121,18 @@
 .activityName {
   font-size: 0.875rem;
   font-weight: 600;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
 }
 
 .activityDescription {
   font-size: 0.75rem;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }
 
 .activityDate {
   font-size: 0.75rem;
   font-weight: 500;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 

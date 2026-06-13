@@ -10,9 +10,9 @@
   gap: 8px;
   padding: 14px 10px;
   border-radius: 16px;
-  border: 2px solid $color-neutral-gray-light;
-  background: $color-white;
-  color: $color-neutral-text-secondary;
+  border: 2px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text-secondary);
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -31,7 +31,7 @@
 
 .optionActive {
   border-color: $color-primary;
-  background: #f5f3ff;
+  background: var(--accent-surface);
   color: $color-primary;
 }
 
@@ -41,7 +41,7 @@
   line-height: 1.15;
   text-align: center;
   white-space: nowrap;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
 
   .optionActive & {
     color: $color-primary;

@@ -2,7 +2,7 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,25 +21,25 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #0083ff;
+    outline: 2px solid var(--focus-blue);
     outline-offset: 2px;
   }
 
   &.default {
-    background: #ffffff;
-    border-color: #e5e7eb;
-    color: #1a1a1a;
+    background: var(--surface);
+    border-color: var(--border-subtle);
+    color: var(--text-primary);
   }
 
   &.correct {
-    background: #0083ff;
-    border-color: #0083ff;
+    background: var(--brand-blue-strong);
+    border-color: var(--brand-blue-strong);
     color: #ffffff;
   }
 
   &.incorrect {
-    background: #f3f4f6;
-    border-color: #f3f4f6;
-    color: #9ca3af;
+    background: var(--surface-elevated);
+    border-color: var(--border-subtle);
+    color: var(--text-muted);
   }
 }

@@ -18,7 +18,7 @@
 .description {
   margin: 1rem auto 0;
   max-width: 48rem;
-  color: $color-neutral-text-tertiary;
+  color: var(--text-muted);
   text-align: center;
   font-size: 1rem;
   line-height: 1.5;
@@ -33,7 +33,7 @@
 }
 
 .feedback {
-  color: $color-neutral-text-tertiary;
+  color: var(--text-muted);
 }
 
 .error {
@@ -92,8 +92,8 @@
   border-radius: 50%;
   grid-column: 2;
   justify-self: center;
-  border: 2px solid $color-white;
-  box-shadow: 0 0 0 2px rgba($color-white, 0.5);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--border-subtle);
 }
 
 .node--0 {
