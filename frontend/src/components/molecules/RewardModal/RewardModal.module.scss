@@ -43,12 +43,12 @@
 .title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: $color-text;
+  color: var(--text-primary);
 }
 
 .subtitle {
   font-size: 0.875rem;
-  color: $color-text-secondary;
+  color: var(--text-secondary);
 }
 
 .rewardBox {
@@ -58,7 +58,7 @@
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
-  background: $color-bg;
+  background: var(--surface-elevated);
   width: 100%;
 }
 
@@ -66,7 +66,7 @@
   width: 3rem;
   height: 3rem;
   border-radius: 0.625rem;
-  background: $color-bg;
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,13 +86,13 @@
 
 .rewardLabel {
   font-size: 0.75rem;
-  color: $color-text-secondary;
+  color: var(--text-secondary);
 }
 
 .rewardValue {
   font-size: 1.375rem;
   font-weight: 700;
-  color: $color-text;
+  color: var(--text-primary);
 }
 
 .collectButton {

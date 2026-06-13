@@ -7,7 +7,7 @@
   height: calc(100vh - 105px);
   display: flex;
   flex-direction: column;
-  background: $color-white;
+  background: var(--surface);
 }
 
 .header {
@@ -15,7 +15,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px 24px;
-  border-bottom: 1px solid $color-neutral-gray-light;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .backButton {
@@ -27,15 +27,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   flex-shrink: 0;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--accent-surface);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 }
@@ -48,14 +48,14 @@
 .title {
   font-size: 20px;
   font-weight: 800;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
 .subtitle {
   font-size: 13px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -63,8 +63,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #fff4e0;
-  color: #d97706;
+  background: var(--warning-bg);
+  color: var(--warning);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 14px;
@@ -76,10 +76,10 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #f59e0b;
+  background: var(--warning);
 }
 .chat {
-  background: #fafafa;
+  background: var(--surface-elevated);
   padding: 1.75rem;
   height: 100%;
   display: flex;
@@ -136,7 +136,7 @@
 }
 
 .bubbleAssistant {
-  background: $color-white;
+  background: var(--surface);
   border-bottom-left-radius: 4px;
 }
 
@@ -156,7 +156,7 @@
 .bubbleText {
   font-size: 15px;
   line-height: 1.5;
-  color: $color-neutral-text-secondary;
+  color: var(--text-secondary);
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
@@ -164,7 +164,7 @@
 
 .time {
   font-size: 11px;
-  color: $color-neutral-text-placeholder;
+  color: var(--text-muted);
 }
 
 .typing {
@@ -177,7 +177,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: $color-neutral-text-placeholder;
+    background: var(--text-muted);
     animation: blink 1.4s infinite both;
   }
 
@@ -211,7 +211,7 @@
 
 .promptsLabel {
   font-size: 13px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -223,12 +223,12 @@
 }
 
 .promptChip {
-  background: $color-white;
-  border: 1px solid $color-neutral-gray-light;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 999px;
   padding: 8px 16px;
   font-size: 13px;
-  color: $color-secondary-sky-blue;
+  color: var(--brand-blue);
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -236,11 +236,11 @@
 
   &:hover {
     border-color: $color-primary;
-    background: #f5f3ff;
+    background: var(--accent-surface);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 }
@@ -265,16 +265,16 @@
   max-height: 120px;
   padding: 12px 16px;
   border-radius: 16px;
-  border: 1px solid $color-neutral-border;
-  background: $color-white;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
   font-size: 15px;
   font-family: inherit;
-  color: $color-text;
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s;
 
   &::placeholder {
-    color: $color-neutral-text-placeholder;
+    color: var(--text-muted);
   }
 
   &:focus {
@@ -288,7 +288,7 @@
   border-radius: 14px;
   border: none;
   background: $gradient-primary;
-  color: $color-white;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -301,20 +301,20 @@
   }
 
   &:disabled {
-    background: $color-neutral-gray-light;
-    color: $color-neutral-text-placeholder;
+    background: var(--toggle-disabled);
+    color: var(--text-muted);
     cursor: not-allowed;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 }
 
 .hint {
   font-size: 12px;
-  color: $color-neutral-text-placeholder;
+  color: var(--text-muted);
   text-align: center;
   margin: 0;
   padding: 0 24px 16px;

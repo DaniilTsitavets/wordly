@@ -20,13 +20,21 @@ interface AdminWordFormProps {
   initialSubtopicId?: number | null
 }
 
-export const AdminWordForm = ({ onClose, onSuccess, word, initialTopicId, initialSubtopicId }: AdminWordFormProps) => {
+export const AdminWordForm = ({
+  onClose,
+  onSuccess,
+  word,
+  initialTopicId,
+  initialSubtopicId,
+}: AdminWordFormProps) => {
   const [wordEn, setWordEn] = useState(word?.word_en || '')
   const [translationRu, setTranslationRu] = useState(word?.translation_ru || '')
   const [transcription, setTranscription] = useState(word?.transcription_en || '')
   const [imageUrl, setImageUrl] = useState(word?.image_url || '')
   const [topicId, setTopicId] = useState<number | null>(initialTopicId ?? null)
-  const [subtopicId, setSubtopicId] = useState<number | null>(word?.subtopic_id ?? initialSubtopicId ?? null)
+  const [subtopicId, setSubtopicId] = useState<number | null>(
+    word?.subtopic_id ?? initialSubtopicId ?? null
+  )
   const [mnemoText, setMnemoText] = useState(word?.mnemo_text || '')
   const [isMnemonic, setIsMnemonic] = useState<boolean>(!!word?.mnemo_text)
 
@@ -45,8 +53,6 @@ export const AdminWordForm = ({ onClose, onSuccess, word, initialTopicId, initia
       })
       .catch((err) => console.error('Failed to load topics:', err))
     setTimeout(() => wordEnRef.current?.focus(), 100)
-    // Mount-only: defaults are picked from initialTopicId/initialSubtopicId once on open.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

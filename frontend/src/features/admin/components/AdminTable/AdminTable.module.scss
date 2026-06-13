@@ -1,7 +1,7 @@
 @use '../../../../styles/index' as *;
 
 .wrapper {
-  background: $color-white;
+  background: var(--surface);
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow:
@@ -14,14 +14,14 @@
   align-items: center;
   padding: 1rem 1.5rem;
   gap: 7rem;
-  border-bottom: 1px solid $color-neutral-gray-light;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .headerCell {
   flex: 1;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   text-transform: capitalize;
 }
 
@@ -36,7 +36,7 @@
   align-items: center;
   padding: 1rem 1.5rem;
   gap: 7rem;
-  border-bottom: 1px solid $color-neutral-gray-light;
+  border-bottom: 1px solid var(--border-subtle);
   transition: background-color 0.15s;
   outline: none;
 
@@ -46,14 +46,14 @@
 
   &:hover,
   &:focus-visible {
-    background-color: #f9fafb;
+    background-color: var(--surface-elevated);
   }
 }
 
 .cell {
   flex: 1;
   font-size: 0.875rem;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
 }
 
 .actionsCell {
@@ -85,19 +85,19 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 }
 
 .editBtn {
-  background-color: #dbeafe;
-  color: #2563eb;
+  background-color: var(--blue-tint-bg);
+  color: var(--brand-blue);
 }
 
 .deleteBtn {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: var(--error-bg);
+  color: var(--error);
 }
 
 .iconImg {
@@ -110,6 +110,6 @@
 .topicLabel {
   font-size: 0.775rem;
   line-height: 1.3125rem;
-  color: #5a5c5c;
+  color: var(--text-muted);
   white-space: nowrap;
 }

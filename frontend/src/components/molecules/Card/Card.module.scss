@@ -39,8 +39,8 @@
   align-items: center;
   padding: 2rem 1.5rem 1.5rem;
   border-radius: 1.25rem;
-  border: 1.5px solid $color-primary-light;
-  background: $color-white;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--surface);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -79,7 +79,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.3;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
   text-align: center;
 }
 
@@ -109,7 +109,7 @@
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.4;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }
 
 .mnemonic {
@@ -128,14 +128,14 @@
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.4;
-  color: $color-neutral-text-placeholder;
+  color: var(--text-muted);
 }
 
 .translationWord {
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.3;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
   text-align: center;
 }
 
@@ -143,7 +143,7 @@
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.4;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   text-align: center;
 }
 
@@ -156,11 +156,11 @@
   text-align: center;
 
   &--default {
-    background: $color-tint-yellow;
+    background: var(--yellow-bg);
   }
 
   &--mnemonic {
-    background: rgba($color-primary-light, 0.35);
+    background: var(--accent-surface);
   }
 }
 
@@ -168,12 +168,12 @@
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.5;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
 }
 
 .exampleRu {
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.5;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }

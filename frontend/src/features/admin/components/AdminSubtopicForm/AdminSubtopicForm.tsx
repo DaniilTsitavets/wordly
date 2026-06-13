@@ -17,10 +17,17 @@ interface AdminSubtopicFormProps {
   initialTopicId?: number | null
 }
 
-export const AdminSubtopicForm = ({ onClose, onSuccess, subtopic, initialTopicId }: AdminSubtopicFormProps) => {
+export const AdminSubtopicForm = ({
+  onClose,
+  onSuccess,
+  subtopic,
+  initialTopicId,
+}: AdminSubtopicFormProps) => {
   const [name, setName] = useState(subtopic?.name || '')
   const [description, setDescription] = useState(subtopic?.description || '')
-  const [topicId, setTopicId] = useState<number | null>(subtopic?.topic_id ?? initialTopicId ?? null)
+  const [topicId, setTopicId] = useState<number | null>(
+    subtopic?.topic_id ?? initialTopicId ?? null
+  )
   const [emoji, setEmoji] = useState(subtopic?.image_url || '')
   const [topics, setTopics] = useState<AdminTopic[]>([])
   const [isLoading, setIsLoading] = useState(false)

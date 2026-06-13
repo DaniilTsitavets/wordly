@@ -14,12 +14,12 @@
     box-shadow 0.2s;
 
   &:hover {
-    border-color: #a268ff;
+    border-color: var(--brand-purple);
     box-shadow: 0 0 0 3px rgba(162, 104, 255, 0.2);
   }
 
   &:focus-visible {
-    outline: 2px solid #6631db;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 
@@ -50,12 +50,12 @@
 .placeholder {
   width: 100%;
   height: 100%;
-  background: #cfd4ff;
+  background: var(--accent-surface);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: #6631db;
+  color: var(--brand-purple);
 }
 
 .sm .placeholder {

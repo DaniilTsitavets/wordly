@@ -162,6 +162,151 @@ $gradient-stat-orange: linear-gradient(
   #ffe5be 77%
 );
 
+// ============================================================================
+// THEME CSS CUSTOM PROPERTIES
+// All semantic color tokens. Components should consume these via var(--...).
+// ============================================================================
+
+@mixin light-theme-vars {
+  // --- Background & Surface ---
+  --background: #{$color-white};
+  --surface: #{$color-neutral-bg-secondary};
+  --surface-elevated: #{$color-admin-panel-bg};
+  --header-bg: #{$color-white};
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+  --popover-bg: #{$color-white};
+  --accent-surface: rgba(162, 104, 255, 0.08);
+
+  // --- Text ---
+  --text-primary: #{$color-neutral-text-primary};
+  --text-secondary: #{$color-neutral-text-muted};
+  --text-muted: #{$color-neutral-text-placeholder};
+
+  // --- Brand & Interactive ---
+  --brand-purple: #{$color-primary-300};
+  --brand-pink: #{$color-secondary-pink};
+  --brand-blue: #2196f3;
+  --brand-blue-strong: #2196f3;
+
+  // --- Borders & Dividers ---
+  --border-subtle: #{$color-neutral-gray-light};
+  --border-strong: #{$color-neutral-border};
+
+  // --- Semantic / Status ---
+  --error: #{$color-status-error};
+  --error-bg: #fef2f2;
+  --error-bg-hover: #fee2e2;
+  --success: #{$color-accent-green};
+  --success-bg: #f0fdf4;
+  --warning: #{$color-secondary-orange};
+  --warning-bg: #{$color-tint-orange};
+  --yellow: #{$color-accent-gold};
+  --yellow-bg: #{$color-tint-yellow};
+
+  // --- Topic / Category Card Backgrounds ---
+  --food-bg: #ffe5cc;
+  --drinks-bg: #e3f2ff;
+  --desserts-bg: #fff0f5;
+  --numbers-bg: #f5f5f5;
+
+  // --- Contextual Surfaces ---
+  --chat-gradient-end: #e3f2fd;
+  --blue-tint-bg: #e3f2fd;
+  --blue-tint-hover: #bde5fb;
+  --blue-input-tint: #e3f2ff;
+  --blue-option-card: #dbeafe;
+  --purple-tint-bg: #f3e5ff;
+  --locked-bg: #{$color-neutral-gray-light};
+  --toggle-disabled: #e5e7eb;
+
+  // --- Focus Indicators ---
+  --focus-purple: #{$color-primary-300};
+  --focus-light: #{$color-white};
+  --focus-error: #{$color-status-error};
+  --focus-success: #{$color-accent-green};
+  --focus-blue: #2196f3;
+}
+
+@mixin dark-theme-vars {
+  // --- Background & Surface ---
+  --background: #0d0b18;
+  --surface: #13102b;
+  --surface-elevated: #1e1b38;
+  --header-bg: #100e20;
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --popover-bg: #1a1738;
+  --accent-surface: #2a2548;
+
+  // --- Text ---
+  --text-primary: #ede9ff;
+  --text-secondary: #9890c4;
+  --text-muted: #6b6490;
+
+  // --- Brand & Interactive ---
+  --brand-purple: #a268ff;
+  --brand-pink: #ff6ea9;
+  --brand-blue: #60a5fa;
+  --brand-blue-strong: #2196f3;
+
+  // --- Borders & Dividers ---
+  --border-subtle: rgba(162, 104, 255, 0.15);
+  --border-strong: rgba(162, 104, 255, 0.2);
+
+  // --- Semantic / Status ---
+  --error: #ff7070;
+  --error-bg: #2d0a0a;
+  --error-bg-hover: #3d1010;
+  --success: #4caf50;
+  --success-bg: #0d2010;
+  --warning: #ffa726;
+  --warning-bg: #2a1a00;
+  --yellow: #d4b200;
+  --yellow-bg: #1e1800;
+
+  // --- Topic / Category Card Backgrounds ---
+  --food-bg: #2d1a08;
+  --drinks-bg: #081828;
+  --desserts-bg: #2d0815;
+  --numbers-bg: #151520;
+
+  // --- Contextual Surfaces ---
+  --chat-gradient-end: #0d1220;
+  --blue-tint-bg: #0d1928;
+  --blue-tint-hover: #132535;
+  --blue-input-tint: #081828;
+  --blue-option-card: #0a1e35;
+  --purple-tint-bg: #1e1038;
+  --locked-bg: #151520;
+  --toggle-disabled: #3a3660;
+
+  // --- Focus Indicators ---
+  --focus-purple: #a268ff;
+  --focus-light: #ede9ff;
+  --focus-error: #ff7070;
+  --focus-success: #4caf50;
+  --focus-blue: #2196f3;
+}
+
+:root {
+  @include light-theme-vars;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark-theme-vars;
+  }
+}
+
+[data-theme='dark'] {
+  @include dark-theme-vars;
+}
+
+[data-theme='light'] {
+  @include light-theme-vars;
+}
+
+// ============================================================================
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -174,4 +319,6 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--text-primary);
 }

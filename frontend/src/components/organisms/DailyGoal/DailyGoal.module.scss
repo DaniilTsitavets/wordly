@@ -1,7 +1,7 @@
 @use '../../../styles/index' as *;
 
 .container {
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 24px;
   padding: 32px;
   width: 100%;
@@ -29,7 +29,7 @@
 .title {
   font-size: 32px;
   font-weight: 700;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
@@ -47,7 +47,7 @@
 .progressBar {
   width: 100%;
   height: 8px;
-  background: #e5e7eb;
+  background: var(--border-subtle);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -60,7 +60,7 @@
 }
 
 .recommendedCard {
-  border: 1.5px solid $color-primary-light;
+  border: 1.5px solid var(--border-subtle);
   border-radius: 20px;
   padding: 20px 24px;
   display: flex;
@@ -68,14 +68,14 @@
   justify-content: space-between;
   cursor: pointer;
   transition: border-color 0.2s;
-  background: #ffffff;
+  background: var(--surface-elevated);
 
   &:hover {
     border-color: $color-primary;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 }
@@ -96,7 +96,7 @@
 .time {
   font-size: 16px;
   font-weight: 500;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   line-height: 1;
   margin-bottom: 4px;
 }
@@ -108,14 +108,14 @@
 
 .timeLabel {
   font-size: 14px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }
 
 .lightningCircle {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #eef2ff;
+  background: var(--purple-tint-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,7 +129,7 @@
 }
 
 .optionCard {
-  background: #e8f4ff;
+  background: var(--blue-input-tint);
   border-radius: 20px;
   padding: 16px 20px;
   cursor: pointer;
@@ -141,7 +141,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 
@@ -159,14 +159,14 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: #f0faf4;
+  background: var(--success-bg);
   border-left: 3px solid $color-primary;
   border-radius: 8px;
   padding: 16px;
 
   p {
     font-size: 14px;
-    color: $color-neutral-text-secondary;
+    color: var(--text-secondary);
     line-height: 1.5;
     margin: 0;
   }

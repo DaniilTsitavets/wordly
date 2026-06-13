@@ -30,13 +30,13 @@
 .title {
   font-size: 2rem;
   font-weight: 800;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .subtitle {
   font-size: 0.9rem;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
@@ -51,13 +51,13 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   margin-bottom: 0.4rem;
 }
 
 .progressTrack {
   height: 6px;
-  background: $color-neutral-gray-light;
+  background: var(--border-subtle);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -74,7 +74,7 @@
 .card {
   width: 100%;
   max-width: 34rem;
-  background: $color-white;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem 1.75rem 1.75rem;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
@@ -99,7 +99,7 @@
 
 .question {
   font-size: 0.875rem;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   text-align: center;
   margin: 0;
 }
@@ -114,12 +114,12 @@
 .option {
   width: 100%;
   padding: 0.85rem 1.1rem;
-  border: 1.5px solid $color-neutral-gray-light;
+  border: 1.5px solid var(--border-subtle);
   border-radius: 0.75rem;
-  background: $color-white;
+  background: var(--surface-elevated);
   font-size: 0.95rem;
   font-weight: 500;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
   text-align: left;
   cursor: pointer;
   display: flex;
@@ -167,7 +167,7 @@
   border-radius: 0.75rem;
   background: rgba(34, 197, 62, 0.1);
   font-size: 0.875rem;
-  color: $color-neutral-text-primary;
+  color: var(--text-primary);
 
   strong {
     display: block;
@@ -217,5 +217,5 @@
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }

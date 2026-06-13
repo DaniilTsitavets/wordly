@@ -28,14 +28,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--accent-surface);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
 }
@@ -43,12 +43,12 @@
 .title {
   font-size: 18px;
   font-weight: 700;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .headerCard {
-  background: $color-white;
+  background: var(--surface);
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -86,13 +86,13 @@
 .userName {
   font-size: 18px;
   font-weight: 700;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .memberBadge {
   font-size: 13px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -120,13 +120,13 @@
 .statValue {
   font-size: 22px;
   font-weight: 800;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   line-height: 1.1;
 }
 
 .statLabel {
   font-size: 13px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 }
 
 .form {
@@ -150,7 +150,7 @@
 .fieldLabel {
   font-size: 14px;
   font-weight: 600;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
 }
 
 .editButton {
@@ -162,7 +162,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  color: $color-neutral-text-muted;
+  color: var(--text-secondary);
 
   &:hover {
     color: $color-primary;
@@ -184,15 +184,15 @@
   height: 48px;
   padding: 0 16px;
   border-radius: 12px;
-  border: 1px solid $color-neutral-border;
-  background: $color-white;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
   font-size: 14px;
-  color: $color-text;
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s;
 
   &::placeholder {
-    color: $color-neutral-text-placeholder;
+    color: var(--text-muted);
   }
 
   &:focus {
@@ -201,8 +201,8 @@
 
   &:read-only,
   &:disabled {
-    background: #f9fafb;
-    color: $color-neutral-text-secondary;
+    background: var(--surface-elevated);
+    color: var(--text-secondary);
     cursor: default;
   }
 }
@@ -245,8 +245,8 @@ select.fieldInput {
 }
 
 .dailyGoalCard {
-  background: $color-white;
-  border: 1px solid $color-neutral-gray-light;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 20px 24px;
   display: flex;
@@ -263,7 +263,7 @@ select.fieldInput {
 .dailyGoalTitle {
   font-size: 16px;
   font-weight: 700;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -276,13 +276,13 @@ select.fieldInput {
 
 .dailyGoalLabel {
   font-size: 14px;
-  color: $color-neutral-text-secondary;
+  color: var(--text-secondary);
 }
 
 .dailyGoalValue {
   font-size: 14px;
   font-weight: 700;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
 }
 
 .changeGoalBtn {

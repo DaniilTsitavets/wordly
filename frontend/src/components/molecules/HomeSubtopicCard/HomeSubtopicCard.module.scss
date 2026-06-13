@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: $color-white;
+  background: var(--surface);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: transform 0.15s ease;
 }
@@ -21,15 +21,15 @@
 }
 
 .locked {
-  background: $color-white;
-  border: 1px solid $color-neutral-gray-light;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
 }
 
 .hero {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: $color-neutral-gray-light;
+  background: var(--surface-elevated);
   overflow: hidden;
 
   img {
@@ -52,7 +52,7 @@
   justify-content: center;
   font-size: 1.25rem;
   font-weight: 700;
-  color: $color-neutral-text-tertiary;
+  color: var(--text-muted);
 }
 
 .cornerRight {
@@ -62,11 +62,11 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $color-neutral-text-secondary;
+  color: var(--text-secondary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
   .active & {
@@ -86,14 +86,14 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 800;
-  color: $color-neutral-dark;
+  color: var(--text-primary);
 }
 
 .description {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.4;
-  color: $color-neutral-text-secondary;
+  color: var(--text-secondary);
   flex: 1;
 }
 
@@ -103,7 +103,7 @@
   gap: 0.4rem;
   font-size: 0.85rem;
   font-weight: 500;
-  color: $color-neutral-text-secondary;
+  color: var(--text-secondary);
 }
 
 .startBtn,
@@ -130,8 +130,8 @@
 }
 
 .lockedBtn {
-  background: $color-neutral-gray-light !important;
-  color: $color-neutral-text-muted !important;
+  background: var(--toggle-disabled) !important;
+  color: var(--text-muted) !important;
   cursor: not-allowed !important;
 }
 
