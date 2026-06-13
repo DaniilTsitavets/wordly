@@ -53,8 +53,6 @@ export const AdminWordForm = ({
       })
       .catch((err) => console.error('Failed to load topics:', err))
     setTimeout(() => wordEnRef.current?.focus(), 100)
-    // Mount-only: defaults are picked from initialTopicId/initialSubtopicId once on open.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
