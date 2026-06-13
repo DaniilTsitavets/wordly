@@ -738,15 +738,31 @@ app.post('/api/v1/ai/chat', (req, res) => {
   if (!subtopic) {
     return res.status(404).json({ code: 'NOT_FOUND', message: 'Subtopic not found' });
   }
+
+  let reply;
   if (history.length === 0) {
     const subtopicWords = words.filter(w => w.subtopic_id === subtopicId).map(w => w.word_en).join(', ');
-    return res.json({
-      reply: `Great choice! Let's practice words from "${subtopic.name}". Today we'll work with: ${subtopicWords}. Imagine you're in the kitchen preparing dinner — what do you need to set the table?`,
-    });
+    reply = `Great choice! Let's practice words from "${subtopic.name}". Today we'll work with: ${subtopicWords}. Imagine you're in the kitchen preparing dinner — what do you need to set the table?`;
+  } else {
+    reply = MOCK_CHAT_REPLIES[mockChatReplyIndex % MOCK_CHAT_REPLIES.length];
+    mockChatReplyIndex++;
   }
-  const reply = MOCK_CHAT_REPLIES[mockChatReplyIndex % MOCK_CHAT_REPLIES.length];
-  mockChatReplyIndex++;
-  res.json({ reply });
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const tokens = reply.split(/(?<=\s)|(?=\s)/);
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= tokens.length) {
+      clearInterval(interval);
+      res.end();
+      return;
+    }
+    res.write(`data: ${tokens[i]}\n\n`);
+    i++;
+  }, 30);
 });
 
 // ─── START ───────────────────────────────────────────────────────────────────

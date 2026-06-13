@@ -1,8 +1,9 @@
 package com.wordly.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wordly.backend.dto.AiChatMessage;
 import com.wordly.backend.dto.AiChatRequest;
-import com.wordly.backend.dto.AiChatResponse;
 import com.wordly.backend.entity.Subtopic;
 import com.wordly.backend.entity.Word;
 import com.wordly.backend.exception.NotFoundException;
@@ -15,7 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +34,7 @@ public class AiChatService {
     private final SubtopicRepository subtopicRepository;
     private final WordRepository wordRepository;
     private final RestClient restClient;
+    private final ObjectMapper objectMapper;
 
     @Value("${openrouter.api-key}")
     private String apiKey;
@@ -39,35 +46,58 @@ public class AiChatService {
     private String baseUrl;
 
     @Transactional(readOnly = true)
-    public AiChatResponse chat(AiChatRequest request) {
-        Subtopic subtopic = subtopicRepository.findById(request.subtopicId())
-                .orElseThrow(() -> new NotFoundException("Subtopic not found: " + request.subtopicId()));
+    public void streamChat(AiChatRequest request, SseEmitter emitter) {
+        try {
+            Subtopic subtopic = subtopicRepository.findById(request.subtopicId())
+                    .orElseThrow(() -> new NotFoundException("Subtopic not found: " + request.subtopicId()));
 
-        List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(request.subtopicId());
+            List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(request.subtopicId());
+            String systemPrompt = buildSystemPrompt(subtopic, words);
+            List<OpenRouterMessage> messages = buildMessages(systemPrompt, request);
 
-        String systemPrompt = buildSystemPrompt(subtopic, words);
-        List<OpenRouterMessage> messages = buildMessages(systemPrompt, request);
+            OpenRouterRequest openRouterRequest = new OpenRouterRequest(model, messages, true);
 
-        OpenRouterRequest openRouterRequest = new OpenRouterRequest(model, messages);
+            log.debug("Sending streaming chat request to OpenRouter, subtopicId={}, historySize={}",
+                    request.subtopicId(), request.history().size());
 
-        log.debug("Sending chat request to OpenRouter, subtopicId={}, historySize={}",
-                request.subtopicId(), request.history().size());
-
-        OpenRouterResponse response = restClient.post()
-                .uri(baseUrl + "/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(openRouterRequest)
-                .retrieve()
-                .body(OpenRouterResponse.class);
-
-        if (response == null || response.choices() == null || response.choices().isEmpty()) {
-            log.error("Empty response from OpenRouter");
-            throw new IllegalStateException("No response from AI service");
+            restClient.post()
+                    .uri(baseUrl + "/chat/completions")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(openRouterRequest)
+                    .exchange((req, response) -> {
+                        try (BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(response.getBody(), StandardCharsets.UTF_8))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                if (!line.startsWith("data: ")) continue;
+                                String data = line.substring(6).trim();
+                                if ("[DONE]".equals(data)) break;
+                                try {
+                                    JsonNode root = objectMapper.readTree(data);
+                                    JsonNode content = root.path("choices").path(0).path("delta").path("content");
+                                    if (!content.isMissingNode() && !content.isNull()) {
+                                        String token = content.asText();
+                                        if (!token.isEmpty()) {
+                                            emitter.send(SseEmitter.event().data(token));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    log.warn("Failed to parse SSE chunk: {}", data);
+                                }
+                            }
+                            emitter.complete();
+                        } catch (IOException e) {
+                            emitter.completeWithError(e);
+                        }
+                        return null;
+                    });
+        } catch (Exception e) {
+            log.error("Error in streamChat, subtopicId={}", request.subtopicId(), e);
+            try {
+                emitter.completeWithError(e);
+            } catch (Exception ignore) {}
         }
-
-        String reply = response.choices().get(0).message().content();
-        return new AiChatResponse(reply);
     }
 
     private String buildSystemPrompt(Subtopic subtopic, List<Word> words) {
@@ -206,11 +236,7 @@ public class AiChatService {
         return messages;
     }
 
-    private record OpenRouterRequest(String model, List<OpenRouterMessage> messages) {}
+    private record OpenRouterRequest(String model, List<OpenRouterMessage> messages, boolean stream) {}
 
     private record OpenRouterMessage(String role, String content) {}
-
-    private record OpenRouterResponse(List<Choice> choices) {}
-
-    private record Choice(OpenRouterMessage message) {}
 }

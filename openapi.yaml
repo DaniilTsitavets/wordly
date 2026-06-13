@@ -647,11 +647,13 @@ paths:
   /ai/chat:
     post:
       tags: [AI Chat]
-      summary: Send a message to the AI tutor
+      summary: Send a message to the AI tutor (streaming)
       description: >
-        Stateless AI chat endpoint. The client maintains conversation history and sends
-        it with every request. The AI generates a reply, checks spelling of target words,
-        and evaluates their usage in context.
+        Streaming AI chat endpoint. Returns a Server-Sent Events (SSE) stream.
+        The client maintains conversation history and sends it with every request.
+        The AI reply is streamed token-by-token as `text/event-stream`.
+        Each SSE event contains one text token in its `data` field.
+        The stream ends when the server closes the connection.
       security:
         - bearerAuth: []
       requestBody:
@@ -670,13 +672,21 @@ paths:
               message: "Also a cup and a spoon"
       responses:
         '200':
-          description: AI reply
+          description: SSE stream of AI reply tokens
           content:
-            application/json:
+            text/event-stream:
               schema:
-                $ref: '#/components/schemas/AiChatResponse'
-              example:
-                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
+                type: string
+              example: |
+                data: Nice
+
+                data: !
+
+                data:  Small
+
+                data:  spelling
+
+                data:  note
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1292,13 +1302,6 @@ components:
           type: string
           description: The user's current message
           example: "Also a cup and a spoon"
-
-    AiChatResponse:
-      type: object
-      properties:
-        reply:
-          type: string
-          example: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though!"
 
     Error:
       type: object
