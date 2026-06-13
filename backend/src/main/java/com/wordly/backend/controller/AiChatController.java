@@ -27,7 +27,12 @@ public class AiChatController {
             @AuthenticationPrincipal Long userId
     ) {
         SseEmitter emitter = new SseEmitter(60_000L);
-        CompletableFuture.runAsync(() -> aiChatService.streamChat(request, emitter));
+        CompletableFuture.runAsync(() -> aiChatService.streamChat(request, emitter))
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        emitter.completeWithError(ex);
+                    }
+                });
         return emitter;
     }
 }
