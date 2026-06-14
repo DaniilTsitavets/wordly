@@ -9,7 +9,8 @@ const CARD_COLOR_CLASSES = [styles.cardBlue, styles.cardYellow, styles.cardPink,
 
 export function VocabularyPage() {
   const navigate = useNavigate()
-  const { data, totalWords, topics, selectedTopicId, setSelectedTopicId, isLoading, error } = useVocabulary()
+  const { data, totalWords, topics, selectedTopicId, setSelectedTopicId, isLoading, error } =
+    useVocabulary()
 
   if (isLoading) {
     return (
