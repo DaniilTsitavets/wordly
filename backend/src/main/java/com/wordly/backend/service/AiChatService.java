@@ -82,7 +82,7 @@ public class AiChatService {
                                             emitter.send(SseEmitter.event().data(token));
                                         }
                                     }
-                                } catch (Exception e) {
+                                } catch (IOException e) {
                                     log.warn("Failed to parse SSE chunk: {}", data);
                                 }
                             }
