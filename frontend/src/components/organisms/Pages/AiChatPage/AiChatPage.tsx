@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SendHorizontal } from 'lucide-react'
-import { Spinner } from '@/components/atoms/Spinner'
 import { IconFont } from '@/components/atoms/IconFont'
 import { IS_DEMO_API } from '@/api/client'
 import { useAiChat } from './hooks/useAiChat'
@@ -23,8 +22,7 @@ export function AiChatPage() {
   const [searchParams] = useSearchParams()
   const subtopicId = Number(searchParams.get('subtopicId')) || DEFAULT_SUBTOPIC_ID
 
-  const { messages, isBootstrapping, isSending, error, hasUserMessages, send } =
-    useAiChat(subtopicId)
+  const { messages, isSending, error, hasUserMessages, send } = useAiChat(subtopicId)
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -46,7 +44,12 @@ export function AiChatPage() {
     }
   }
 
-  const showPrompts = !isBootstrapping && !hasUserMessages
+  const showPrompts = !hasUserMessages
+  // Typing dots only while we're waiting for the first token of the assistant
+  // reply — once tokens start flowing, the streaming bubble takes over.
+  const lastMessage = messages[messages.length - 1]
+  const showTyping =
+    isSending && (!lastMessage || lastMessage.role === 'user' || lastMessage.content === '')
 
   return (
     <div className={styles.page}>
@@ -73,18 +76,10 @@ export function AiChatPage() {
 
       <div className={styles.chat}>
         <div className={styles.messages} ref={scrollRef}>
-          {isBootstrapping ? (
-            <div className={styles.centered}>
-              <Spinner />
-            </div>
-          ) : (
-            <>
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-              {isSending && <TypingBubble />}
-            </>
-          )}
+          {messages.map((message) => (
+            <MessageBubble key={message.id} message={message} />
+          ))}
+          {showTyping && <TypingBubble />}
         </div>
 
         {showPrompts && (

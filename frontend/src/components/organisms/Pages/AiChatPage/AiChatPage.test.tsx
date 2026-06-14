@@ -9,78 +9,109 @@ import { AiChatPage } from './AiChatPage'
 
 const url = (path: string) => `${API_BASE_URL}${path}`
 
-describe('AiChatPage', () => {
-  it('renders the title and Demo badge (mock backend)', async () => {
-    server.use(http.post(url('/ai/chat'), () => HttpResponse.json({ reply: 'hi!' })))
+function sseResponse(tokens: string[]): HttpResponse {
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream({
+    start(controller) {
+      for (const t of tokens) {
+        controller.enqueue(encoder.encode(`data: ${t}\n\n`))
+      }
+      controller.close()
+    },
+  })
+  return new HttpResponse(stream, {
+    headers: { 'Content-Type': 'text/event-stream' },
+  })
+}
 
+describe('AiChatPage', () => {
+  it('renders the title + Demo badge + a local opener message immediately (no spinner)', () => {
     renderWithProviders(<AiChatPage />)
     expect(screen.getByRole('heading', { name: 'AI Practice Chat' })).toBeInTheDocument()
-
-    await waitFor(() => expect(screen.getByText('hi!')).toBeInTheDocument())
+    // Opener is rendered synchronously; chat is interactive right away.
+    expect(screen.getByLabelText('Send message')).toBeInTheDocument()
   })
 
-  it('shows suggested prompts before any user input', async () => {
-    server.use(http.post(url('/ai/chat'), () => HttpResponse.json({ reply: 'hi!' })))
-
+  it('shows suggested prompts before the user has sent anything', () => {
     renderWithProviders(<AiChatPage />)
-    await waitFor(() => expect(screen.getByText(/Try these prompts/)).toBeInTheDocument())
-    expect(screen.getAllByRole('button')).toEqual(expect.any(Array))
+    expect(screen.getByText(/Try these prompts/)).toBeInTheDocument()
   })
 
-  it('disables Send button on empty input', async () => {
-    server.use(http.post(url('/ai/chat'), () => HttpResponse.json({ reply: 'hi!' })))
-
+  it('disables Send button on empty input', () => {
     renderWithProviders(<AiChatPage />)
-    await waitFor(() => expect(screen.getByText('hi!')).toBeInTheDocument())
     expect(screen.getByLabelText('Send message')).toBeDisabled()
   })
 
-  it('sends the typed message and shows the reply', async () => {
-    let callIndex = 0
-    server.use(
-      http.post(url('/ai/chat'), () => {
-        callIndex++
-        return HttpResponse.json({
-          reply: callIndex === 1 ? 'hello' : 'thanks for: test',
-        })
-      })
-    )
+  it('sends a typed message and streams the reply into the bubble', async () => {
+    server.use(http.post(url('/ai/chat'), () => sseResponse(['Nice', ' ', 'one'])))
 
     renderWithProviders(<AiChatPage />)
-    await waitFor(() => expect(screen.getByText('hello')).toBeInTheDocument())
 
     const input = screen.getByLabelText('Message')
     await userEvent.type(input, 'test')
     await userEvent.click(screen.getByLabelText('Send message'))
 
-    await waitFor(() => expect(screen.getByText('thanks for: test')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Nice one')).toBeInTheDocument())
+    expect(screen.getByText('test')).toBeInTheDocument()
+    // Prompts disappear once the user has sent something
+    expect(screen.queryByText(/Try these prompts/)).not.toBeInTheDocument()
   })
 
   it('clicking a suggested prompt sends it', async () => {
     let lastBody: { message: string } | null = null
-    let callIndex = 0
     server.use(
       http.post(url('/ai/chat'), async ({ request }) => {
-        callIndex++
-        const body = (await request.json()) as { message: string }
-        if (callIndex > 1) lastBody = body
-        return HttpResponse.json({ reply: 'ok' })
+        lastBody = (await request.json()) as { message: string }
+        return sseResponse(['ok'])
       })
     )
 
     renderWithProviders(<AiChatPage />)
-    await waitFor(() => expect(screen.getByText(/Try these prompts/)).toBeInTheDocument())
-
     await userEvent.click(screen.getByRole('button', { name: /Quiz me/ }))
     await waitFor(() => expect(lastBody?.message).toContain('Quiz me'))
   })
 
-  it('shows error message on bootstrap failure', async () => {
+  it('shows a typing indicator until the first token arrives, then hides it', async () => {
     server.use(
-      http.post(url('/ai/chat'), () => HttpResponse.json({ message: 'busy' }, { status: 503 }))
+      http.post(url('/ai/chat'), () => {
+        // Delay the first token slightly so the typing indicator is observable.
+        const encoder = new TextEncoder()
+        const stream = new ReadableStream({
+          async start(controller) {
+            await new Promise((r) => setTimeout(r, 50))
+            controller.enqueue(encoder.encode('data: Hi\n\n'))
+            controller.close()
+          },
+        })
+        return new HttpResponse(stream, {
+          headers: { 'Content-Type': 'text/event-stream' },
+        })
+      })
     )
 
     renderWithProviders(<AiChatPage />)
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('busy'))
+    await userEvent.type(screen.getByLabelText('Message'), 'yo')
+    await userEvent.click(screen.getByLabelText('Send message'))
+
+    // Typing dots visible while we wait for the first token
+    await waitFor(() => expect(screen.getByLabelText('AI is typing')).toBeInTheDocument())
+
+    // Once the token arrives, the typing bubble disappears and the reply renders
+    await waitFor(() => expect(screen.getByText('Hi')).toBeInTheDocument())
+    expect(screen.queryByLabelText('AI is typing')).not.toBeInTheDocument()
+  })
+
+  it('shows error when the backend fails', async () => {
+    server.use(
+      http.post(url('/ai/chat'), () =>
+        HttpResponse.json({ message: 'rate-limited' }, { status: 429 })
+      )
+    )
+
+    renderWithProviders(<AiChatPage />)
+    await userEvent.type(screen.getByLabelText('Message'), 'hi')
+    await userEvent.click(screen.getByLabelText('Send message'))
+
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('rate-limited'))
   })
 })
