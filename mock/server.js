@@ -505,14 +505,23 @@ app.post('/api/v1/recall/complete', (req, res) => {
 // ─── VOCABULARY ───────────────────────────────────────────────────────────────
 
 app.get('/api/v1/vocabulary', (req, res) => {
-  const subWords = words.filter(w => w.subtopic_id === 1);
+  const topicId = req.query.topic_id ? parseInt(req.query.topic_id) : null;
+  let filtered = words;
+  if (topicId) {
+    const subtopicIds = subtopics.filter(s => s.topic_id === topicId).map(s => s.id);
+    filtered = words.filter(w => subtopicIds.includes(w.subtopic_id));
+  }
   res.json({
-    total: subWords.length, page: 1,
-    words: subWords.map(w => ({
-      id: w.id, word_en: w.word_en, transcription_en: w.transcription_en,
-      translation_ru: w.translation_ru, image_url: w.image_url,
-      status: 'learning', next_recall: '2026-04-12',
-    })),
+    total: filtered.length, page: 1,
+    words: filtered.map(w => {
+      const subtopic = subtopics.find(s => s.id === w.subtopic_id);
+      return {
+        id: w.id, word_en: w.word_en, transcription_en: w.transcription_en,
+        translation_ru: w.translation_ru, image_url: w.image_url,
+        topic_id: subtopic ? subtopic.topic_id : null,
+        status: 'learning', next_recall: '2026-04-12',
+      };
+    }),
   });
 });
 

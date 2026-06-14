@@ -10,6 +10,29 @@ import { VocabularyPage } from './VocabularyPage'
 
 const url = (path: string) => `${API_BASE_URL}${path}`
 
+const topicsResponse = {
+  topics: [
+    {
+      id: 1,
+      name: 'Food & Drinks',
+      description: '',
+      image_url: '',
+      sort_order: 1,
+      subtopics_total: 2,
+      subtopics_completed: 0,
+    },
+    {
+      id: 2,
+      name: 'Numbers',
+      description: '',
+      image_url: '',
+      sort_order: 2,
+      subtopics_total: 1,
+      subtopics_completed: 0,
+    },
+  ],
+}
+
 function LocationProbe() {
   const location = useLocation()
   return <div data-testid="loc">{location.pathname}</div>
@@ -17,6 +40,7 @@ function LocationProbe() {
 
 const word = {
   id: 1,
+  topic_id: 1,
   word_en: 'apple',
   transcription_en: 'ˈæpəl',
   translation_ru: 'яблоко',
@@ -27,13 +51,17 @@ const word = {
 
 describe('VocabularyPage', () => {
   it('shows the spinner while loading', () => {
-    server.use(http.get(url('/vocabulary'), () => new Promise(() => {})))
+    server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
+      http.get(url('/vocabulary'), () => new Promise(() => {}))
+    )
     const { container } = renderWithProviders(<VocabularyPage />)
     expect(container.querySelector('svg')).toBeInTheDocument()
   })
 
   it('renders error', async () => {
     server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
       http.get(url('/vocabulary'), () => HttpResponse.json({ message: 'fail' }, { status: 500 }))
     )
     renderWithProviders(<VocabularyPage />)
@@ -42,6 +70,7 @@ describe('VocabularyPage', () => {
 
   it('renders total + word list', async () => {
     server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
       http.get(url('/vocabulary'), () =>
         HttpResponse.json({ total: 2, page: 1, words: [word, { ...word, id: 2, word_en: 'pear' }] })
       )
@@ -54,6 +83,7 @@ describe('VocabularyPage', () => {
 
   it('back button navigates to /', async () => {
     server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
       http.get(url('/vocabulary'), () => HttpResponse.json({ total: 0, page: 1, words: [] }))
     )
 
@@ -74,6 +104,7 @@ describe('VocabularyPage', () => {
     const future = new Date()
     future.setDate(future.getDate() + 3)
     server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
       http.get(url('/vocabulary'), () =>
         HttpResponse.json({
           total: 1,
@@ -90,6 +121,7 @@ describe('VocabularyPage', () => {
     const past = new Date()
     past.setDate(past.getDate() - 1)
     server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
       http.get(url('/vocabulary'), () =>
         HttpResponse.json({
           total: 1,
@@ -100,5 +132,36 @@ describe('VocabularyPage', () => {
     )
     renderWithProviders(<VocabularyPage />)
     await waitFor(() => expect(screen.getByText(/Review now/)).toBeInTheDocument())
+  })
+
+  it('shows topic filter pills and filters by topic', async () => {
+    const wordNumbers = { ...word, id: 3, topic_id: 2, word_en: 'one' }
+    server.use(
+      http.get(url('/topics'), () => HttpResponse.json(topicsResponse)),
+      http.get(url('/vocabulary'), ({ request }) => {
+        const topicId = new URL(request.url).searchParams.get('topic_id')
+        if (topicId === '2') {
+          return HttpResponse.json({ total: 1, page: 1, words: [wordNumbers] })
+        }
+        return HttpResponse.json({
+          total: 3,
+          page: 1,
+          words: [word, { ...word, id: 2, word_en: 'pear' }, wordNumbers],
+        })
+      })
+    )
+    renderWithProviders(<VocabularyPage />)
+
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /topic/i })).toBeInTheDocument()
+    )
+    expect(screen.getByText('apple')).toBeInTheDocument()
+    // both topics are available since initial vocab has words from topics 1 and 2
+    expect(screen.getByRole('option', { name: 'Food & Drinks' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Numbers' })).toBeInTheDocument()
+
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /topic/i }), 'Numbers')
+    await waitFor(() => expect(screen.getByText('one')).toBeInTheDocument())
+    expect(screen.queryByText('apple')).not.toBeInTheDocument()
   })
 })
