@@ -4,6 +4,7 @@ export type WordStatus = 'new' | 'learning' | 'recalling' | 'long_term_memory'
 
 export interface VocabularyWord {
   id: number
+  topic_id: number
   word_en: string
   transcription_en: string
   translation_ru: string
@@ -18,6 +19,7 @@ export interface VocabularyResponse {
   words: VocabularyWord[]
 }
 
-export function getVocabulary(): Promise<VocabularyResponse> {
-  return apiRequest<VocabularyResponse>('/vocabulary')
+export function getVocabulary(topicId?: number): Promise<VocabularyResponse> {
+  const query = topicId != null ? `?topic_id=${topicId}` : ''
+  return apiRequest<VocabularyResponse>(`/vocabulary${query}`)
 }
