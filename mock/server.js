@@ -238,22 +238,20 @@ const subtopicProgress = {
   2: 'flashcards',   // subtopic 2 starts with flashcards (mnemonic_cards disabled)
 };
 
-// Track words learned today (resets on server restart)
-const dailyProgress = {
-  completedSubtopicFirstMechanics: new Set([1]), // subtopic 1 already passed first mechanic
-};
+// Daily study time accumulator (seconds; resets on server restart, mock has no persistence).
+// Mirrors the daily_activity table: client reports seconds, server sums; minutes derived on read.
+let secondsSpentToday = 0;
+let lastActivityAt = null;                 // ms epoch of the last activity report (wall-clock baseline)
+const MAX_CREDITED_SECONDS_PER_REQUEST = 120; // mirrors UserService anti-cheat ceiling
 
 // Gem-award bookkeeping (all reset on server restart; mock has no persistence)
 const awardedTopicBonus = new Set();   // topic ids that already granted the +15 bonus
 const recallAnswers = new Map();       // word_id -> is_correct for the current recall session
 let dailyGoalClaimed = false;          // dedupes the +10 daily-goal bonus (per server run)
 
-function getWordsLearnedToday() {
-  let total = 0;
-  for (const subtopicId of dailyProgress.completedSubtopicFirstMechanics) {
-    total += words.filter(w => w.subtopic_id === subtopicId).length;
-  }
-  return total;
+function getMinutesToday() {
+  // floor: minutes hit the goal exactly when seconds cross goal×60 (mirrors UserService.toMinutes)
+  return Math.floor(secondsSpentToday / 60);
 }
 
 const makeLevels = (currentMechanic, disabled = []) => {
@@ -326,16 +324,34 @@ app.put('/api/v1/users/me', (req, res) => {
 
 app.get('/api/v1/users/me/daily-progress', (req, res) => {
   res.json({
-    words_learned_today: getWordsLearnedToday(),
-    daily_goal_words: MOCK_USER.daily_goal_words,
+    minutes_today: getMinutesToday(),
+    daily_goal_min: MOCK_USER.daily_goal_min,
   });
+});
+
+app.post('/api/v1/users/me/activity', (req, res) => {
+  const { seconds } = req.body || {};
+  if (!Number.isInteger(seconds) || seconds < 1 || seconds > 86400) {
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'seconds must be an integer in [1, 86400]' });
+  }
+  // Wall-clock anti-cheat (mirrors UserService.creditableSeconds): credit at most the real time
+  // elapsed since the last report, capped by a per-request ceiling.
+  const now = Date.now();
+  const elapsed = lastActivityAt === null
+    ? MAX_CREDITED_SECONDS_PER_REQUEST
+    : Math.max(0, Math.floor((now - lastActivityAt) / 1000));
+  const credited = Math.min(seconds, Math.min(elapsed, MAX_CREDITED_SECONDS_PER_REQUEST));
+  lastActivityAt = now;
+  secondsSpentToday += credited;
+  res.json({ minutes_today: getMinutesToday(), daily_goal_min: MOCK_USER.daily_goal_min });
 });
 
 app.post('/api/v1/users/me/daily-goal/claim', (req, res) => {
   // Guests never accumulate gems (mirrors backend UserService.claimDailyGoal)
   if (MOCK_USER.is_guest) return res.json({ reached: false, gems_awarded: 0 });
 
-  const reached = getWordsLearnedToday() >= MOCK_USER.daily_goal_words;
+  // Time-based goal: today's seconds must reach daily_goal_min × 60 (mirrors isDailyGoalReached)
+  const reached = secondsSpentToday >= MOCK_USER.daily_goal_min * 60;
   if (!reached || dailyGoalClaimed) return res.json({ reached, gems_awarded: 0 });
 
   dailyGoalClaimed = true;
@@ -447,11 +463,7 @@ app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
   const idx = availableMechanics.indexOf(mechanic_type);
   const next = idx >= 0 && idx < availableMechanics.length - 1 ? availableMechanics[idx + 1] : null;
   subtopicProgress[id] = next;
-  // Track words learned today: first mechanic of a subtopic = new words
-  if (idx === 0) {
-    dailyProgress.completedSubtopicFirstMechanics.add(id);
-  }
-  console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}, words today: ${getWordsLearnedToday()}`);
+  console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}`);
 
   // +5 per level; +15 once when this completion finishes the whole topic (mirrors LearningService)
   let gemsEarned = 5;

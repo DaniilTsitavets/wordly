@@ -2,6 +2,7 @@ package com.wordly.backend.controller;
 
 import com.wordly.backend.dto.DailyGoalClaimResponse;
 import com.wordly.backend.dto.DailyProgressResponse;
+import com.wordly.backend.dto.TrackActivityRequest;
 import com.wordly.backend.dto.UpdateUserProfileRequest;
 import com.wordly.backend.dto.UserProfileResponse;
 import com.wordly.backend.service.UserService;
@@ -30,6 +31,14 @@ public class UserController {
     @PostMapping("/me/daily-goal/claim")
     public DailyGoalClaimResponse claimDailyGoal(@AuthenticationPrincipal Long userId) {
         return userService.claimDailyGoal(userId);
+    }
+
+    @PostMapping("/me/activity")
+    public DailyProgressResponse trackActivity(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody TrackActivityRequest request
+    ) {
+        return userService.trackActivity(userId, request.seconds());
     }
 
     @PutMapping("/me")

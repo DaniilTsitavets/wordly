@@ -1,20 +1,17 @@
 package com.wordly.backend.service;
 
 import com.wordly.backend.dto.DailyGoalClaimResponse;
+import com.wordly.backend.dto.DailyProgressResponse;
 import com.wordly.backend.dto.UpdateUserProfileRequest;
 import com.wordly.backend.dto.UserProfileResponse;
-import com.wordly.backend.entity.Subtopic;
-import com.wordly.backend.entity.Topic;
+import com.wordly.backend.entity.DailyActivity;
 import com.wordly.backend.entity.User;
-import com.wordly.backend.entity.UserSubtopicLevelMechanicProgress;
 import com.wordly.backend.entity.enums.ColorTheme;
-import com.wordly.backend.entity.enums.MechanicType;
-import com.wordly.backend.entity.enums.ProgressStatus;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.exception.GuestOperationNotAllowedException;
 import com.wordly.backend.exception.NotFoundException;
+import com.wordly.backend.repository.DailyActivityRepository;
 import com.wordly.backend.repository.UserRepository;
-import com.wordly.backend.repository.UserSubtopicLevelMechanicProgressRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,12 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -49,7 +46,7 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private UserSubtopicLevelMechanicProgressRepository progressRepository;
+    private DailyActivityRepository dailyActivityRepository;
 
     @InjectMocks
     private UserService userService;
@@ -68,6 +65,19 @@ class UserServiceTest {
                 .gems(0)
                 .streak(0)
                 .build();
+    }
+
+    private DailyActivity activityToday(int seconds) {
+        return DailyActivity.builder()
+                .userId(1L)
+                .activityDate(LocalDate.now())
+                .secondsSpent(seconds)
+                .build();
+    }
+
+    private void stubActivityToday(int seconds) {
+        when(dailyActivityRepository.findByUserIdAndActivityDate(eq(1L), any(LocalDate.class)))
+                .thenReturn(Optional.of(activityToday(seconds)));
     }
 
     @Nested
@@ -247,43 +257,162 @@ class UserServiceTest {
     }
 
     @Nested
-    @DisplayName("claimDailyGoal")
-    class ClaimDailyGoal {
+    @DisplayName("getDailyProgress")
+    class GetDailyProgress {
 
-        private Subtopic subtopicWithWords(int wordsCount) {
-            return Subtopic.builder()
-                    .id(10L)
-                    .topic(Topic.builder().id(1L).name("T").description("").imageUrl("").sortOrder(0).build())
-                    .name("Sub")
-                    .description("")
-                    .imageUrl("")
-                    .sortOrder(0)
-                    .wordsCount(wordsCount)
-                    .build();
-        }
+        @Test
+        @DisplayName("should report today's minutes against the time-based goal")
+        void shouldReportMinutes() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubActivityToday(540); // 9 minutes
 
-        private UserSubtopicLevelMechanicProgress firstMechanicCompletion(Subtopic subtopic) {
-            return UserSubtopicLevelMechanicProgress.builder()
-                    .userId(1L)
-                    .subtopic(subtopic)
-                    .mechanicType(MechanicType.MNEMONIC_CARDS)
-                    .status(ProgressStatus.COMPLETED)
-                    .build();
-        }
+            DailyProgressResponse response = userService.getDailyProgress(1L);
 
-        private void stubTodayCompletions(List<UserSubtopicLevelMechanicProgress> completions) {
-            when(progressRepository.findByUserIdAndStatusAndCompletedAtBetween(
-                    eq(1L), eq(ProgressStatus.COMPLETED), any(LocalDateTime.class), any(LocalDateTime.class)))
-                    .thenReturn(completions);
+            assertThat(response.minutesToday()).isEqualTo(9);
+            assertThat(response.dailyGoalMin()).isEqualTo(10);
         }
 
         @Test
-        @DisplayName("should award +10 once when today's learned words reach the goal")
+        @DisplayName("should report zero minutes when there is no activity today")
+        void shouldReportZeroWhenNoActivity() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(dailyActivityRepository.findByUserIdAndActivityDate(eq(1L), any(LocalDate.class)))
+                    .thenReturn(Optional.empty());
+
+            DailyProgressResponse response = userService.getDailyProgress(1L);
+
+            assertThat(response.minutesToday()).isZero();
+            assertThat(response.dailyGoalMin()).isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("should show whole completed minutes (floor), not round up before the goal")
+        void shouldFloorToWholeMinutes() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubActivityToday(599); // 9 min 59 s -> 9, not 10
+
+            DailyProgressResponse response = userService.getDailyProgress(1L);
+
+            assertThat(response.minutesToday()).isEqualTo(9);
+        }
+
+        @Test
+        @DisplayName("minutes reach the goal exactly when the goal-reached threshold is crossed")
+        void minutesReachGoalInLockstepWithThreshold() {
+            User user = regularUser(1L);
+            user.setDailyGoalMin(15);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubActivityToday(900); // exactly 15 min
+
+            DailyProgressResponse response = userService.getDailyProgress(1L);
+
+            assertThat(response.minutesToday()).isEqualTo(15); // 15/15 only at the real threshold
+        }
+    }
+
+    @Nested
+    @DisplayName("trackActivity")
+    class TrackActivity {
+
+        @Test
+        @DisplayName("should cap the first report at the per-request ceiling and credit the day")
+        void shouldCapFirstReportAndCreditDay() {
+            User user = regularUser(1L); // lastActivityAt == null
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            // re-query for the response after the upsert
+            when(dailyActivityRepository.findByUserIdAndActivityDate(eq(1L), any(LocalDate.class)))
+                    .thenReturn(Optional.of(activityToday(120)));
+
+            DailyProgressResponse response = userService.trackActivity(1L, 180); // claims 3 min
+
+            assertThat(response.minutesToday()).isEqualTo(2); // capped to 120s = 2 min
+            assertThat(response.dailyGoalMin()).isEqualTo(10);
+            assertThat(user.getLastActivityAt()).isNotNull();
+            verify(dailyActivityRepository).addSeconds(eq(1L), any(LocalDate.class), eq(120));
+            verify(userRepository).save(user);
+        }
+
+        @Test
+        @DisplayName("should cap credit at the ceiling after a long idle gap (no idle-time budget)")
+        void shouldCapAfterLongGap() {
+            User user = regularUser(1L);
+            user.setLastActivityAt(LocalDateTime.now().minusHours(2)); // long gap
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(dailyActivityRepository.findByUserIdAndActivityDate(eq(1L), any(LocalDate.class)))
+                    .thenReturn(Optional.of(activityToday(720))); // 600 existing + 120 credited
+
+            DailyProgressResponse response = userService.trackActivity(1L, 1000); // claims ~16 min
+
+            assertThat(response.minutesToday()).isEqualTo(12);
+            verify(dailyActivityRepository).addSeconds(eq(1L), any(LocalDate.class), eq(120)); // +120 only
+        }
+
+        @Test
+        @DisplayName("should credit nothing when no real time has elapsed since the last report")
+        void shouldNotCreditWhenNoTimeElapsed() {
+            User user = regularUser(1L);
+            user.setLastActivityAt(LocalDateTime.now()); // essentially now
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(dailyActivityRepository.findByUserIdAndActivityDate(eq(1L), any(LocalDate.class)))
+                    .thenReturn(Optional.empty());
+
+            DailyProgressResponse response = userService.trackActivity(1L, 100);
+
+            assertThat(response.minutesToday()).isZero();
+            verify(dailyActivityRepository, never()).addSeconds(any(), any(), anyInt());
+            verify(userRepository).save(user); // baseline still advanced
+        }
+    }
+
+    @Nested
+    @DisplayName("creditableSeconds")
+    class CreditableSeconds {
+
+        private final LocalDateTime now = LocalDateTime.of(2026, 6, 15, 12, 0, 0);
+
+        @Test
+        @DisplayName("first report (no baseline) is capped at the per-request ceiling")
+        void firstReportCapped() {
+            assertThat(UserService.creditableSeconds(30, null, now)).isEqualTo(30);
+            assertThat(UserService.creditableSeconds(5000, null, now)).isEqualTo(120);
+        }
+
+        @Test
+        @DisplayName("credit is bounded by the real elapsed time since the last report")
+        void boundedByElapsed() {
+            LocalDateTime last = now.minusSeconds(30);
+            assertThat(UserService.creditableSeconds(30, last, now)).isEqualTo(30);
+            assertThat(UserService.creditableSeconds(1000, last, now)).isEqualTo(30); // elapsed caps it
+        }
+
+        @Test
+        @DisplayName("a long gap is still capped at the per-request ceiling")
+        void longGapCapped() {
+            assertThat(UserService.creditableSeconds(1000, now.minusHours(1), now)).isEqualTo(120);
+        }
+
+        @Test
+        @DisplayName("no credit for zero or negative (clock-skew) elapsed time")
+        void zeroOrNegativeElapsed() {
+            assertThat(UserService.creditableSeconds(100, now, now)).isZero();
+            assertThat(UserService.creditableSeconds(100, now.plusSeconds(10), now)).isZero();
+        }
+    }
+
+    @Nested
+    @DisplayName("claimDailyGoal")
+    class ClaimDailyGoal {
+
+        @Test
+        @DisplayName("should award +10 once when today's study time reaches the goal")
         void shouldAwardWhenGoalReached() {
             User user = regularUser(1L);
-            user.setDailyGoalWords(5);
+            user.setDailyGoalMin(5); // 300 seconds
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            stubTodayCompletions(List.of(firstMechanicCompletion(subtopicWithWords(5))));
+            stubActivityToday(300);
 
             DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
 
@@ -297,10 +426,10 @@ class UserServiceTest {
         @DisplayName("should report reached but award nothing when already claimed today")
         void shouldNotAwardTwiceSameDay() {
             User user = regularUser(1L);
-            user.setDailyGoalWords(5);
+            user.setDailyGoalMin(5);
             user.setDailyGoalAwardedDate(LocalDate.now());
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            stubTodayCompletions(List.of(firstMechanicCompletion(subtopicWithWords(5))));
+            stubActivityToday(300);
 
             DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
 
@@ -313,7 +442,7 @@ class UserServiceTest {
         @Test
         @DisplayName("should never award the bonus to a guest user")
         void shouldNotAwardForGuest() {
-            User guest = User.builder().id(1L).guest(true).gems(0).dailyGoalWords(5).build();
+            User guest = User.builder().id(1L).guest(true).gems(0).dailyGoalMin(5).build();
             when(userRepository.findById(1L)).thenReturn(Optional.of(guest));
 
             DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
@@ -325,12 +454,12 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("should not award when today's learned words are below the goal")
+        @DisplayName("should not award when today's study time is below the goal")
         void shouldNotAwardWhenBelowGoal() {
             User user = regularUser(1L);
-            user.setDailyGoalWords(10);
+            user.setDailyGoalMin(10); // 600 seconds
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            stubTodayCompletions(List.of(firstMechanicCompletion(subtopicWithWords(3))));
+            stubActivityToday(300); // 5 min, below goal
 
             DailyGoalClaimResponse response = userService.claimDailyGoal(1L);
 
