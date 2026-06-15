@@ -39,11 +39,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DailyActivityRepository dailyActivityRepository;
+    private final StreakService streakService;
 
     @Transactional(readOnly = true)
     public UserProfileResponse getCurrentUserProfile(Long userId) {
         User user = getUserOrThrow(userId);
-        return UserProfileResponse.from(user);
+        return UserProfileResponse.from(user, streakService.currentStreak(user));
     }
 
     @Transactional
@@ -99,7 +100,7 @@ public class UserService {
             user.setOnboardingCompleted(request.onboardingCompleted());
         }
 
-        return UserProfileResponse.from(user);
+        return UserProfileResponse.from(user, streakService.currentStreak(user));
     }
 
     @Transactional(readOnly = true)

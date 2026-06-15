@@ -34,6 +34,7 @@ public class LearningService {
     private final UserWordStateRepository userWordStateRepository;
     private final UserTopicBonusAwardRepository topicBonusAwardRepository;
     private final ProgressComputationService progressComputationService;
+    private final StreakService streakService;
 
     @Transactional
     public SessionDataResponse getSession(Long subtopicId, Long userId, boolean isGuest) {
@@ -128,6 +129,10 @@ public class LearningService {
         progress.setStatus(ProgressStatus.COMPLETED);
         progress.setCompletedAt(LocalDateTime.now());
         progressRepository.save(progress);
+
+        // Completing a level counts as an active day for the streak (US-028). Idempotent within
+        // the day, and only the genuine first completion reaches here (re-completes return above).
+        streakService.recordActivity(userId);
 
         applyWordStateTransition(subtopicId, userId, mechanicType);
 

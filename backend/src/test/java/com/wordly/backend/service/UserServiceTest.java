@@ -48,6 +48,9 @@ class UserServiceTest {
     @Mock
     private DailyActivityRepository dailyActivityRepository;
 
+    @Mock
+    private StreakService streakService;
+
     @InjectMocks
     private UserService userService;
 

@@ -37,6 +37,8 @@ class RecallServiceTest {
     private UserWordStateRepository userWordStateRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private StreakService streakService;
 
     @InjectMocks
     private RecallService recallService;
@@ -116,6 +118,8 @@ class RecallServiceTest {
             assertThat(s.getRecallInterval()).isEqualTo(3);
             assertThat(s.getNextRecall()).isEqualTo(LocalDate.now().plusDays(3));
             verify(userWordStateRepository).save(s);
+            // A recall answer records an active day for the streak (US-028).
+            verify(streakService).recordActivity(10L);
         }
 
         @Test

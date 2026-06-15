@@ -45,7 +45,13 @@ public record UserProfileResponse(
         @JsonProperty("created_at")
         LocalDateTime createdAt
 ) {
-    public static UserProfileResponse from(User user) {
+    /**
+     * Builds the profile with a streak computed on the fly (see {@code StreakService}). The
+     * {@code users.streak} column is no longer authoritative for display — always pass the
+     * grace-checked value from {@code StreakService.currentStreak}. There is intentionally no
+     * single-arg overload so no caller can accidentally surface the stale raw column.
+     */
+    public static UserProfileResponse from(User user, Integer streak) {
         return new UserProfileResponse(
                 user.getId(),
                 user.getName(),
@@ -58,7 +64,7 @@ public record UserProfileResponse(
                 user.getDailyGoalWords(),
                 user.getNotificationsEnabled(),
                 ColorTheme.fromValue(user.getColorTheme()),
-                user.getStreak(),
+                streak,
                 user.getGems(),
                 user.isOnboardingCompleted(),
                 user.getLastActiveDate(),

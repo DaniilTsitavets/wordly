@@ -42,6 +42,8 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private TokenBlacklistService tokenBlacklistService;
+    @Mock
+    private StreakService streakService;
 
     @InjectMocks
     private AuthService authService;
