@@ -29,6 +29,7 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RestClient restClient;
+    private final StreakService streakService;
 
     @Transactional
     public AuthResponse loginWithGoogle(String code, String redirectUri) {
@@ -140,6 +141,6 @@ public class OAuthService {
 
     private AuthResponse toAuthResponse(User user) {
         String token = jwtService.generateToken(user.getId(), user.isGuest(), user.getRole());
-        return new AuthResponse(token, UserProfileResponse.from(user));
+        return new AuthResponse(token, UserProfileResponse.from(user, streakService.currentStreak(user)));
     }
 }
