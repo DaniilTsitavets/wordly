@@ -17,9 +17,6 @@ tags:
   - name: Recall
   - name: Vocabulary
   - name: Admin
-    description: |
-      Admin endpoints for content management. Require ADMIN role on the JWT.
-      Access is controlled by `hasAuthority('ROLE_ADMIN')` — non-admin tokens get 403.
   - name: Game
   - name: AI Chat
 
@@ -247,22 +244,18 @@ paths:
     get:
       tags: [Users]
       summary: Get daily learning progress
+      description: >
+        Minutes studied today (across all learning mechanics, recall and AI chat) vs the
+        time-based daily goal (BRD §9.1). Study time is accumulated via POST /users/me/activity.
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Words learned today vs daily goal
+          description: Minutes studied today vs daily goal
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  words_learned_today:
-                    type: integer
-                    example: 12
-                  daily_goal_words:
-                    type: integer
-                    example: 10
+                $ref: '#/components/schemas/DailyProgress'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -291,6 +284,45 @@ paths:
                   gems_awarded:
                     type: integer
                     example: 10
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/activity:
+    post:
+      tags: [Users]
+      summary: Report study time for the daily goal (heartbeat)
+      description: >
+        Adds study time to today's total (local day). The client measures elapsed time on each
+        learning screen (mechanics, recall, AI chat) and reports it here. Treat this as a
+        **heartbeat**: send it periodically (every ≤120s) while a screen is active, not once at the
+        end — the server credits at most the real wall-clock time elapsed since the previous report,
+        capped at 120s per request (anti-cheat), so a single large `seconds` value cannot
+        fast-forward the goal. Returns the updated daily progress so the caller can refresh the
+        progress bar without a second request.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [seconds]
+              properties:
+                seconds:
+                  type: integer
+                  minimum: 1
+                  maximum: 86400
+                  example: 120
+      responses:
+        '200':
+          description: Updated daily progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyProgress'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -647,13 +679,11 @@ paths:
   /ai/chat:
     post:
       tags: [AI Chat]
-      summary: Send a message to the AI tutor (streaming)
+      summary: Send a message to the AI tutor
       description: >
-        Streaming AI chat endpoint. Returns a Server-Sent Events (SSE) stream.
-        The client maintains conversation history and sends it with every request.
-        The AI reply is streamed token-by-token as `text/event-stream`.
-        Each SSE event contains one text token in its `data` field.
-        The stream ends when the server closes the connection.
+        Stateless AI chat endpoint. The client maintains conversation history and sends
+        it with every request. The AI generates a reply, checks spelling of target words,
+        and evaluates their usage in context.
       security:
         - bearerAuth: []
       requestBody:
@@ -672,21 +702,13 @@ paths:
               message: "Also a cup and a spoon"
       responses:
         '200':
-          description: SSE stream of AI reply tokens
+          description: AI reply
           content:
-            text/event-stream:
+            application/json:
               schema:
-                type: string
-              example: |
-                data: Nice
-
-                data: !
-
-                data:  Small
-
-                data:  spelling
-
-                data:  note
+                $ref: '#/components/schemas/AiChatResponse'
+              example:
+                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1303,6 +1325,13 @@ components:
           description: The user's current message
           example: "Also a cup and a spoon"
 
+    AiChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+          example: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though!"
+
     Error:
       type: object
       properties:
@@ -1373,6 +1402,17 @@ components:
         created_at:
           type: string
           format: date-time
+
+    DailyProgress:
+      type: object
+      description: Minutes studied today vs the time-based daily goal (BRD §9.1).
+      properties:
+        minutes_today:
+          type: integer
+          example: 9
+        daily_goal_min:
+          type: integer
+          example: 15
 
     CurrentPosition:
       type: object
@@ -1635,10 +1675,6 @@ components:
         id:
           type: integer
           format: int64
-        topic_id:
-          type: integer
-          format: int64
-          example: 1
         word_en:
           type: string
           example: plate

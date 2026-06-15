@@ -73,6 +73,9 @@ public class User {
     @Column(name = "last_active_date")
     private LocalDate lastActiveDate;
 
+    @Column(name = "last_activity_at")
+    private LocalDateTime lastActivityAt;
+
     @Column(name = "onboarding_completed", nullable = false)
     @Builder.Default
     private boolean onboardingCompleted = false;
