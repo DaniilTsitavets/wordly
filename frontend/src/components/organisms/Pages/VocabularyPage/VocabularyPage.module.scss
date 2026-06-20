@@ -7,6 +7,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  @include mobile {
+    padding: 16px;
+    gap: 12px;
+  }
 }
 
 .header {
@@ -55,6 +60,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  @include mobile {
+    padding: 14px 16px;
+  }
 }
 
 .totalHeader {
@@ -128,6 +137,11 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+
+  @include mobile {
+    padding: 14px 16px;
+    gap: 8px;
+  }
 }
 
 .cardBlue {
@@ -165,6 +179,10 @@
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
+
+  @include mobile {
+    font-size: 16px;
+  }
 }
 
 .wordRu {
@@ -230,7 +248,7 @@
   padding: 24px;
 }
 
-@media (max-width: 560px) {
+@include mobile-sm {
   .header {
     justify-content: flex-start;
     padding-left: 40px;
@@ -244,5 +262,9 @@
     flex-direction: row;
     align-items: center;
     align-self: flex-start;
+  }
+
+  .reviewBadge {
+    margin-top: 0;
   }
 }
