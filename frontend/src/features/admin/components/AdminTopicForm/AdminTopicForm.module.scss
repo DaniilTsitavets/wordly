@@ -6,6 +6,12 @@
   border: 0.0625rem solid var(--border-subtle);
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
+
+  @include mobile {
+    padding: 1.25rem 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .form {
@@ -134,4 +140,10 @@
   align-items: center;
   gap: 0.75rem;
   margin-top: 0.5rem;
+
+  @include mobile {
+    & > * {
+      flex: 1;
+    }
+  }
 }

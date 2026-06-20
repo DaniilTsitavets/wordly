@@ -27,6 +27,17 @@
     outline: 2px solid $color-primary;
     outline-offset: 2px;
   }
+
+  // When the parent stacks them vertically (ChangeGoalModal at ≤480px),
+  // lay the icon out next to the text instead of stacking — much cleaner.
+  @include mobile-sm {
+    width: 100%;
+    min-height: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+  }
 }
 
 .optionActive {
@@ -46,6 +57,11 @@
   .optionActive & {
     color: $color-primary;
   }
+
+  @include mobile-sm {
+    font-size: 16px;
+    text-align: left;
+  }
 }
 
 .optionLabel {
@@ -53,4 +69,12 @@
   text-align: center;
   line-height: 1.35;
   min-height: 30px;
+
+  @include mobile-sm {
+    font-size: 12px;
+    text-align: left;
+    min-height: 0;
+    margin-left: auto;
+    color: var(--text-secondary);
+  }
 }
