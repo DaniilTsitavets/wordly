@@ -13,7 +13,7 @@
 }
 
 .active {
-  background: #fde2c8;
+  background: var(--home-card-active-bg);
 
   &:hover {
     transform: translateY(-2px);
@@ -135,7 +135,7 @@
   cursor: not-allowed !important;
 }
 
-@media (max-width: 30rem) {
+@include mobile-sm {
   .card {
     width: 100%;
   }

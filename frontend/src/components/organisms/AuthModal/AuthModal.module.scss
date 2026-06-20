@@ -5,6 +5,10 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 1.5rem;
+
+  @include mobile {
+    margin-bottom: 1rem;
+  }
 }
 
 .logo {
@@ -40,6 +44,10 @@
   display: flex;
   border-bottom: 1px solid var(--border-strong);
   margin-bottom: 1.5rem;
+
+  @include mobile {
+    margin-bottom: 1rem;
+  }
 }
 
 .tab {
@@ -78,6 +86,10 @@
 .input {
   width: 100% !important;
   margin-bottom: 1rem;
+
+  @include mobile {
+    margin-bottom: 0.75rem;
+  }
 }
 
 .forgotRow {
@@ -101,6 +113,10 @@
   width: 100%;
   border-radius: 3rem !important;
   margin-bottom: 1.25rem;
+
+  @include mobile {
+    margin-bottom: 1rem;
+  }
 }
 
 .terms {
@@ -142,6 +158,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+
+  @include mobile-sm {
+    grid-template-columns: 1fr;
+  }
 }
 
 .errorMsg {
