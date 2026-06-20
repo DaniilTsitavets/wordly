@@ -9,6 +9,15 @@
   padding: 2rem 9.5rem;
   max-width: 800px;
   margin: 0 auto;
+
+  @include tablet {
+    padding: 1.75rem 3rem;
+  }
+
+  @include mobile {
+    padding: 1rem 1rem 2rem;
+    gap: 1rem;
+  }
 }
 
 .header {
@@ -35,6 +44,11 @@
   &:hover {
     background-color: var(--border-subtle);
   }
+
+  @include mobile {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 .centered {
@@ -56,6 +70,10 @@
   justify-content: center;
   margin-bottom: 3.17rem;
   gap: 1rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
 }
 .wordPlate {
   display: flex;
@@ -66,6 +84,18 @@
   border-radius: 1rem;
   margin-top: 6.12rem;
   min-width: 200px;
+
+  @include tablet {
+    margin-top: 3rem;
+  }
+
+  @include mobile {
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 18rem;
+  }
 }
 
 .wordWithGaps {
@@ -73,6 +103,11 @@
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.1rem;
+
+  @include mobile {
+    font-size: 1.5rem;
+    letter-spacing: 0.05rem;
+  }
 }
 
 .speakerButton {
@@ -100,6 +135,10 @@
 .answerInput {
   width: 100%;
   margin-bottom: 3.75rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .feedbackBanner {
@@ -122,10 +161,28 @@
     background-color: rgba(251, 44, 54, 0.1);
     color: $color-status-error;
   }
+
+  @include mobile {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
 }
 
 .buttonsContainer {
   display: flex;
   gap: 3.125rem;
   justify-content: center;
+
+  @include tablet {
+    gap: 1.5rem;
+  }
+
+  @include mobile {
+    width: 100%;
+    gap: 0.75rem;
+
+    & > * {
+      flex: 1;
+    }
+  }
 }

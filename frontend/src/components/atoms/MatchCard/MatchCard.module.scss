@@ -1,5 +1,8 @@
+@use '../../../styles/index' as *;
+
 .card {
-  width: 416px;
+  width: 100%;
+  max-width: 416px;
   height: 69.6px;
   border-radius: 16px;
   border: 0.8px solid;
@@ -45,5 +48,11 @@
   &.selected {
     outline: 2px solid var(--brand-purple);
     background: var(--surface-elevated);
+  }
+
+  @include mobile {
+    height: 56px;
+    font-size: 14px;
+    border-radius: 12px;
   }
 }
