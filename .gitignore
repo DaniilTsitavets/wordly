@@ -36,5 +36,5 @@ npm-debug.log*
 *.suo
 *.sw?
 
-# Claude local settings
-.claude/settings.local.json
+# Claude local settings — never commit the whole folder
+.claude/
