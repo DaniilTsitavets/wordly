@@ -5,16 +5,16 @@ import { GoalOptionButton } from './GoalOptionButton'
 
 describe('GoalOptionButton', () => {
   const baseProps = {
-    words: 10,
+    minutes: 15,
     label: 'Steady',
     icon: 'lightning',
     isActive: false,
     onSelect: vi.fn(),
   }
 
-  it('renders words count and label', () => {
+  it('renders minutes count and label', () => {
     render(<GoalOptionButton {...baseProps} />)
-    expect(screen.getByText('10 words')).toBeInTheDocument()
+    expect(screen.getByText('15 min')).toBeInTheDocument()
     expect(screen.getByText('Steady')).toBeInTheDocument()
   })
 
@@ -28,10 +28,10 @@ describe('GoalOptionButton', () => {
     expect(screen.getByRole('radio')).toHaveAttribute('aria-checked', 'false')
   })
 
-  it('calls onSelect(words) when clicked', async () => {
+  it('calls onSelect(minutes) when clicked', async () => {
     const onSelect = vi.fn()
     render(<GoalOptionButton {...baseProps} onSelect={onSelect} />)
     await userEvent.click(screen.getByRole('radio'))
-    expect(onSelect).toHaveBeenCalledWith(10)
+    expect(onSelect).toHaveBeenCalledWith(15)
   })
 })

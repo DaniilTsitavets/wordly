@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SendHorizontal } from 'lucide-react'
 import { IconFont } from '@/components/atoms/IconFont'
 import { IS_DEMO_API } from '@/api/client'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
 import { useAiChat } from './hooks/useAiChat'
 import type { ChatDisplayMessage } from './hooks/useAiChat'
 import styles from './AiChatPage.module.scss'
@@ -23,6 +24,7 @@ export function AiChatPage() {
   const subtopicId = Number(searchParams.get('subtopicId')) || DEFAULT_SUBTOPIC_ID
 
   const { messages, isSending, error, hasUserMessages, send } = useAiChat(subtopicId)
+  useActivityHeartbeat()
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
