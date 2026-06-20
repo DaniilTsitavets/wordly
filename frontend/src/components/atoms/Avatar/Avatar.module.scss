@@ -49,6 +49,11 @@
     width: 36px;
     height: 36px;
   }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+  }
 }
 .lg {
   width: 64px;
