@@ -35,12 +35,6 @@
   @include mobile {
     gap: 4px;
   }
-
-  // No room for nav + stats on very small screens — hide them and let
-  // the user reach things via the profile menu / direct URLs.
-  @include mobile-sm {
-    display: none;
-  }
 }
 
 .divider {
@@ -127,6 +121,18 @@
       font-size: 22px;
     }
   }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+
+    svg,
+    [class^='icon'] {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+  }
 }
 
 .tooltip {
@@ -197,6 +203,10 @@
     width: 22px;
     height: 22px;
     font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--brand-purple);
   }
 
@@ -224,6 +234,19 @@
       width: 18px;
       height: 18px;
       font-size: 18px;
+    }
+  }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+    border-width: 1.5px;
+
+    svg,
+    [class^='icon'] {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
     }
   }
 }
