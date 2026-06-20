@@ -9,7 +9,7 @@ import { AiChatPage } from './AiChatPage'
 
 const url = (path: string) => `${API_BASE_URL}${path}`
 
-function sseResponse(tokens: string[]): HttpResponse {
+function sseResponse(tokens: string[]) {
   const encoder = new TextEncoder()
   const stream = new ReadableStream({
     start(controller) {

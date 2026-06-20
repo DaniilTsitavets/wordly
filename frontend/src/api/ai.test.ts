@@ -18,7 +18,7 @@ function sseStreamFor(tokens: string[]): ReadableStream<Uint8Array> {
   })
 }
 
-function sseResponse(tokens: string[]): HttpResponse {
+function sseResponse(tokens: string[]) {
   return new HttpResponse(sseStreamFor(tokens), {
     headers: { 'Content-Type': 'text/event-stream' },
   })
