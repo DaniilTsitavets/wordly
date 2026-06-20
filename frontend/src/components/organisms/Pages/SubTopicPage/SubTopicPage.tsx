@@ -23,8 +23,8 @@ export function SubTopicPage() {
   const id = Number(subtopicId)
   const { subtopic, isLoading, error, refetch } = useSubtopic(id)
   const {
-    wordsLearnedToday,
-    dailyGoalWords,
+    minutesToday,
+    dailyGoalMin,
     progress: dailyProgress,
     refetch: refetchDaily,
   } = useDailyProgress()
@@ -110,7 +110,7 @@ export function SubTopicPage() {
             <div className={styles.dailyGoalRow}>
               <span className={styles.dailyGoalLabel}>Daily Goal</span>
               <span className={styles.dailyGoalValue}>
-                {wordsLearnedToday} / {dailyGoalWords} words
+                {minutesToday} / {dailyGoalMin} min
               </span>
             </div>
             <ProgressBar value={dailyProgress} color="green" size="sm" />
