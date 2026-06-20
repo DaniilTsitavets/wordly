@@ -1,0 +1,95 @@
+// ============================================================================
+// BREAKPOINTS — Single source of truth for responsive design.
+//
+// Tiers:
+//   - mobile-sm — phone portrait     (≤ 480px)
+//   - mobile    — phone any orient.  (≤ 767px, includes mobile-sm)
+//   - tablet    — phone + tablet     (≤ 1023px, includes mobile)
+//   - desktop   — anything wider     (≥ 1024px) — the default, no mixin needed
+//
+// Usage:
+//
+//   @use '../../styles/index' as *;   // already in every *.module.scss
+//
+//   .card {
+//     padding: 24px;
+//     @include tablet { padding: 16px; }   // tablet and below
+//     @include mobile { padding: 12px; }   // phone and below
+//   }
+//
+// Inverted ("mobile-first" style):
+//
+//   .grid {
+//     grid-template-columns: 1fr;
+//     @include from-tablet  { grid-template-columns: 1fr 1fr; }
+//     @include from-desktop { grid-template-columns: 1fr 1fr 1fr; }
+//   }
+//
+// Exact range (between two tiers):
+//
+//   .hero {
+//     @include tablet-only { font-size: 24px; }
+//   }
+// ============================================================================
+
+// ─── Cutoff values ──────────────────────────────────────────────────────────
+$bp-mobile-sm: 480px;
+$bp-mobile: 767px;
+$bp-tablet: 1023px;
+
+// ─── Max-width (down) ───────────────────────────────────────────────────────
+// "At this tier and smaller." Pair these when writing desktop-first CSS.
+
+@mixin mobile-sm {
+  @media (max-width: $bp-mobile-sm) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: $bp-mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: $bp-tablet) {
+    @content;
+  }
+}
+
+// ─── Min-width (up) ─────────────────────────────────────────────────────────
+// "At this tier and larger." Pair these when writing mobile-first CSS.
+
+@mixin from-mobile-lg {
+  @media (min-width: ($bp-mobile-sm + 1)) {
+    @content;
+  }
+}
+
+@mixin from-tablet {
+  @media (min-width: ($bp-mobile + 1)) {
+    @content;
+  }
+}
+
+@mixin from-desktop {
+  @media (min-width: ($bp-tablet + 1)) {
+    @content;
+  }
+}
+
+// ─── Ranges ─────────────────────────────────────────────────────────────────
+// "Only in this tier."
+
+@mixin mobile-only {
+  @media (min-width: ($bp-mobile-sm + 1)) and (max-width: $bp-mobile) {
+    @content;
+  }
+}
+
+@mixin tablet-only {
+  @media (min-width: ($bp-mobile + 1)) and (max-width: $bp-tablet) {
+    @content;
+  }
+}
