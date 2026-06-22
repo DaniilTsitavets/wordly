@@ -9,6 +9,15 @@
   padding: 2rem 9.5rem;
   max-width: 800px;
   margin: 0 auto;
+
+  @include tablet {
+    padding: 1.75rem 3rem;
+  }
+
+  @include mobile {
+    padding: 1rem 1rem 2rem;
+    gap: 1rem;
+  }
 }
 
 .header {
@@ -34,6 +43,11 @@
 
   &:hover {
     background-color: var(--border-subtle);
+  }
+
+  @include mobile {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 }
 
@@ -84,6 +98,10 @@
   font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
+
+  @include mobile {
+    font-size: 1.5rem;
+  }
 }
 
 .speakerButton {
@@ -139,6 +157,11 @@
   gap: 0.5rem;
   justify-content: center;
   padding: 1rem;
+
+  @include mobile {
+    gap: 0.375rem;
+    padding: 0.5rem 0;
+  }
 }
 
 .feedbackBanner {
@@ -161,10 +184,24 @@
     background-color: rgba(251, 44, 54, 0.1);
     color: $color-status-error;
   }
+
+  @include mobile {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
 }
 
 .buttonsContainer {
   display: flex;
   gap: 1rem;
   justify-content: center;
+
+  @include mobile {
+    width: 100%;
+    gap: 0.75rem;
+
+    & > * {
+      flex: 1;
+    }
+  }
 }

@@ -5,6 +5,14 @@
   padding: 4rem 2rem;
   display: flex;
   justify-content: center;
+
+  @include tablet {
+    padding: 2rem 1.5rem;
+  }
+
+  @include mobile {
+    padding: 1rem 0.75rem;
+  }
 }
 
 .banner {
@@ -17,6 +25,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
 }
 
 .content {
@@ -46,6 +61,10 @@
   color: $color-white;
   margin: 0.25rem 0 0.15rem;
   line-height: 1.2;
+
+  @include mobile {
+    font-size: 1.25rem;
+  }
 }
 
 .subtitle {
@@ -59,6 +78,10 @@
   align-items: center;
   gap: 1.25rem;
   flex-wrap: wrap;
+
+  @include mobile {
+    gap: 0.75rem;
+  }
 }
 
 .statItem {
@@ -97,5 +120,10 @@
   &:focus-visible {
     outline: 2px solid $color-white;
     outline-offset: 3px;
+  }
+
+  @include mobile {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
   }
 }

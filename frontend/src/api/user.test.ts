@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { server } from '@/test/server'
 import { API_BASE_URL } from './client'
-import { getMe, updateMe, getDailyProgress, claimDailyGoal } from './user'
+import { getMe, updateMe, getDailyProgress, trackActivity, claimDailyGoal } from './user'
 import { mockUser } from '@/test/handlers'
 
 const url = (path: string) => `${API_BASE_URL}${path}`
@@ -47,16 +47,44 @@ describe('user API', () => {
   })
 
   describe('getDailyProgress', () => {
-    it('returns words_learned_today + daily_goal_words', async () => {
+    it('returns minutes_today + daily_goal_min', async () => {
       server.use(
         http.get(url('/users/me/daily-progress'), () =>
-          HttpResponse.json({ words_learned_today: 3, daily_goal_words: 8 })
+          HttpResponse.json({ minutes_today: 6, daily_goal_min: 15 })
         )
       )
 
       const result = await getDailyProgress()
-      expect(result.words_learned_today).toBe(3)
-      expect(result.daily_goal_words).toBe(8)
+      expect(result.minutes_today).toBe(6)
+      expect(result.daily_goal_min).toBe(15)
+    })
+  })
+
+  describe('trackActivity', () => {
+    it('POSTs { seconds } to /users/me/activity and returns the updated progress', async () => {
+      let receivedBody: unknown = null
+      server.use(
+        http.post(url('/users/me/activity'), async ({ request }) => {
+          receivedBody = await request.json()
+          return HttpResponse.json({ minutes_today: 7, daily_goal_min: 15 })
+        })
+      )
+
+      const result = await trackActivity(60)
+      expect(receivedBody).toEqual({ seconds: 60 })
+      expect(result).toEqual({ minutes_today: 7, daily_goal_min: 15 })
+    })
+
+    it('propagates a 400 BAD_REQUEST from the server (e.g. seconds out of range)', async () => {
+      server.use(
+        http.post(url('/users/me/activity'), () =>
+          HttpResponse.json(
+            { message: 'seconds must be an integer in [1, 86400]' },
+            { status: 400 }
+          )
+        )
+      )
+      await expect(trackActivity(0)).rejects.toThrow(/seconds must be/)
     })
   })
 

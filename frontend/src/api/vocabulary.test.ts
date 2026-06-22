@@ -8,6 +8,7 @@ const url = (path: string) => `${API_BASE_URL}${path}`
 
 const word: VocabularyWord = {
   id: 1,
+  topic_id: 1,
   word_en: 'apple',
   transcription_en: '[ˈæpəl]',
   translation_ru: 'яблоко',

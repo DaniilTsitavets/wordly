@@ -65,6 +65,8 @@ class LearningServiceTest {
     private SubtopicRepository subtopicRepository;
     @Mock
     private UserTopicBonusAwardRepository topicBonusAwardRepository;
+    @Mock
+    private StreakService streakService;
 
     @InjectMocks
     private LearningService learningService;
@@ -340,6 +342,8 @@ class LearningServiceTest {
             assertThat(result.subtopicCompleted()).isFalse();
             assertThat(matchingProgress.getStatus()).isEqualTo(ProgressStatus.COMPLETED);
             assertThat(user.getGems()).isEqualTo(25);
+            // Completing a level records an active day for the streak (US-028).
+            verify(streakService).recordActivity(1L);
         }
 
         @Test
@@ -462,6 +466,8 @@ class LearningServiceTest {
             assertThat(result.mechanicType()).isEqualTo(MechanicType.MATCHING);
             assertThat(result.gemsEarned()).isEqualTo(0);
             assertThat(result.subtopicCompleted()).isTrue();
+            // Re-completing an already-completed level must NOT record streak activity again.
+            verify(streakService, never()).recordActivity(any());
         }
 
         @Test

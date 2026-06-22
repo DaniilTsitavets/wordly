@@ -11,7 +11,7 @@ describe('useDailyProgress', () => {
   it('starts in loading state and resolves with progress data', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ words_learned_today: 4, daily_goal_words: 8 })
+        HttpResponse.json({ minutes_today: 6, daily_goal_min: 15 })
       )
     )
 
@@ -21,15 +21,15 @@ describe('useDailyProgress', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    expect(result.current.wordsLearnedToday).toBe(4)
-    expect(result.current.dailyGoalWords).toBe(8)
-    expect(result.current.progress).toBe(50)
+    expect(result.current.minutesToday).toBe(6)
+    expect(result.current.dailyGoalMin).toBe(15)
+    expect(result.current.progress).toBe(40)
   })
 
-  it('caps progress at 100 even when learned > goal', async () => {
+  it('caps progress at 100 even when minutes > goal', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ words_learned_today: 20, daily_goal_words: 8 })
+        HttpResponse.json({ minutes_today: 30, daily_goal_min: 15 })
       )
     )
 
@@ -38,7 +38,7 @@ describe('useDailyProgress', () => {
     expect(result.current.progress).toBe(100)
   })
 
-  it('falls back to defaults (0 / 10 / 0) on API error', async () => {
+  it('falls back to defaults (0 min / 15 goal / 0%) on API error', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
         HttpResponse.json({ message: 'fail' }, { status: 500 })
@@ -48,8 +48,8 @@ describe('useDailyProgress', () => {
     const { result } = renderHook(() => useDailyProgress())
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    expect(result.current.wordsLearnedToday).toBe(0)
-    expect(result.current.dailyGoalWords).toBe(10)
+    expect(result.current.minutesToday).toBe(0)
+    expect(result.current.dailyGoalMin).toBe(15)
     expect(result.current.progress).toBe(0)
   })
 
@@ -58,16 +58,16 @@ describe('useDailyProgress', () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () => {
         count++
-        return HttpResponse.json({ words_learned_today: count, daily_goal_words: 10 })
+        return HttpResponse.json({ minutes_today: count, daily_goal_min: 15 })
       })
     )
 
     const { result } = renderHook(() => useDailyProgress())
-    await waitFor(() => expect(result.current.wordsLearnedToday).toBe(1))
+    await waitFor(() => expect(result.current.minutesToday).toBe(1))
 
     await act(async () => {
       await result.current.refetch()
     })
-    expect(result.current.wordsLearnedToday).toBe(2)
+    expect(result.current.minutesToday).toBe(2)
   })
 })

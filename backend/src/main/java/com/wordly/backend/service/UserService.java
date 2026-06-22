@@ -54,6 +54,7 @@ public class UserService {
     private final DailyActivityRepository dailyActivityRepository;
     private final UserWordStateRepository userWordStateRepository;
     private final WordRepository wordRepository;
+    private final StreakService streakService;
 
     @Transactional(readOnly = true)
     public UserProfileResponse getCurrentUserProfile(Long userId) {
@@ -120,12 +121,13 @@ public class UserService {
     /**
      * Builds the profile response enriched with the stats-screen word progress: how many of the
      * user's words are "learned" (status in {@link #LEARNED_STATUSES}) out of every word on the
-     * platform ({@code COUNT(*) FROM words}), plus the derived percentage.
+     * platform ({@code COUNT(*) FROM words}), plus the derived percentage. The streak is the
+     * grace-checked value from {@link StreakService#currentStreak(User)}, never the raw column.
      */
     private UserProfileResponse buildProfile(User user) {
         long totalWords = wordRepository.count();
         long learnedWords = userWordStateRepository.countByUserIdAndStatusIn(user.getId(), LEARNED_STATUSES);
-        return UserProfileResponse.from(user, learnedWords, totalWords);
+        return UserProfileResponse.from(user, streakService.currentStreak(user), learnedWords, totalWords);
     }
 
     @Transactional(readOnly = true)

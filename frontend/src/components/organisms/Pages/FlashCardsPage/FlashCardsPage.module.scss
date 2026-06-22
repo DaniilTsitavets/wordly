@@ -7,6 +7,16 @@
   align-items: center;
   gap: 2rem;
   padding: 2rem 9.5rem;
+
+  @include tablet {
+    padding: 1.75rem 3rem;
+    gap: 1.5rem;
+  }
+
+  @include mobile {
+    padding: 1rem 1rem 2rem;
+    gap: 1rem;
+  }
 }
 
 .header {
@@ -14,6 +24,10 @@
   align-items: center;
   gap: 1rem;
   width: 100%;
+
+  @include mobile {
+    gap: 0.75rem;
+  }
 }
 
 .backButton {
@@ -33,6 +47,11 @@
   &:hover {
     background-color: var(--border-subtle);
   }
+
+  @include mobile {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 .centered {
@@ -40,6 +59,10 @@
   justify-content: center;
   align-items: center;
   min-height: 20rem;
+
+  @include mobile {
+    min-height: 14rem;
+  }
 }
 
 .cardsActions {
@@ -47,4 +70,12 @@
   justify-content: space-between;
   max-width: 42rem;
   width: 100%;
+
+  @include mobile {
+    gap: 0.75rem;
+
+    & > * {
+      flex: 1;
+    }
+  }
 }

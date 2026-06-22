@@ -58,6 +58,9 @@ class UserServiceTest {
     @Mock
     private WordRepository wordRepository;
 
+    @Mock
+    private StreakService streakService;
+
     @InjectMocks
     private UserService userService;
 

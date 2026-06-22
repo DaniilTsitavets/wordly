@@ -29,6 +29,7 @@ public class RecallService {
 
     private final UserWordStateRepository userWordStateRepository;
     private final UserRepository userRepository;
+    private final StreakService streakService;
 
     @Transactional(readOnly = true)
     public RecallWordsResponse getRecallWords(Long userId) {
@@ -57,6 +58,10 @@ public class RecallService {
         state.setSessionDate(LocalDate.now());
         state.setSessionCorrect(isCorrect);
         userWordStateRepository.save(state);
+
+        // Recall counts as an active day for the streak, independent of whether the
+        // session is later completed. Idempotent within the day.
+        streakService.recordActivity(userId);
 
         return new AnswerResultResponse(wordId, isCorrect, word.getWordEn());
     }

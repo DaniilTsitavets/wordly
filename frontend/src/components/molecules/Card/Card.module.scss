@@ -14,6 +14,18 @@
     outline-offset: 1rem;
     border-radius: 1.25rem;
   }
+
+  @include tablet {
+    min-height: 28rem;
+  }
+
+  @include mobile {
+    min-height: 24rem;
+
+    &:focus-visible {
+      outline-offset: 0.5rem;
+    }
+  }
 }
 
 // Inner element that actually flips
@@ -43,6 +55,10 @@
   background: var(--surface);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+
+  @include mobile {
+    padding: 1.25rem 1rem 1rem;
+  }
 }
 
 .faceBack {
@@ -58,6 +74,10 @@
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  @include mobile {
+    max-width: 18rem;
+  }
 }
 
 .image {
@@ -81,6 +101,10 @@
   line-height: 1.3;
   color: var(--text-primary);
   text-align: center;
+
+  @include mobile {
+    font-size: 1.25rem;
+  }
 }
 
 .pronunciation {
@@ -137,6 +161,10 @@
   line-height: 1.3;
   color: var(--text-primary);
   text-align: center;
+
+  @include mobile {
+    font-size: 1.375rem;
+  }
 }
 
 .backWordEn {
@@ -161,6 +189,11 @@
 
   &--mnemonic {
     background: var(--accent-surface);
+  }
+
+  @include mobile {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.875rem;
   }
 }
 
