@@ -6,11 +6,14 @@ import com.wordly.backend.dto.UpdateUserProfileRequest;
 import com.wordly.backend.dto.UserProfileResponse;
 import com.wordly.backend.entity.DailyActivity;
 import com.wordly.backend.entity.User;
+import com.wordly.backend.entity.enums.WordStatus;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.exception.NotFoundException;
 import com.wordly.backend.exception.GuestOperationNotAllowedException;
 import com.wordly.backend.repository.DailyActivityRepository;
 import com.wordly.backend.repository.UserRepository;
+import com.wordly.backend.repository.UserWordStateRepository;
+import com.wordly.backend.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +41,24 @@ public class UserService {
      */
     private static final int MAX_CREDITED_SECONDS_PER_REQUEST = 120;
 
+    /**
+     * Word statuses that count as "learned" for the stats-screen percentage: the word has finished
+     * the initial learning flow (all 5 mechanics) and entered spaced repetition. See
+     * {@link #buildProfile}.
+     */
+    private static final Set<WordStatus> LEARNED_STATUSES =
+            EnumSet.of(WordStatus.RECALLING, WordStatus.LONG_TERM_MEMORY);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DailyActivityRepository dailyActivityRepository;
+    private final UserWordStateRepository userWordStateRepository;
+    private final WordRepository wordRepository;
 
     @Transactional(readOnly = true)
     public UserProfileResponse getCurrentUserProfile(Long userId) {
         User user = getUserOrThrow(userId);
-        return UserProfileResponse.from(user);
+        return buildProfile(user);
     }
 
     @Transactional
@@ -99,7 +114,18 @@ public class UserService {
             user.setOnboardingCompleted(request.onboardingCompleted());
         }
 
-        return UserProfileResponse.from(user);
+        return buildProfile(user);
+    }
+
+    /**
+     * Builds the profile response enriched with the stats-screen word progress: how many of the
+     * user's words are "learned" (status in {@link #LEARNED_STATUSES}) out of every word on the
+     * platform ({@code COUNT(*) FROM words}), plus the derived percentage.
+     */
+    private UserProfileResponse buildProfile(User user) {
+        long totalWords = wordRepository.count();
+        long learnedWords = userWordStateRepository.countByUserIdAndStatusIn(user.getId(), LEARNED_STATUSES);
+        return UserProfileResponse.from(user, learnedWords, totalWords);
     }
 
     @Transactional(readOnly = true)

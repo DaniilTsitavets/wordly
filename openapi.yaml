@@ -1396,6 +1396,26 @@ components:
         gems:
           type: integer
           example: 340
+        learned_words:
+          type: integer
+          nullable: true
+          description: >
+            Number of the user's words that are "learned" (status recalling or long_term_memory,
+            i.e. they finished the learning flow and entered spaced repetition). Populated on
+            GET/PUT /users/me; null in the auth responses (login/register/oauth).
+          example: 42
+        total_words:
+          type: integer
+          nullable: true
+          description: Total number of words on the platform (denominator for words_percentage). Populated on GET/PUT /users/me; null in auth responses.
+          example: 200
+        words_percentage:
+          type: integer
+          nullable: true
+          description: >
+            learned_words / total_words as a rounded integer percentage (0 when the platform has no
+            words). For the statistics screen. Populated on GET/PUT /users/me; null in auth responses.
+          example: 21
         last_active_date:
           type: string
           format: date
