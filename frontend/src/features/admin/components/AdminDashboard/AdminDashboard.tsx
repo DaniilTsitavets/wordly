@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { getAdminSubtopics, getAdminTopics } from '../../../../api/admin'
 import styles from './AdminDashboard.module.scss'
 
 type ActivityType =
@@ -33,13 +35,40 @@ const recentActivities: RecentActivity[] = [
   },
 ]
 
-const stats = [
-  { label: 'Total Topics', value: '3', color: 'blue' as const },
-  { label: 'Total Words', value: '3', color: 'purple' as const },
-  { label: 'Avg Words/Topic', value: '1.0', color: 'orange' as const },
-]
-
 export const AdminDashboard = () => {
+  const [totalTopics, setTotalTopics] = useState<number | null>(null)
+  const [totalWords, setTotalWords] = useState<number | null>(null)
+
+  useEffect(() => {
+    getAdminTopics().then(async (topics) => {
+      setTotalTopics(topics.length)
+      const subtopicsPerTopic = await Promise.all(topics.map((t) => getAdminSubtopics(t.id)))
+      const wordCount = subtopicsPerTopic.flat().reduce((sum, s) => sum + s.words_count, 0)
+      setTotalWords(wordCount)
+    })
+  }, [])
+
+  const avgWordsPerTopic =
+    totalTopics && totalWords !== null
+      ? totalTopics > 0
+        ? (totalWords / totalTopics).toFixed(1)
+        : '0.0'
+      : null
+
+  const stats = [
+    {
+      label: 'Total Topics',
+      value: totalTopics !== null ? String(totalTopics) : '…',
+      color: 'blue' as const,
+    },
+    {
+      label: 'Total Words',
+      value: totalWords !== null ? String(totalWords) : '…',
+      color: 'purple' as const,
+    },
+    { label: 'Avg Words/Topic', value: avgWordsPerTopic ?? '…', color: 'orange' as const },
+  ]
+
   return (
     <div className={styles.dashboard}>
       <h2 className={styles.title}>Dashboard Overview</h2>
