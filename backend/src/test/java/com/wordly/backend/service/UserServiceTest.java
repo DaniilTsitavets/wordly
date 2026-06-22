@@ -7,11 +7,14 @@ import com.wordly.backend.dto.UserProfileResponse;
 import com.wordly.backend.entity.DailyActivity;
 import com.wordly.backend.entity.User;
 import com.wordly.backend.entity.enums.ColorTheme;
+import com.wordly.backend.entity.enums.WordStatus;
 import com.wordly.backend.exception.EmailAlreadyExistsException;
 import com.wordly.backend.exception.GuestOperationNotAllowedException;
 import com.wordly.backend.exception.NotFoundException;
 import com.wordly.backend.repository.DailyActivityRepository;
 import com.wordly.backend.repository.UserRepository;
+import com.wordly.backend.repository.UserWordStateRepository;
+import com.wordly.backend.repository.WordRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,10 +53,21 @@ class UserServiceTest {
     private DailyActivityRepository dailyActivityRepository;
 
     @Mock
+    private UserWordStateRepository userWordStateRepository;
+
+    @Mock
+    private WordRepository wordRepository;
+
+    @Mock
     private StreakService streakService;
 
     @InjectMocks
     private UserService userService;
+
+    private void stubWordProgress(long learned, long total) {
+        when(wordRepository.count()).thenReturn(total);
+        when(userWordStateRepository.countByUserIdAndStatusIn(eq(1L), any())).thenReturn(learned);
+    }
 
     private User regularUser(long id) {
         return User.builder()
@@ -92,6 +107,7 @@ class UserServiceTest {
         void shouldReturnProfile() {
             User user = regularUser(1L);
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubWordProgress(42, 200);
 
             UserProfileResponse response = userService.getCurrentUserProfile(1L);
 
@@ -99,6 +115,34 @@ class UserServiceTest {
             assertThat(response.email()).isEqualTo("alex@example.com");
             assertThat(response.isGuest()).isFalse();
             assertThat(response.gems()).isZero();
+            assertThat(response.learnedWords()).isEqualTo(42);
+            assertThat(response.wordsPercentage()).isEqualTo(21);
+        }
+
+        @Test
+        @DisplayName("words_percentage is 0 when the platform has no words (no division by zero)")
+        void shouldReportZeroPercentWhenNoWords() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubWordProgress(0, 0);
+
+            UserProfileResponse response = userService.getCurrentUserProfile(1L);
+
+            assertThat(response.learnedWords()).isZero();
+            assertThat(response.wordsPercentage()).isZero();
+        }
+
+        @Test
+        @DisplayName("counts only RECALLING and LONG_TERM_MEMORY words as learned")
+        void shouldQueryLearnedStatuses() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubWordProgress(5, 10);
+
+            userService.getCurrentUserProfile(1L);
+
+            verify(userWordStateRepository).countByUserIdAndStatusIn(
+                    1L, EnumSet.of(WordStatus.RECALLING, WordStatus.LONG_TERM_MEMORY));
         }
 
         @Test

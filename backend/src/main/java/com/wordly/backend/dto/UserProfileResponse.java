@@ -36,6 +36,12 @@ public record UserProfileResponse(
         Integer streak,
         Integer gems,
 
+        @JsonProperty("learned_words")
+        Integer learnedWords,
+
+        @JsonProperty("words_percentage")
+        Integer wordsPercentage,
+
         @JsonProperty("onboarding_completed")
         boolean onboardingCompleted,
 
@@ -46,12 +52,32 @@ public record UserProfileResponse(
         LocalDateTime createdAt
 ) {
     /**
-     * Builds the profile with a streak computed on the fly (see {@code StreakService}). The
-     * {@code users.streak} column is no longer authoritative for display — always pass the
-     * grace-checked value from {@code StreakService.currentStreak}. There is intentionally no
-     * single-arg overload so no caller can accidentally surface the stale raw column.
+     * Builds the profile with a streak computed on the fly (see {@code StreakService}) but without
+     * the stats-screen word progress ({@code learnedWords}/{@code wordsPercentage} left
+     * {@code null}). Used by the auth responses (login/register/oauth), where those counts are not
+     * computed. The {@code users.streak} column is no longer authoritative for display — always
+     * pass the grace-checked value from {@code StreakService.currentStreak}. There is intentionally
+     * no {@code from(User)} overload so no caller can accidentally surface the stale raw column.
      */
     public static UserProfileResponse from(User user, Integer streak) {
+        return build(user, streak, null, null);
+    }
+
+    /**
+     * Profile enriched with the stats-screen word progress: how many of the user's words are
+     * "learned" (status RECALLING or LONG_TERM_MEMORY), plus that figure as a percentage of every
+     * word on the platform ({@code totalWords}, 0% when the platform has no words). Used by
+     * GET/PUT /users/me. {@code streak} must still be the grace-checked value (see above).
+     */
+    public static UserProfileResponse from(User user, Integer streak, long learnedWords, long totalWords) {
+        int percentage = totalWords == 0
+                ? 0
+                : (int) Math.round((double) learnedWords / totalWords * 100);
+        return build(user, streak, (int) learnedWords, percentage);
+    }
+
+    private static UserProfileResponse build(
+            User user, Integer streak, Integer learnedWords, Integer wordsPercentage) {
         return new UserProfileResponse(
                 user.getId(),
                 user.getName(),
@@ -66,6 +92,8 @@ public record UserProfileResponse(
                 ColorTheme.fromValue(user.getColorTheme()),
                 streak,
                 user.getGems(),
+                learnedWords,
+                wordsPercentage,
                 user.isOnboardingCompleted(),
                 user.getLastActiveDate(),
                 user.getCreatedAt()
