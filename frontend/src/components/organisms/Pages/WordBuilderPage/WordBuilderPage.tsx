@@ -7,9 +7,7 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { useWords } from '@/shared/hooks/useWords'
-import { completeSession } from '@/api/completeSession'
-import { useAppDispatch } from '@/store/hooks'
-import { addGems } from '@/store/slices/authSlice'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
 import testImg from '@/assets/test_img/test_img2.jpg'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -31,7 +29,7 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 export const WordBuilderPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -39,7 +37,6 @@ export const WordBuilderPage = () => {
   const [answerState, setAnswerState] = useState<AnswerState>('pending')
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
-  const [isCompleting, setIsCompleting] = useState(false)
 
   const word = words?.[currentIndex]
   const isLast = currentIndex >= (words?.length ?? 0) - 1
@@ -107,18 +104,14 @@ export const WordBuilderPage = () => {
 
   const handleComplete = useCallback(async () => {
     if (isCompleting) return
-    setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'word_builder')
-      setGemsEarned(result.gems_earned)
-      dispatch(addGems(result.gems_earned))
+      const result = await finishSession(Number(subtopicId), 'word_builder')
+      setGemsEarned(result.gemsEarned)
       setShowReward(true)
     } catch {
       // TODO: show error toast
-    } finally {
-      setIsCompleting(false)
     }
-  }, [isCompleting, subtopicId, dispatch])
+  }, [finishSession, isCompleting, subtopicId])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)

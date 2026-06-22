@@ -7,21 +7,18 @@ import { Button } from '@/components/atoms/Button'
 import { IconFont } from '@/components/atoms/IconFont'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
-import { completeSession } from '@/api/completeSession'
-import { useAppDispatch } from '@/store/hooks'
-import { addGems } from '@/store/slices/authSlice'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
 import styles from './MnemonicCardsPage.module.scss'
 
 export const MnemonicCardsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const { finishSession, isCompleting } = useFinishSession()
   const { words: allWords, isLoading, error } = useWords(Number(subtopicId))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
-  const [isCompleting, setIsCompleting] = useState(false)
 
   const words = allWords?.filter((w) => w.has_mnemonic) ?? []
 
@@ -68,16 +65,12 @@ export const MnemonicCardsPage = () => {
 
   const handleComplete = async () => {
     if (isCompleting) return
-    setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'mnemonic_cards')
-      setGemsEarned(result.gems_earned)
-      dispatch(addGems(result.gems_earned))
+      const result = await finishSession(Number(subtopicId), 'mnemonic_cards')
+      setGemsEarned(result.gemsEarned)
       setShowReward(true)
     } catch {
       // TODO: show error toast
-    } finally {
-      setIsCompleting(false)
     }
   }
 
