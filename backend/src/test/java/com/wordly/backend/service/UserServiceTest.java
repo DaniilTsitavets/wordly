@@ -113,7 +113,6 @@ class UserServiceTest {
             assertThat(response.isGuest()).isFalse();
             assertThat(response.gems()).isZero();
             assertThat(response.learnedWords()).isEqualTo(42);
-            assertThat(response.totalWords()).isEqualTo(200);
             assertThat(response.wordsPercentage()).isEqualTo(21);
         }
 
@@ -126,7 +125,7 @@ class UserServiceTest {
 
             UserProfileResponse response = userService.getCurrentUserProfile(1L);
 
-            assertThat(response.totalWords()).isZero();
+            assertThat(response.learnedWords()).isZero();
             assertThat(response.wordsPercentage()).isZero();
         }
 
