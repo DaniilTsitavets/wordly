@@ -17,14 +17,12 @@ interface UseAiChatResult {
   send: (text: string) => Promise<void>
 }
 
-// Local rotating openers — a frontend stub until the backend exposes
-// `GET /ai/chat/opener?subtopicId=...`. No AI call burned on bootstrap.
-const OPENER_TEMPLATES = [
-  'Hey there! 👋 Ready to practice? Send me something to get the conversation going.',
-  "Hi! I'm your practice partner. Tell me what's on your mind — let's chat!",
-  "Welcome! Let's have a real conversation in English. What would you like to talk about?",
-  "Hey! 👋 Type anything to start — I'll roll with whatever scenario fits.",
-]
+// Invisible kickoff sent to the backend so the AI's first turn is its real,
+// vocabulary-aware scenario opener instead of a hardcoded UI stub. Per the
+// backend system prompt the AI's first message is always the scenario setup
+// regardless of what the user actually said, so the text here is irrelevant —
+// it just satisfies the required `message` field on the request.
+const KICKOFF_MESSAGE = "Let's start!"
 
 function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -32,27 +30,50 @@ function makeId(): string {
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
-function pickOpener(): string {
-  return OPENER_TEMPLATES[Math.floor(Math.random() * OPENER_TEMPLATES.length)]
-}
-
 function toHistory(messages: ChatDisplayMessage[]): ChatMessage[] {
   return messages.map(({ role, content }) => ({ role, content }))
 }
 
 export function useAiChat(subtopicId: number): UseAiChatResult {
-  const [messages, setMessages] = useState<ChatDisplayMessage[]>(() => [
-    { id: makeId(), role: 'assistant', content: pickOpener(), timestamp: Date.now() },
-  ])
+  const [messages, setMessages] = useState<ChatDisplayMessage[]>([])
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const messagesRef = useRef<ChatDisplayMessage[]>(messages)
   messagesRef.current = messages
   const abortRef = useRef<AbortController | null>(null)
 
-  // Cancel any in-flight stream when the subtopic changes or the hook unmounts.
+  // Fire the AI's scenario opener once on mount. AiChatBody keys this hook by
+  // subtopicId, so a topic switch fully remounts and re-kicks off.
   useEffect(() => {
-    return () => abortRef.current?.abort()
+    const assistantId = makeId()
+    setMessages([{ id: assistantId, role: 'assistant', content: '', timestamp: Date.now() }])
+    setIsSending(true)
+    setError(null)
+
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    streamChatMessage(
+      { subtopicId, history: [], message: KICKOFF_MESSAGE },
+      {
+        signal: controller.signal,
+        onToken: (token) => {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + token } : m))
+          )
+        },
+      }
+    )
+      .catch((err) => {
+        if (controller.signal.aborted) return
+        setError(err instanceof Error ? err.message : 'Failed to start chat')
+      })
+      .finally(() => {
+        if (abortRef.current === controller) abortRef.current = null
+        setIsSending(false)
+      })
+
+    return () => controller.abort()
   }, [subtopicId])
 
   const send = useCallback(
@@ -60,12 +81,7 @@ export function useAiChat(subtopicId: number): UseAiChatResult {
       const trimmed = text.trim()
       if (!trimmed || isSending) return
 
-      // The frontend opener is purely UI — strip it from the history we send
-      // to the backend, otherwise the AI thinks it said something it didn't.
-      const conversation = messagesRef.current.filter(
-        (m) => !(m.role === 'assistant' && OPENER_TEMPLATES.includes(m.content))
-      )
-
+      const conversation = messagesRef.current
       const userMessage: ChatDisplayMessage = {
         id: makeId(),
         role: 'user',
