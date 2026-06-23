@@ -139,6 +139,19 @@ inputs = {
 
   ordered_cache_behavior = [
     {
+      path_pattern           = "/api/v1/ai/chat"
+      target_origin_id       = "alb"
+      viewer_protocol_policy = "redirect-to-https"
+
+      allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods  = ["GET", "HEAD"]
+
+      compress                   = false
+      cache_policy_id            = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+      response_headers_policy_id = "5cc3b908-e619-4b99-88e5-2cf7f45965bd" # Managed-CORS-With-Preflight
+      origin_request_policy_id   = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Managed-AllViewer
+    },
+    {
       # Backend REST API
       path_pattern           = "/api/*"
       target_origin_id       = "alb"
