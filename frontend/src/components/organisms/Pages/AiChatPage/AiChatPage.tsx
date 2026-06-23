@@ -12,13 +12,6 @@ import { TopicPickerModal } from './components'
 import type { PickedSubtopic } from './components'
 import styles from './AiChatPage.module.scss'
 
-const SUGGESTED_PROMPTS = [
-  'Can you help me practice this vocabulary?',
-  "Let's have a conversation using these words",
-  "Quiz me on the words I've learned",
-  'Can you create a story using these words?',
-]
-
 export function AiChatPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -135,7 +128,7 @@ function EmptyState({ onPick }: { onPick: () => void }) {
 }
 
 function AiChatBody({ subtopicId }: { subtopicId: number }) {
-  const { messages, isSending, error, hasUserMessages, send } = useAiChat(subtopicId)
+  const { messages, isSending, error, send } = useAiChat(subtopicId)
   useActivityHeartbeat()
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -158,7 +151,6 @@ function AiChatBody({ subtopicId }: { subtopicId: number }) {
     }
   }
 
-  const showPrompts = !hasUserMessages
   const lastMessage = messages[messages.length - 1]
   const showTyping =
     isSending && (!lastMessage || lastMessage.role === 'user' || lastMessage.content === '')
@@ -174,24 +166,6 @@ function AiChatBody({ subtopicId }: { subtopicId: number }) {
             ))}
           {showTyping && <TypingBubble />}
         </div>
-
-        {showPrompts && (
-          <div className={styles.prompts}>
-            <p className={styles.promptsLabel}>Try these prompts:</p>
-            <div className={styles.promptsList}>
-              {SUGGESTED_PROMPTS.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  className={styles.promptChip}
-                  onClick={() => handleSend(prompt)}
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {error && (
