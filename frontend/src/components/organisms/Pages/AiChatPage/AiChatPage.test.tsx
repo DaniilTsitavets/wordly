@@ -46,28 +46,48 @@ function sseResponse(tokens: string[]) {
   })
 }
 
+/**
+ * Wires `POST /ai/chat` so the Nth call returns the Nth token list. The chat
+ * fires a kickoff on mount, so call #1 is always the opener; tests that
+ * exercise a user-typed reply pass that as call #2.
+ */
+function chatHandler(...calls: string[][]) {
+  let i = 0
+  return http.post(url('/ai/chat'), () => {
+    const tokens = calls[Math.min(i++, calls.length - 1)]
+    return sseResponse(tokens)
+  })
+}
+
 describe('AiChatPage', () => {
-  it('renders the title + Demo badge + a local opener message immediately (no spinner)', () => {
+  it('renders the title + composer once the kickoff stream resolves', async () => {
+    server.use(chatHandler(['Welcome!']))
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+
     expect(screen.getByRole('heading', { name: 'AI Practice Chat' })).toBeInTheDocument()
-    // Opener is rendered synchronously; chat is interactive right away.
+    await waitFor(() => expect(screen.getByText('Welcome!')).toBeInTheDocument())
     expect(screen.getByLabelText('Send message')).toBeInTheDocument()
   })
 
-  it('shows suggested prompts before the user has sent anything', () => {
+  it('shows suggested prompts before the user has sent anything', async () => {
+    server.use(chatHandler(['hi']))
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+    await waitFor(() => expect(screen.getByText('hi')).toBeInTheDocument())
     expect(screen.getByText(/Try these prompts/)).toBeInTheDocument()
   })
 
-  it('disables Send button on empty input', () => {
+  it('disables Send button on empty input', async () => {
+    server.use(chatHandler(['hi']))
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+    await waitFor(() => expect(screen.getByText('hi')).toBeInTheDocument())
     expect(screen.getByLabelText('Send message')).toBeDisabled()
   })
 
   it('sends a typed message and streams the reply into the bubble', async () => {
-    server.use(http.post(url('/ai/chat'), () => sseResponse(['Nice', ' ', 'one'])))
+    server.use(chatHandler(['kick'], ['Nice', ' ', 'one']))
 
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+    await waitFor(() => expect(screen.getByText('kick')).toBeInTheDocument())
 
     const input = screen.getByLabelText('Message')
     await userEvent.type(input, 'test')
@@ -81,21 +101,29 @@ describe('AiChatPage', () => {
 
   it('clicking a suggested prompt sends it', async () => {
     let lastBody: { message: string } | null = null
+    let callIndex = 0
     server.use(
       http.post(url('/ai/chat'), async ({ request }) => {
+        callIndex++
+        if (callIndex === 1) return sseResponse(['kick']) // kickoff
         lastBody = (await request.json()) as { message: string }
         return sseResponse(['ok'])
       })
     )
 
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+    await waitFor(() => expect(screen.getByText('kick')).toBeInTheDocument())
+
     await userEvent.click(screen.getByRole('button', { name: /Quiz me/ }))
     await waitFor(() => expect(lastBody?.message).toContain('Quiz me'))
   })
 
   it('shows a typing indicator until the first token arrives, then hides it', async () => {
+    let callIndex = 0
     server.use(
       http.post(url('/ai/chat'), () => {
+        callIndex++
+        if (callIndex === 1) return sseResponse(['kick'])
         // Delay the first token slightly so the typing indicator is observable.
         const encoder = new TextEncoder()
         const stream = new ReadableStream({
@@ -112,6 +140,8 @@ describe('AiChatPage', () => {
     )
 
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+    await waitFor(() => expect(screen.getByText('kick')).toBeInTheDocument())
+
     await userEvent.type(screen.getByLabelText('Message'), 'yo')
     await userEvent.click(screen.getByLabelText('Send message'))
 
@@ -123,14 +153,19 @@ describe('AiChatPage', () => {
     expect(screen.queryByLabelText('AI is typing')).not.toBeInTheDocument()
   })
 
-  it('shows error when the backend fails', async () => {
+  it('shows error when the backend fails on a user send', async () => {
+    let callIndex = 0
     server.use(
-      http.post(url('/ai/chat'), () =>
-        HttpResponse.json({ message: 'rate-limited' }, { status: 429 })
-      )
+      http.post(url('/ai/chat'), () => {
+        callIndex++
+        if (callIndex === 1) return sseResponse(['kick'])
+        return HttpResponse.json({ message: 'rate-limited' }, { status: 429 })
+      })
     )
 
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
+    await waitFor(() => expect(screen.getByText('kick')).toBeInTheDocument())
+
     await userEvent.type(screen.getByLabelText('Message'), 'hi')
     await userEvent.click(screen.getByLabelText('Send message'))
 
@@ -158,11 +193,9 @@ describe('AiChatPage', () => {
 
     renderWithProviders(<AiChatPage />, { route: '/ai-chat' })
 
-    // Empty state replaces the chat body
+    // Empty state replaces the chat body — no kickoff fires because no subtopic
     expect(screen.getByRole('heading', { name: /Pick a topic/i })).toBeInTheDocument()
-    // Composer should not be rendered
     expect(screen.queryByLabelText('Message')).not.toBeInTheDocument()
-    // Modal shows the topics list
     await waitFor(() => expect(screen.getByRole('button', { name: /Food/ })).toBeInTheDocument())
   })
 })
