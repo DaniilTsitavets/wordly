@@ -26,7 +26,7 @@ const DEFAULT_USER = {
   is_guest: false, role: 'ADMIN', interface_language: 'ru', daily_goal_min: 10, daily_goal_words: 10,
   notifications_enabled: true, color_theme: 'system',
   onboarding_completed: false,
-  streak: 5, gems: 150,
+  streak: 5, longest_streak: 21, gems: 150,
   last_active_date: '2026-04-09', created_at: '2026-01-01T00:00:00Z',
 };
 
@@ -311,15 +311,19 @@ app.post('/api/v1/auth/oauth/google', (req, res) => {
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
+// Stats-screen word progress: per the contract these are populated only on GET/PUT /users/me, and
+// null in the auth responses — so they are injected here rather than stored on MOCK_USER.
+const STATS_PROGRESS = { learned_words: 42, words_percentage: 21 };
+
 app.get('/api/v1/users/me', (req, res) => {
   if (isGuest(req)) {
-    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, gems: 0 });
+    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, longest_streak: 0, gems: 0, learned_words: 0, words_percentage: 0 });
   }
-  res.json(MOCK_USER);
+  res.json({ ...MOCK_USER, ...STATS_PROGRESS });
 });
 app.put('/api/v1/users/me', (req, res) => {
   Object.assign(MOCK_USER, req.body);
-  res.json(MOCK_USER);
+  res.json({ ...MOCK_USER, ...STATS_PROGRESS });
 });
 
 app.get('/api/v1/users/me/daily-progress', (req, res) => {

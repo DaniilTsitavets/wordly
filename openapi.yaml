@@ -1393,6 +1393,12 @@ components:
         streak:
           type: integer
           example: 7
+        longest_streak:
+          type: integer
+          description: >
+            All-time longest streak the user has ever reached. Unlike `streak` this never resets;
+            it only grows when the current streak surpasses it. Used by the stats screen.
+          example: 21
         gems:
           type: integer
           example: 340

@@ -12,11 +12,8 @@ import com.wordly.backend.service.LearningService;
 import com.wordly.backend.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -36,15 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @DisplayName("Streak flow IT: level → gems → daily goal → streak")
 class StreakFlowIT {
-
-    /** AiChatService needs a classic (Jackson 2) ObjectMapper that the auto-config doesn't provide. */
-    @TestConfiguration
-    static class TestBeans {
-        @Bean
-        ObjectMapper objectMapper() {
-            return new ObjectMapper();
-        }
-    }
 
     private static final long FRUITS_SUBTOPIC_ID = 1L; // seeded in V2, all mechanics enabled
     private static final int GEMS_PER_LEVEL = 5;
@@ -78,6 +66,8 @@ class StreakFlowIT {
         assertThat(afterLevel.getGems()).isEqualTo(GEMS_PER_LEVEL);
         assertThat(afterLevel.getStreak()).isEqualTo(1);
         assertThat(afterLevel.getLastActiveDate()).isEqualTo(LocalDate.now());
+        // The all-time record is ratcheted by the same write and persists to the DB.
+        assertThat(afterLevel.getLongestStreak()).isEqualTo(1);
 
         // 2) Reach the daily goal (1 min = 60s) and claim it: +10 gems in a separate transaction
         //    that also rewrites the users row.
@@ -92,10 +82,13 @@ class StreakFlowIT {
         assertThat(afterGoal.getGems()).isEqualTo(GEMS_PER_LEVEL + GEMS_PER_DAILY_GOAL);
         assertThat(afterGoal.getStreak()).isEqualTo(1);
         assertThat(afterGoal.getDailyGoalAwardedDate()).isEqualTo(LocalDate.now());
+        // The record must also survive the daily-goal gems write on the users row.
+        assertThat(afterGoal.getLongestStreak()).isEqualTo(1);
 
-        // 4) Profile surfaces the (grace-checked) streak.
+        // 4) Profile surfaces the (grace-checked) streak plus the raw all-time record.
         UserProfileResponse profile = userService.getCurrentUserProfile(userId);
         assertThat(profile.streak()).isEqualTo(1);
+        assertThat(profile.longestStreak()).isEqualTo(1);
         assertThat(profile.gems()).isEqualTo(GEMS_PER_LEVEL + GEMS_PER_DAILY_GOAL);
     }
 }
