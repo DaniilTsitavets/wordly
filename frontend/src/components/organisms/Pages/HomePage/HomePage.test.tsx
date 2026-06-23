@@ -37,9 +37,14 @@ describe('HomePage', () => {
     expect(container.querySelector('svg')).toBeInTheDocument()
   })
 
-  it('renders error', async () => {
+  it('renders a friendly error message — never leaks the raw backend text', async () => {
     server.use(
-      http.get(url('/topics'), () => HttpResponse.json({ message: 'bad' }, { status: 500 }))
+      http.get(url('/topics'), () =>
+        HttpResponse.json(
+          { message: 'Full authentication is required to access this resource' },
+          { status: 500 }
+        )
+      )
     )
     renderWithProviders(<HomePage />, {
       preloadedState: {
@@ -51,7 +56,10 @@ describe('HomePage', () => {
         },
       },
     })
-    await waitFor(() => expect(screen.getByText(/Error: bad/)).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(/Couldn't load topics/i)
+    )
+    expect(screen.queryByText(/Full authentication/)).not.toBeInTheDocument()
   })
 
   it('renders "Темы не найдены" on empty list', async () => {

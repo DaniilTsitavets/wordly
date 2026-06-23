@@ -165,6 +165,40 @@ describe('Layout', () => {
     await waitFor(() => expect(store.getState().auth.user).toEqual(mockUser))
   })
 
+  it('clears a stale token and re-bootstraps as guest when /users/me returns 401', async () => {
+    localStorage.setItem('access_token', 'stale-tok')
+    server.use(
+      http.get(url('/users/me'), () =>
+        HttpResponse.json(
+          { message: 'Full authentication is required to access this resource' },
+          { status: 401 }
+        )
+      ),
+      http.post(url('/auth/guest'), () =>
+        HttpResponse.json({
+          access_token: 'fresh-guest-tok',
+          user: { ...mockUser, is_guest: true },
+        })
+      )
+    )
+
+    const { store } = renderWithProviders(
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<div>Outlet</div>} />
+        </Route>
+      </Routes>,
+      {
+        preloadedState: {
+          auth: { token: 'stale-tok', user: null, isLoading: false, error: null },
+        },
+      }
+    )
+
+    await waitFor(() => expect(store.getState().auth.token).toBe('fresh-guest-tok'))
+    expect(store.getState().auth.user?.is_guest).toBe(true)
+  })
+
   it('redirects from onboarding to / when user has onboarding_completed', async () => {
     renderWithProviders(
       <Routes>
