@@ -167,9 +167,11 @@ function AiChatBody({ subtopicId }: { subtopicId: number }) {
     <>
       <div className={styles.chat}>
         <div className={styles.messages} ref={scrollRef}>
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+          {messages
+            .filter((m) => !(m.role === 'assistant' && m.content === ''))
+            .map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
           {showTyping && <TypingBubble />}
         </div>
 
