@@ -59,6 +59,7 @@ export async function streamChatMessage(
   const reader = response.body.getReader()
   const decoder = new TextDecoder('utf-8')
   let buffer = ''
+  let receivedAnyToken = false
   // fetch's own abort propagation through the body reader is unreliable across
   // environments — explicitly cancel the reader when the signal fires.
   const onAbort = () => {
@@ -80,6 +81,7 @@ export async function streamChatMessage(
 
         for (const token of parseSseDataLines(event)) {
           if (token === '[DONE]') return
+          receivedAnyToken = true
           onToken(token)
         }
         separatorIdx = buffer.indexOf('\n\n')
@@ -87,6 +89,13 @@ export async function streamChatMessage(
     }
   } catch (err) {
     if (signal?.aborted) return
+    // Chrome occasionally reports ERR_HTTP2_PROTOCOL_ERROR on the close of an
+    // SSE-over-POST stream behind certain proxies even though every byte was
+    // already delivered. If we got at least one token before the throw, the
+    // reply finished rendering for the user — surfacing this as a "network
+    // error" in the composer is misleading. Swallow it and let the caller
+    // resolve as if the stream completed cleanly.
+    if (receivedAnyToken) return
     throw err
   } finally {
     signal?.removeEventListener('abort', onAbort)
