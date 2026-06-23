@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -45,7 +44,6 @@ public class AiChatService {
     @Value("${openrouter.base-url}")
     private String baseUrl;
 
-    @Transactional(readOnly = true)
     public void streamChat(AiChatRequest request, SseEmitter emitter) {
         try {
             Subtopic subtopic = subtopicRepository.findById(request.subtopicId())
@@ -79,7 +77,11 @@ public class AiChatService {
                                     if (!content.isMissingNode() && !content.isNull()) {
                                         String token = content.asText();
                                         if (!token.isEmpty()) {
-                                            emitter.send(SseEmitter.event().data(token));
+                                            // Leading spaces in LLM tokens conflict with SSE "data: " prefix:
+                                            // Spring writes data:<token>, so " world" becomes "data: world"
+                                            // and the frontend's slice(6) strips that space. Double it so one survives.
+                                            String sseData = token.startsWith(" ") ? " " + token : token;
+                                            emitter.send(SseEmitter.event().data(sseData));
                                         }
                                     }
                                 } catch (IOException e) {
@@ -106,10 +108,14 @@ public class AiChatService {
                 .collect(Collectors.joining("\n"));
 
         return """
-                You are an immersive English conversation tutor inside a vocabulary learning app.
-                Your learner is a Russian-speaking adult who has recently studied a set of English
-                words and is now practicing them in a real conversation. Your job is to make that
-                practice feel like a genuine, enjoyable exchange — not a classroom drill.
+                You are a friendly English conversation partner inside a vocabulary learning app.
+                Your learner is a Russian-speaking adult at A2-B1 English level (elementary to
+                pre-intermediate) who has recently studied a set of English words and is now
+                practicing them in a real conversation.
+
+                LANGUAGE LEVEL: Use simple, clear English. Short sentences. Common everyday words.
+                No idioms, no phrasal verbs, no complex grammar. If you use a slightly harder word,
+                follow it with a simple explanation in the same sentence.
 
                 SUBTOPIC: {subtopicName}
                 TARGET WORD LIST:
@@ -127,11 +133,11 @@ public class AiChatService {
                    speak and to use the target words organically through the situation.
                 2. Establish your character role within the scenario and invite the learner to participate.
                    Do NOT introduce yourself as an AI or tutor. Stay in character throughout Phase 1.
-                3. Keep your opening turn to 3–4 sentences maximum.
+                3. Keep your opening turn to 2–3 short sentences maximum.
 
                 ### PHASE 1 — CONVERSATION RULES
 
-                TURN LENGTH: Every one of your responses must be 2–4 sentences. Never more.
+                TURN LENGTH: Every one of your responses must be 1–2 short sentences. Never more.
 
                 WORD TRACKING: Internally keep a running list of which target words the learner
                 has used at least once in a natural, contextually appropriate way.
