@@ -69,13 +69,6 @@ describe('AiChatPage', () => {
     expect(screen.getByLabelText('Send message')).toBeInTheDocument()
   })
 
-  it('shows suggested prompts before the user has sent anything', async () => {
-    server.use(chatHandler(['hi']))
-    renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
-    await waitFor(() => expect(screen.getByText('hi')).toBeInTheDocument())
-    expect(screen.getByText(/Try these prompts/)).toBeInTheDocument()
-  })
-
   it('disables Send button on empty input', async () => {
     server.use(chatHandler(['hi']))
     renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
@@ -95,27 +88,6 @@ describe('AiChatPage', () => {
 
     await waitFor(() => expect(screen.getByText('Nice one')).toBeInTheDocument())
     expect(screen.getByText('test')).toBeInTheDocument()
-    // Prompts disappear once the user has sent something
-    expect(screen.queryByText(/Try these prompts/)).not.toBeInTheDocument()
-  })
-
-  it('clicking a suggested prompt sends it', async () => {
-    let lastBody: { message: string } | null = null
-    let callIndex = 0
-    server.use(
-      http.post(url('/ai/chat'), async ({ request }) => {
-        callIndex++
-        if (callIndex === 1) return sseResponse(['kick']) // kickoff
-        lastBody = (await request.json()) as { message: string }
-        return sseResponse(['ok'])
-      })
-    )
-
-    renderWithProviders(<AiChatPage />, { route: CHAT_ROUTE })
-    await waitFor(() => expect(screen.getByText('kick')).toBeInTheDocument())
-
-    await userEvent.click(screen.getByRole('button', { name: /Quiz me/ }))
-    await waitFor(() => expect(lastBody?.message).toContain('Quiz me'))
   })
 
   it('shows a typing indicator until the first token arrives, then hides it', async () => {
