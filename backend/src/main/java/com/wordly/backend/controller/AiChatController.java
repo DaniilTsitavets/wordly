@@ -2,6 +2,7 @@ package com.wordly.backend.controller;
 
 import com.wordly.backend.dto.AiChatRequest;
 import com.wordly.backend.service.AiChatService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.task.TaskExecutor;
@@ -24,9 +25,15 @@ public class AiChatController {
     @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter chat(
             @Valid @RequestBody AiChatRequest request,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal Long userId,
+            HttpServletResponse response
     ) {
-        SseEmitter emitter = new SseEmitter(60_000L);
+        // Prevent buffering by intermediate proxies (nginx, AWS ALB, CloudFront)
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Cache-Control", "no-cache");
+
+        // 120s — longer than ALB default idle timeout (60s) so ALB closes first cleanly
+        SseEmitter emitter = new SseEmitter(120_000L);
         emitter.onTimeout(emitter::complete);
         emitter.onError(e -> emitter.complete());
         aiChatExecutor.execute(() -> aiChatService.streamChat(request, emitter));

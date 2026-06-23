@@ -81,16 +81,25 @@ public class AiChatService {
                                             // Spring writes data:<token>, so " world" becomes "data: world"
                                             // and the frontend's slice(6) strips that space. Double it so one survives.
                                             String sseData = token.startsWith(" ") ? " " + token : token;
-                                            emitter.send(SseEmitter.event().data(sseData));
+                                            try {
+                                                emitter.send(SseEmitter.event().data(sseData));
+                                            } catch (IllegalStateException ignored) {
+                                                // Client disconnected — stop reading
+                                                return null;
+                                            }
                                         }
                                     }
                                 } catch (IOException e) {
                                     log.warn("Failed to parse SSE chunk: {}", data);
                                 }
                             }
-                            emitter.complete();
+                            try {
+                                emitter.complete();
+                            } catch (IllegalStateException ignored) {}
                         } catch (IOException e) {
-                            emitter.completeWithError(e);
+                            try {
+                                emitter.completeWithError(e);
+                            } catch (IllegalStateException ignored) {}
                         }
                         return null;
                     });
