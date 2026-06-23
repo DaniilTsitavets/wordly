@@ -27,6 +27,8 @@ public class AiChatController {
             @AuthenticationPrincipal Long userId
     ) {
         SseEmitter emitter = new SseEmitter(60_000L);
+        emitter.onTimeout(emitter::complete);
+        emitter.onError(e -> emitter.complete());
         aiChatExecutor.execute(() -> aiChatService.streamChat(request, emitter));
         return emitter;
     }
