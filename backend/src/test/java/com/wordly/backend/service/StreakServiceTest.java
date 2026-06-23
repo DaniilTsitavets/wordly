@@ -68,6 +68,44 @@ class StreakServiceTest {
             StreakService.applyActivity(u, TODAY);
             assertThat(u.getStreak()).isEqualTo(1);
         }
+
+        @Test
+        @DisplayName("new high streak ratchets the historical longest")
+        void longestRatchetsUp() {
+            User u = User.builder().streak(5).longestStreak(5)
+                    .lastActiveDate(TODAY.minusDays(1)).build();
+            StreakService.applyActivity(u, TODAY);
+            assertThat(u.getStreak()).isEqualTo(6);
+            assertThat(u.getLongestStreak()).isEqualTo(6);
+        }
+
+        @Test
+        @DisplayName("a broken streak resets current but keeps the historical longest")
+        void longestSurvivesReset() {
+            User u = User.builder().streak(9).longestStreak(9)
+                    .lastActiveDate(TODAY.minusDays(2)).build();
+            StreakService.applyActivity(u, TODAY);
+            assertThat(u.getStreak()).isEqualTo(1);
+            assertThat(u.getLongestStreak()).isEqualTo(9);
+        }
+
+        @Test
+        @DisplayName("current below the record does not lower the longest")
+        void longestNotLowered() {
+            User u = User.builder().streak(2).longestStreak(15)
+                    .lastActiveDate(TODAY.minusDays(1)).build();
+            StreakService.applyActivity(u, TODAY);
+            assertThat(u.getStreak()).isEqualTo(3);
+            assertThat(u.getLongestStreak()).isEqualTo(15);
+        }
+
+        @Test
+        @DisplayName("null longest is treated as 0 and seeded by the first activity")
+        void nullLongestTreatedAsZero() {
+            User u = User.builder().streak(0).longestStreak(null).lastActiveDate(null).build();
+            StreakService.applyActivity(u, TODAY);
+            assertThat(u.getLongestStreak()).isEqualTo(1);
+        }
     }
 
     @Nested

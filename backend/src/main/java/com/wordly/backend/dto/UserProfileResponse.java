@@ -34,6 +34,10 @@ public record UserProfileResponse(
         ColorTheme colorTheme,
 
         Integer streak,
+
+        @JsonProperty("longest_streak")
+        Integer longestStreak,
+
         Integer gems,
 
         @JsonProperty("learned_words")
@@ -91,6 +95,7 @@ public record UserProfileResponse(
                 user.getNotificationsEnabled(),
                 ColorTheme.fromValue(user.getColorTheme()),
                 streak,
+                user.getLongestStreak(),
                 user.getGems(),
                 learnedWords,
                 wordsPercentage,

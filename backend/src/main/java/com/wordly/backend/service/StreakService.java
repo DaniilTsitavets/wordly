@@ -29,7 +29,9 @@ public class StreakService {
 
     /**
      * Pure increment transition, package-private for unit testing. Mutates the user's streak and
-     * last-active date; returns {@code true} if anything changed (i.e. a save is needed).
+     * last-active date; returns {@code true} if anything changed (i.e. a save is needed). Also
+     * ratchets the historical {@code longestStreak} — it only ever grows, never resets, so the stats
+     * screen can show the user's all-time record even after the current streak breaks.
      */
     static boolean applyActivity(User user, LocalDate today) {
         LocalDate last = user.getLastActiveDate();
@@ -37,8 +39,13 @@ public class StreakService {
             return false;
         }
         int current = user.getStreak() == null ? 0 : user.getStreak();
-        user.setStreak(last != null && today.equals(last.plusDays(1)) ? current + 1 : 1);
+        int next = last != null && today.equals(last.plusDays(1)) ? current + 1 : 1;
+        user.setStreak(next);
         user.setLastActiveDate(today);
+        int longest = user.getLongestStreak() == null ? 0 : user.getLongestStreak();
+        if (next > longest) {
+            user.setLongestStreak(next);
+        }
         return true;
     }
 

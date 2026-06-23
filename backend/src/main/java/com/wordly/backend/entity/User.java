@@ -66,6 +66,10 @@ public class User {
     @Builder.Default
     private Integer streak = 0;
 
+    @Column(name = "longest_streak", nullable = false)
+    @Builder.Default
+    private Integer longestStreak = 0;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer gems = 0;
