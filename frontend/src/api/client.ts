@@ -11,6 +11,15 @@ function getToken(): string | null {
   return localStorage.getItem('access_token')
 }
 
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
 interface RequestOptions {
   method?: string
   body?: unknown
@@ -39,7 +48,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Unknown error' }))
-    throw new Error(error.message ?? `HTTP ${response.status}`)
+    throw new ApiError(error.message ?? `HTTP ${response.status}`, response.status)
   }
 
   if (response.status === 204) {
