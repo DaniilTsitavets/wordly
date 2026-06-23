@@ -126,6 +126,63 @@ describe('streamChatMessage', () => {
     expect(tokens).toEqual(['foo', 'bar'])
   })
 
+  it('swallows a trailing stream error after at least one token was delivered', async () => {
+    // Simulates Chrome's ERR_HTTP2_PROTOCOL_ERROR on SSE-over-POST close: the
+    // body delivers data, then the underlying stream errors on cleanup. The
+    // reply has already rendered for the user, so we should resolve cleanly.
+    server.use(
+      http.post(url('/ai/chat'), () => {
+        const encoder = new TextEncoder()
+        let pullCount = 0
+        const stream = new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode('data: Hi\n\n'))
+            controller.enqueue(encoder.encode('data: there\n\n'))
+          },
+          pull(controller) {
+            // Both chunks were buffered in start(); the next pull is what would
+            // close the stream — error here to mimic a botched HTTP/2 close.
+            pullCount++
+            if (pullCount === 1) {
+              controller.error(new Error('net::ERR_HTTP2_PROTOCOL_ERROR'))
+            }
+          },
+        })
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } })
+      })
+    )
+
+    const tokens: string[] = []
+    await expect(
+      streamChatMessage(
+        { subtopicId: 1, history: [], message: 'x' },
+        { onToken: (t) => tokens.push(t) }
+      )
+    ).resolves.toBeUndefined()
+    // At least one token was delivered before the stream errored — that's the
+    // condition that flips the masking on. The exact count depends on how
+    // many enqueued chunks fetch buffered before the next pull() error fired.
+    expect(tokens.length).toBeGreaterThan(0)
+    expect(tokens[0]).toBe('Hi')
+  })
+
+  it('still throws when the stream errors before any token was delivered', async () => {
+    server.use(
+      http.post(url('/ai/chat'), () => {
+        const stream = new ReadableStream({
+          pull(controller) {
+            controller.error(new Error('boom before first byte'))
+          },
+        })
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } })
+      })
+    )
+
+    await expect(
+      streamChatMessage({ subtopicId: 1, history: [], message: 'x' }, { onToken: () => {} })
+    ).rejects.toThrow(/boom/)
+  })
+
   it('resolves silently when AbortSignal is triggered mid-stream', async () => {
     server.use(
       http.post(url('/ai/chat'), () => {
