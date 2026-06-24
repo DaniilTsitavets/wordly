@@ -1,56 +1,214 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { server } from '@/test/server'
 import { API_BASE_URL } from './client'
-import { sendChatMessage } from './ai'
+import { streamChatMessage } from './ai'
 
 const url = (path: string) => `${API_BASE_URL}${path}`
 
-describe('ai API', () => {
-  it('POSTs the full payload (subtopicId + history + message) to /ai/chat', async () => {
+function sseStreamFor(tokens: string[]): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder()
+  return new ReadableStream({
+    start(controller) {
+      for (const t of tokens) {
+        controller.enqueue(encoder.encode(`data: ${t}\n\n`))
+      }
+      controller.close()
+    },
+  })
+}
+
+function sseResponse(tokens: string[]) {
+  return new HttpResponse(sseStreamFor(tokens), {
+    headers: { 'Content-Type': 'text/event-stream' },
+  })
+}
+
+describe('streamChatMessage', () => {
+  it('accumulates tokens through onToken in order', async () => {
+    server.use(http.post(url('/ai/chat'), () => sseResponse(['Hello', ' ', 'world'])))
+
+    const tokens: string[] = []
+    await streamChatMessage(
+      { subtopicId: 1, history: [], message: 'hi' },
+      { onToken: (t) => tokens.push(t) }
+    )
+
+    expect(tokens.join('')).toBe('Hello world')
+  })
+
+  it('POSTs the payload as JSON with Accept: text/event-stream', async () => {
     let receivedBody: unknown = null
+    let receivedAccept: string | null = null
+
     server.use(
       http.post(url('/ai/chat'), async ({ request }) => {
+        receivedAccept = request.headers.get('accept')
         receivedBody = await request.json()
-        return HttpResponse.json({ reply: 'hi there' })
+        return sseResponse(['ok'])
       })
     )
 
-    const payload = {
-      subtopicId: 1,
-      history: [
-        { role: 'assistant' as const, content: 'Hello' },
-        { role: 'user' as const, content: 'Hi' },
-      ],
-      message: 'How are you?',
-    }
-    const result = await sendChatMessage(payload)
-    expect(receivedBody).toEqual(payload)
-    expect(result.reply).toBe('hi there')
+    await streamChatMessage(
+      {
+        subtopicId: 2,
+        history: [{ role: 'assistant', content: 'prev' }],
+        message: 'next',
+      },
+      { onToken: () => {} }
+    )
+
+    expect(receivedAccept).toContain('text/event-stream')
+    expect(receivedBody).toEqual({
+      subtopicId: 2,
+      history: [{ role: 'assistant', content: 'prev' }],
+      message: 'next',
+    })
   })
 
-  it('supports an empty history (bootstrap call)', async () => {
-    let receivedHistory: unknown = null
+  it('attaches Bearer token from localStorage', async () => {
+    localStorage.setItem('access_token', 'tok-123')
+    let receivedAuth: string | null = null
     server.use(
-      http.post(url('/ai/chat'), async ({ request }) => {
-        const body = (await request.json()) as { history: unknown }
-        receivedHistory = body.history
-        return HttpResponse.json({ reply: 'welcome' })
+      http.post(url('/ai/chat'), ({ request }) => {
+        receivedAuth = request.headers.get('authorization')
+        return sseResponse(['x'])
       })
     )
 
-    await sendChatMessage({ subtopicId: 2, history: [], message: 'seed' })
-    expect(receivedHistory).toEqual([])
+    await streamChatMessage({ subtopicId: 1, history: [], message: 'x' }, { onToken: () => {} })
+    expect(receivedAuth).toBe('Bearer tok-123')
   })
 
-  it('propagates server errors', async () => {
+  it('throws with the message from the error body on non-2xx', async () => {
     server.use(
-      http.post(url('/ai/chat'), () =>
-        HttpResponse.json({ message: 'rate-limited' }, { status: 429 })
+      http.post(url('/ai/chat'), () => HttpResponse.json({ message: 'busy' }, { status: 503 }))
+    )
+
+    await expect(
+      streamChatMessage({ subtopicId: 1, history: [], message: 'x' }, { onToken: () => {} })
+    ).rejects.toThrow('busy')
+  })
+
+  it('honors [DONE] marker and stops processing further events', async () => {
+    server.use(http.post(url('/ai/chat'), () => sseResponse(['Hi', '[DONE]', 'AfterDone'])))
+
+    const tokens: string[] = []
+    await streamChatMessage(
+      { subtopicId: 1, history: [], message: 'x' },
+      { onToken: (t) => tokens.push(t) }
+    )
+    expect(tokens).toEqual(['Hi'])
+  })
+
+  it('handles SSE events with no leading space after "data:"', async () => {
+    // Spring's SseEmitter for raw strings emits "data:<text>\n\n" without a space.
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode('data:foo\n\n'))
+        controller.enqueue(encoder.encode('data:bar\n\n'))
+        controller.close()
+      },
+    })
+    server.use(
+      http.post(
+        url('/ai/chat'),
+        () => new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } })
       )
     )
-    await expect(sendChatMessage({ subtopicId: 1, history: [], message: 'x' })).rejects.toThrow(
-      'rate-limited'
+
+    const tokens: string[] = []
+    await streamChatMessage(
+      { subtopicId: 1, history: [], message: 'x' },
+      { onToken: (t) => tokens.push(t) }
     )
+    expect(tokens).toEqual(['foo', 'bar'])
+  })
+
+  it('swallows a trailing stream error after at least one token was delivered', async () => {
+    // Simulates Chrome's ERR_HTTP2_PROTOCOL_ERROR on SSE-over-POST close: the
+    // body delivers data, then the underlying stream errors on cleanup. The
+    // reply has already rendered for the user, so we should resolve cleanly.
+    server.use(
+      http.post(url('/ai/chat'), () => {
+        const encoder = new TextEncoder()
+        let pullCount = 0
+        const stream = new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode('data: Hi\n\n'))
+            controller.enqueue(encoder.encode('data: there\n\n'))
+          },
+          pull(controller) {
+            // Both chunks were buffered in start(); the next pull is what would
+            // close the stream — error here to mimic a botched HTTP/2 close.
+            pullCount++
+            if (pullCount === 1) {
+              controller.error(new Error('net::ERR_HTTP2_PROTOCOL_ERROR'))
+            }
+          },
+        })
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } })
+      })
+    )
+
+    const tokens: string[] = []
+    await expect(
+      streamChatMessage(
+        { subtopicId: 1, history: [], message: 'x' },
+        { onToken: (t) => tokens.push(t) }
+      )
+    ).resolves.toBeUndefined()
+    // At least one token was delivered before the stream errored — that's the
+    // condition that flips the masking on. The exact count depends on how
+    // many enqueued chunks fetch buffered before the next pull() error fired.
+    expect(tokens.length).toBeGreaterThan(0)
+    expect(tokens[0]).toBe('Hi')
+  })
+
+  it('still throws when the stream errors before any token was delivered', async () => {
+    server.use(
+      http.post(url('/ai/chat'), () => {
+        const stream = new ReadableStream({
+          pull(controller) {
+            controller.error(new Error('boom before first byte'))
+          },
+        })
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } })
+      })
+    )
+
+    await expect(
+      streamChatMessage({ subtopicId: 1, history: [], message: 'x' }, { onToken: () => {} })
+    ).rejects.toThrow(/boom/)
+  })
+
+  it('resolves silently when AbortSignal is triggered mid-stream', async () => {
+    server.use(
+      http.post(url('/ai/chat'), () => {
+        const encoder = new TextEncoder()
+        const stream = new ReadableStream({
+          async start(controller) {
+            controller.enqueue(encoder.encode('data: Hi\n\n'))
+            // Hold the stream open so the test can abort
+            await new Promise(() => {})
+          },
+        })
+        return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } })
+      })
+    )
+
+    const controller = new AbortController()
+    const onToken = vi.fn()
+    const promise = streamChatMessage(
+      { subtopicId: 1, history: [], message: 'x' },
+      { onToken, signal: controller.signal }
+    )
+
+    // Give the stream a tick to deliver "Hi", then abort.
+    await new Promise((r) => setTimeout(r, 10))
+    controller.abort()
+    await expect(promise).resolves.toBeUndefined()
+    expect(onToken).toHaveBeenCalledWith('Hi')
   })
 })

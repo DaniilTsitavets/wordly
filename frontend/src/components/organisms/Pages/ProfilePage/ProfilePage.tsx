@@ -10,12 +10,13 @@ import { Tabs } from '@/components/molecules/Tabs'
 import type { UpdateUserPayload, UserProfile } from '@/api/user'
 import { updateMe } from '@/api/user'
 import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { useAppDispatch } from '@/store/hooks'
 import { setUser } from '@/store/slices/authSlice'
 import { useProfile } from './hooks/useProfile'
 import styles from './ProfilePage.module.scss'
 
 const PASSWORD_PLACEHOLDER = '••••••••••••••••'
+const WORDS_LEARNED_STUB = 30
 
 type ColorTheme = UserProfile['color_theme']
 const THEME_OPTIONS: ColorTheme[] = ['light', 'dark', 'system']
@@ -130,7 +131,7 @@ function ProfileHeaderCard({ profile }: ProfileHeaderCardProps) {
         />
         <StatCell
           icon={<IconFont name="star" size={28} color="#a239ff" decorative />}
-          value={profile.learned_words ?? '—'}
+          value={WORDS_LEARNED_STUB}
           label="Words"
         />
       </div>
@@ -368,15 +369,14 @@ function FieldRow({
 
 function StatisticsTabContent() {
   const dispatch = useAppDispatch()
-  const user = useAppSelector((state) => state.auth.user)
-  const { minutesToday, dailyGoalMin, progress, refetch } = useDailyProgress()
+  const { wordsLearnedToday, dailyGoalWords, progress, refetch } = useDailyProgress()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  const handleSaveGoal = async (minutes: number) => {
+  const handleSaveGoal = async (words: number) => {
     try {
       setIsSaving(true)
-      const updated = await updateMe({ daily_goal_min: minutes })
+      const updated = await updateMe({ daily_goal_words: words })
       dispatch(setUser(updated))
       await refetch()
       setIsModalOpen(false)
@@ -390,36 +390,31 @@ function StatisticsTabContent() {
   return (
     <div className={styles.statsTab}>
       <DailyGoalCard
-        minutesToday={minutesToday}
-        dailyGoalMin={dailyGoalMin}
+        wordsLearned={wordsLearnedToday}
+        target={dailyGoalWords}
         progress={progress}
         onChangeGoal={() => setIsModalOpen(true)}
       />
       {isModalOpen && (
         <ChangeGoalModal
-          currentMinutes={dailyGoalMin}
+          currentWords={dailyGoalWords}
           isSaving={isSaving}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveGoal}
         />
       )}
-      <LearningStatisticsCard
-        streak={user?.streak ?? 0}
-        wordsPercentage={user?.words_percentage ?? null}
-        bestRecallTime={user?.best_recall_time ?? null}
-      />
     </div>
   )
 }
 
 interface DailyGoalCardProps {
-  minutesToday: number
-  dailyGoalMin: number
+  wordsLearned: number
+  target: number
   progress: number
   onChangeGoal: () => void
 }
 
-function DailyGoalCard({ minutesToday, dailyGoalMin, progress, onChangeGoal }: DailyGoalCardProps) {
+function DailyGoalCard({ wordsLearned, target, progress, onChangeGoal }: DailyGoalCardProps) {
   return (
     <section className={styles.dailyGoalCard}>
       <div className={styles.dailyGoalHeader}>
@@ -428,9 +423,9 @@ function DailyGoalCard({ minutesToday, dailyGoalMin, progress, onChangeGoal }: D
       </div>
 
       <div className={styles.dailyGoalProgressRow}>
-        <span className={styles.dailyGoalLabel}>Minutes studied</span>
+        <span className={styles.dailyGoalLabel}>Words learned today</span>
         <span className={styles.dailyGoalValue}>
-          {minutesToday} / {dailyGoalMin}
+          {wordsLearned} / {target}
         </span>
       </div>
 
@@ -439,49 +434,6 @@ function DailyGoalCard({ minutesToday, dailyGoalMin, progress, onChangeGoal }: D
       <Button variant="secondary" size="sm" className={styles.changeGoalBtn} onClick={onChangeGoal}>
         Change Goal
       </Button>
-    </section>
-  )
-}
-
-interface LearningStatisticsCardProps {
-  streak: number
-  wordsPercentage: number | null
-  bestRecallTime: number | null
-}
-
-function LearningStatisticsCard({
-  streak,
-  wordsPercentage,
-  bestRecallTime,
-}: LearningStatisticsCardProps) {
-  const wordsProgressValue = wordsPercentage ?? 0
-  const bestRecallDisplay = bestRecallTime != null ? `${(bestRecallTime / 1000).toFixed(2)}s` : '—'
-
-  return (
-    <section className={styles.learningStatsCard}>
-      <div className={styles.dailyGoalHeader}>
-        <IconFont name="star" size={20} color="#1a1a1a" decorative />
-        <h2 className={styles.dailyGoalTitle}>Learning Statistics</h2>
-      </div>
-
-      <div className={styles.learningStatCols}>
-        <div className={styles.learningStatCol}>
-          <span className={styles.learningStatLabel}>Longest Streak</span>
-          <span className={styles.learningStatValue}>{streak} days</span>
-        </div>
-        <div className={styles.learningStatCol}>
-          <span className={styles.learningStatLabel}>Best Recall Time</span>
-          <span className={styles.learningStatValue}>{bestRecallDisplay}</span>
-        </div>
-      </div>
-
-      <div className={styles.learningStat}>
-        <div className={styles.learningStatRow}>
-          <span className={styles.learningStatLabel}>Amount of Learned Words</span>
-          <span className={styles.learningStatValue}>{wordsProgressValue}%</span>
-        </div>
-        <ProgressBar value={wordsProgressValue} color="green" size="sm" />
-      </div>
     </section>
   )
 }

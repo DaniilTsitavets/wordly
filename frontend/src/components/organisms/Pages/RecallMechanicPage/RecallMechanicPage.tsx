@@ -6,10 +6,8 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { getRecall, type RecallWord, recallAnswer, recallComplete } from '@/api/recall'
-import { getMe } from '@/api/user'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { addGems, setUser } from '@/store/slices/authSlice'
-import { useActivityTracker } from '@/shared/hooks/useActivityTracker'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 
 type GameState = 'building' | 'correct' | 'incorrect'
 
@@ -43,11 +41,25 @@ function formatTime(seconds: number): string {
   return `${seconds.toFixed(1)}s`
 }
 
+function getBestTimeKey(wordId: number): string {
+  return `recall_best_time_${wordId}`
+}
+
+function getBestTime(wordId: number): number | null {
+  const val = localStorage.getItem(getBestTimeKey(wordId))
+  return val ? parseFloat(val) : null
+}
+
+function saveBestTime(wordId: number, time: number): void {
+  const current = getBestTime(wordId)
+  if (current === null || time < current) {
+    localStorage.setItem(getBestTimeKey(wordId), time.toFixed(1))
+  }
+}
+
 export function RecallMechanicPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const bestRecallTimeMs = useAppSelector((state) => state.auth.user?.best_recall_time ?? null)
-  useActivityTracker()
   const [searchParams] = useSearchParams()
   const intervalFilter = searchParams.get('interval')
 
@@ -129,7 +141,7 @@ export function RecallMechanicPage() {
     [selectedIndices, shuffledLetters]
   )
 
-  const bestTime = bestRecallTimeMs != null ? bestRecallTimeMs / 1000 : null
+  const bestTime = useMemo(() => (word ? getBestTime(word.id) : null), [word])
 
   const handleLetterClick = useCallback(
     (idx: number) => {
@@ -151,21 +163,25 @@ export function RecallMechanicPage() {
   const handleCheck = useCallback(async () => {
     if (!word) return
     stopTimer()
-    const recallTimeMs =
-      startTimeRef.current > 0 ? Math.round(Date.now() - startTimeRef.current) : undefined
 
     try {
-      const res = await recallAnswer(word.id, currentAnswer, recallTimeMs)
+      const res = await recallAnswer(word.id, currentAnswer)
       if (res.is_correct) {
+        saveBestTime(word.id, elapsed)
         setGameState('correct')
       } else {
         setGameState('incorrect')
       }
     } catch {
       const isCorrect = currentAnswer.toLowerCase() === word.word_en.toLowerCase()
-      setGameState(isCorrect ? 'correct' : 'incorrect')
+      if (isCorrect) {
+        saveBestTime(word.id, elapsed)
+        setGameState('correct')
+      } else {
+        setGameState('incorrect')
+      }
     }
-  }, [word, currentAnswer, stopTimer])
+  }, [word, currentAnswer, elapsed, stopTimer])
 
   const handleTryAgain = useCallback(() => {
     setSelectedIndices([])
@@ -186,7 +202,6 @@ export function RecallMechanicPage() {
       const result = await recallComplete()
       setGemsEarned(result.gems_earned)
       dispatch(addGems(result.gems_earned))
-      getMe().then((profile) => dispatch(setUser(profile))).catch(() => {})
       setShowReward(true)
     } catch {
       setShowReward(true)

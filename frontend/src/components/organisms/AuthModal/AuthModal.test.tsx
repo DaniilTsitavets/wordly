@@ -92,10 +92,10 @@ describe('AuthModal', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled())
   })
 
-  it('renders Google and GitHub social buttons', () => {
+  it('renders only the Google social button (GitHub removed)', () => {
     renderWithProviders(<AuthModal isOpen onClose={() => {}} />)
     expect(screen.getByRole('button', { name: /Google/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /GitHub/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /GitHub/ })).not.toBeInTheDocument()
   })
 
   it('signup redirects to /onboarding when onboarding_completed=false', async () => {

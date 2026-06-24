@@ -11,7 +11,7 @@ describe('useDailyProgress', () => {
   it('starts in loading state and resolves with progress data', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ minutes_today: 4, daily_goal_min: 8 })
+        HttpResponse.json({ words_learned_today: 4, daily_goal_words: 8 })
       )
     )
 
@@ -21,15 +21,15 @@ describe('useDailyProgress', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    expect(result.current.minutesToday).toBe(4)
-    expect(result.current.dailyGoalMin).toBe(8)
+    expect(result.current.wordsLearnedToday).toBe(4)
+    expect(result.current.dailyGoalWords).toBe(8)
     expect(result.current.progress).toBe(50)
   })
 
   it('caps progress at 100 even when learned > goal', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ minutes_today: 20, daily_goal_min: 8 })
+        HttpResponse.json({ words_learned_today: 20, daily_goal_words: 8 })
       )
     )
 
@@ -48,8 +48,8 @@ describe('useDailyProgress', () => {
     const { result } = renderHook(() => useDailyProgress())
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    expect(result.current.minutesToday).toBe(0)
-    expect(result.current.dailyGoalMin).toBe(10)
+    expect(result.current.wordsLearnedToday).toBe(0)
+    expect(result.current.dailyGoalWords).toBe(10)
     expect(result.current.progress).toBe(0)
   })
 
@@ -58,16 +58,16 @@ describe('useDailyProgress', () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () => {
         count++
-        return HttpResponse.json({ minutes_today: count, daily_goal_min: 10 })
+        return HttpResponse.json({ words_learned_today: count, daily_goal_words: 10 })
       })
     )
 
     const { result } = renderHook(() => useDailyProgress())
-    await waitFor(() => expect(result.current.minutesToday).toBe(1))
+    await waitFor(() => expect(result.current.wordsLearnedToday).toBe(1))
 
     await act(async () => {
       await result.current.refetch()
     })
-    expect(result.current.minutesToday).toBe(2)
+    expect(result.current.wordsLearnedToday).toBe(2)
   })
 })

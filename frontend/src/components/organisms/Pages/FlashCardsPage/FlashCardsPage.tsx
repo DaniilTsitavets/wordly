@@ -10,14 +10,12 @@ import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
 import { useAppDispatch } from '@/store/hooks'
 import { addGems } from '@/store/slices/authSlice'
-import { useActivityTracker } from '@/shared/hooks/useActivityTracker'
 import styles from './FlashCardsPage.module.scss'
 
 export const FlashCardsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  useActivityTracker()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)

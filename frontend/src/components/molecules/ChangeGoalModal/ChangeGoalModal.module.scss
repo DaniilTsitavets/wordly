@@ -31,6 +31,11 @@
   width: 100%;
   justify-content: center;
   margin-bottom: 6px;
+
+  @include mobile-sm {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
 .saveBtn {

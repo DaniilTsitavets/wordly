@@ -24,6 +24,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
+    private final StreakService streakService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -93,6 +94,6 @@ public class AuthService {
 
     private AuthResponse toAuthResponse(User user) {
         String token = jwtService.generateToken(user.getId(), user.isGuest(), user.getRole());
-        return new AuthResponse(token, UserProfileResponse.from(user));
+        return new AuthResponse(token, UserProfileResponse.from(user, streakService.currentStreak(user)));
     }
 }

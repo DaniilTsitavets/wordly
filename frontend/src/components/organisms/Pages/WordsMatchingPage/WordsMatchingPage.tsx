@@ -5,7 +5,6 @@ import { useWords } from '@/shared/hooks/useWords'
 import { completeSession } from '@/api/completeSession'
 import { useAppDispatch } from '@/store/hooks'
 import { addGems } from '@/store/slices/authSlice'
-import { useActivityTracker } from '@/shared/hooks/useActivityTracker'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
@@ -41,7 +40,6 @@ export const WordsMatchingPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  useActivityTracker()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
   const [selectedRu, setSelectedRu] = useState<number | null>(null)

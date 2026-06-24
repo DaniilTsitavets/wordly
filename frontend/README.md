@@ -89,6 +89,47 @@ npm run test:coverage   # с отчётом покрытия (HTML → ./coverag
 
 После `npm run test:coverage` открывай `./coverage/index.html` — кликабельный отчёт с подсветкой непокрытых строк. На CI этот же отчёт доступен как артефакт `frontend-coverage` к каждому PR.
 
+## Адаптив (брейкпоинты)
+
+Единый набор брейкпоинтов лежит в [src/styles/_breakpoints.scss](src/styles/_breakpoints.scss) и автоматически подключается через `@use '../../styles/index' as *;` — то, что уже есть в каждом `*.module.scss`. Никаких дополнительных импортов делать не надо.
+
+| Tier | Cutoff | Что попадает |
+|---|---|---|
+| `mobile-sm` | ≤ 480px | Телефоны portrait |
+| `mobile` | ≤ 767px | Телефоны (включая landscape) |
+| `tablet` | ≤ 1023px | Планшеты + всё ниже |
+| `desktop` | ≥ 1024px | По умолчанию, миксин не нужен |
+
+**Desktop-first** (стиль базы — десктоп, переопределяем для меньших экранов):
+
+```scss
+.card {
+  padding: 24px;
+  @include tablet  { padding: 16px; }  // ≤ 1023px
+  @include mobile  { padding: 12px; }  // ≤ 767px
+}
+```
+
+**Mobile-first** (стиль базы — мобилка, добавляем для больших экранов):
+
+```scss
+.grid {
+  grid-template-columns: 1fr;
+  @include from-tablet  { grid-template-columns: 1fr 1fr; }      // ≥ 768px
+  @include from-desktop { grid-template-columns: 1fr 1fr 1fr; }  // ≥ 1024px
+}
+```
+
+**Точный диапазон** (только в этом tier):
+
+```scss
+.hero {
+  @include tablet-only { font-size: 24px; }  // 768-1023px
+}
+```
+
+**Правило:** не пиши `@media (max-width: ...)` напрямую — используй миксин. Если нужного брейкпоинта нет — добавь в `_breakpoints.scss` (это единственный источник правды), не плоди магические числа по файлам.
+
 ## Архитектурные правила
 
 - **Глобальный стейт — только через Redux.** `useState` допустим только для локальных UI-состояний (открыт/закрыт, hover, draft input).

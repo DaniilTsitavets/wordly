@@ -3,11 +3,15 @@ package com.wordly.backend.exception;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.client.ResourceAccessException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,5 +116,34 @@ class GlobalExceptionHandlerTest {
     void handleConflict() {
         ErrorResponse response = handler.handleConflict(new ConflictException("conflict occurred"));
         assertThat(response.code()).isEqualTo("CONFLICT");
+    }
+
+    @Test
+    @DisplayName("handleNotReadable: HttpMessageNotReadableException → 400 BAD_REQUEST")
+    void handleNotReadable() {
+        ErrorResponse response = handler.handleNotReadable(
+                new HttpMessageNotReadableException("bad json", new MockHttpInputMessage(new byte[0]))
+        );
+        assertThat(response.code()).isEqualTo("BAD_REQUEST");
+        assertThat(response.message()).contains("missing or malformed");
+    }
+
+    @Test
+    @DisplayName("handleDataIntegrity: DataIntegrityViolationException → 409 CONFLICT")
+    void handleDataIntegrity() {
+        ErrorResponse response = handler.handleDataIntegrity(
+                new DataIntegrityViolationException("unique constraint violation")
+        );
+        assertThat(response.code()).isEqualTo("CONFLICT");
+        assertThat(response.message()).contains("conflicts");
+    }
+
+    @Test
+    @DisplayName("handleMethodNotSupported: HttpRequestMethodNotSupportedException → 405 METHOD_NOT_ALLOWED")
+    void handleMethodNotSupported() {
+        ErrorResponse response = handler.handleMethodNotSupported(
+                new HttpRequestMethodNotSupportedException("DELETE")
+        );
+        assertThat(response.code()).isEqualTo("METHOD_NOT_ALLOWED");
     }
 }

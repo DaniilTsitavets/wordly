@@ -5,42 +5,41 @@ import { GoalOptionButton } from '@/components/atoms/GoalOptionButton'
 import styles from './ChangeGoalModal.module.scss'
 
 interface GoalOption {
-  minutes: number
+  words: number
   label: string
   icon: string
 }
 
 const GOAL_OPTIONS: GoalOption[] = [
-  { minutes: 5, label: 'Light & Easy', icon: 'coffe' },
-  { minutes: 15, label: 'Steady Progress', icon: 'lightning' },
-  { minutes: 30, label: 'Intensive Mode', icon: 'dumbbell' },
+  { words: 5, label: 'Light & Easy', icon: 'coffe' },
+  { words: 10, label: 'Steady Progress', icon: 'lightning' },
+  { words: 20, label: 'Intensive Mode', icon: 'dumbbell' },
 ]
 
 interface ChangeGoalModalProps {
-  currentMinutes: number
+  currentWords: number
   isSaving: boolean
   onClose: () => void
-  onSave: (minutes: number) => void
+  onSave: (words: number) => void
 }
 
-export function ChangeGoalModal({ currentMinutes, isSaving, onClose, onSave }: ChangeGoalModalProps) {
-  const [selected, setSelected] = useState(currentMinutes)
+export function ChangeGoalModal({ currentWords, isSaving, onClose, onSave }: ChangeGoalModalProps) {
+  const [selected, setSelected] = useState(currentWords)
 
   return (
-    <Modal isOpen onClose={onClose} ariaLabel="Change daily minute goal" size="compact">
+    <Modal isOpen onClose={onClose} ariaLabel="Change daily word goal" size="compact">
       <div className={styles.content}>
-        <h2 className={styles.title}>Daily Goal</h2>
-        <p className={styles.subtitle}>How many minutes do you want to study each day?</p>
+        <h2 className={styles.title}>Daily Word Goal</h2>
+        <p className={styles.subtitle}>How many words do you want to learn each day?</p>
 
-        <div className={styles.options} role="radiogroup" aria-label="Daily minute goal">
+        <div className={styles.options} role="radiogroup" aria-label="Daily word goal">
           {GOAL_OPTIONS.map((option) => (
             <GoalOptionButton
-              key={option.minutes}
-              words={option.minutes}
-              unit="min"
+              key={option.words}
+              words={option.words}
               label={option.label}
               icon={option.icon}
-              isActive={selected === option.minutes}
+              isActive={selected === option.words}
               onSelect={setSelected}
             />
           ))}
@@ -51,7 +50,7 @@ export function ChangeGoalModal({ currentMinutes, isSaving, onClose, onSave }: C
           size="md"
           className={styles.saveBtn}
           isLoading={isSaving}
-          disabled={selected === currentMinutes}
+          disabled={selected === currentWords}
           onClick={() => onSave(selected)}
         >
           Save Goal

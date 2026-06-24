@@ -259,10 +259,6 @@ const SocialButtons = ({ onClose }: { onClose: () => void }) => {
         <IconFont name="google" size={20} decorative />
         Google
       </button>
-      <button type="button" className={styles.socialBtn}>
-        <IconFont name="github" size={20} decorative />
-        GitHub
-      </button>
     </div>
   )
 }

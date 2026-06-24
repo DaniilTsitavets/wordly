@@ -9,6 +9,11 @@ interface ModalProps {
   children?: ReactNode
   ariaLabel?: string
   size?: 'default' | 'compact'
+  /**
+   * Hide the corner close button and ignore overlay/Escape close. Use for
+   * blocking dialogs where the user MUST pick an option to proceed.
+   */
+  hideCloseButton?: boolean
 }
 
 export const Modal = ({
@@ -17,13 +22,14 @@ export const Modal = ({
   children,
   ariaLabel = 'Modal',
   size = 'default',
+  hideCloseButton = false,
 }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null)
 
-  // закрытие по Escape — AA requirement
+  // закрытие по Escape — AA requirement (но не для блокирующих диалогов)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape' && !hideCloseButton) onClose()
     }
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown)
@@ -33,7 +39,7 @@ export const Modal = ({
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = ''
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, hideCloseButton])
 
   // фокус внутри модалки — AA requirement
   useEffect(() => {
@@ -45,7 +51,11 @@ export const Modal = ({
   if (!isOpen) return null
 
   return (
-    <div className={styles.overlay} onClick={onClose} role="presentation">
+    <div
+      className={styles.overlay}
+      onClick={hideCloseButton ? undefined : onClose}
+      role="presentation"
+    >
       <div
         ref={modalRef}
         className={`${styles.modal} ${size === 'compact' ? styles.modalCompact : ''}`}
@@ -58,13 +68,15 @@ export const Modal = ({
         <div className={styles.decorTop} aria-hidden="true" />
         <div className={styles.decorBottom} aria-hidden="true" />
 
-        <button
-          className={styles.closeButton}
-          onClick={onClose}
-          aria-label="Закрыть модальное окно"
-        >
-          <IconFont name="cross2" size={16} color="#6B7280" decorative />
-        </button>
+        {!hideCloseButton && (
+          <button
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="Закрыть модальное окно"
+          >
+            <IconFont name="cross2" size={16} color="#6B7280" decorative />
+          </button>
+        )}
 
         <div className={styles.content}>{children}</div>
       </div>

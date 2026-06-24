@@ -28,9 +28,6 @@ const DEFAULT_USER = {
   onboarding_completed: false,
   streak: 5, gems: 150,
   last_active_date: '2026-04-09', created_at: '2026-01-01T00:00:00Z',
-  words_percentage: 60,
-  best_recall_time: 3400,
-  learned_words: 42,
 };
 
 const MOCK_USER = { ...DEFAULT_USER };
@@ -329,17 +326,8 @@ app.put('/api/v1/users/me', (req, res) => {
 
 app.get('/api/v1/users/me/daily-progress', (req, res) => {
   res.json({
-    minutes_today: MOCK_USER.minutes_today ?? 0,
-    daily_goal_min: MOCK_USER.daily_goal_min,
-  });
-});
-
-app.post('/api/v1/users/me/activity', (req, res) => {
-  const seconds = req.body?.seconds ?? 0;
-  MOCK_USER.minutes_today = (MOCK_USER.minutes_today ?? 0) + Math.round(seconds / 60);
-  res.json({
-    minutes_today: MOCK_USER.minutes_today,
-    daily_goal_min: MOCK_USER.daily_goal_min,
+    words_learned_today: getWordsLearnedToday(),
+    daily_goal_words: MOCK_USER.daily_goal_words,
   });
 });
 

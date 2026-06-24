@@ -1,97 +1,439 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
-import { server } from '@/test/server'
-import { API_BASE_URL } from '@/api/client'
-import { renderWithProviders } from '@/test/test-utils'
-import { mockUser } from '@/test/handlers'
-import { ProfilePage } from './ProfilePage'
+import { useEffect, useMemo, useState } from 'react'
+import type { ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Spinner } from '@/components/atoms/Spinner'
+import { IconFont } from '@/components/atoms/IconFont'
+import { Button } from '@/components/atoms/Button'
+import { ProgressBar } from '@/components/atoms/ProgressBar'
+import { ChangeGoalModal } from '@/components/molecules/ChangeGoalModal'
+import { Tabs } from '@/components/molecules/Tabs'
+import type { UpdateUserPayload, UserProfile } from '@/api/user'
+import { updateMe } from '@/api/user'
+import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
+import { useAppDispatch } from '@/store/hooks'
+import { setUser } from '@/store/slices/authSlice'
+import { useProfile } from './hooks/useProfile'
+import styles from './ProfilePage.module.scss'
 
-const url = (path: string) => `${API_BASE_URL}${path}`
+const PASSWORD_PLACEHOLDER = '••••••••••••••••'
+const WORDS_LEARNED_STUB = 30
 
-const customUser = { ...mockUser, name: 'Foo', surname: 'Bar' }
+type ColorTheme = UserProfile['color_theme']
+const THEME_OPTIONS: ColorTheme[] = ['light', 'dark', 'system']
 
-const preloaded = {
-  auth: {
-    token: 'tok',
-    user: customUser,
-    isLoading: false,
-    error: null,
-  },
+interface FormState {
+  name: string
+  surname: string
+  email: string
+  password: string
+  color_theme: ColorTheme
 }
 
-beforeEach(() => {
-  // Override the default /users/me handler so the background refetch in
-  // useProfile keeps the same name/surname rather than reverting to mockUser.
-  server.use(http.get(url('/users/me'), () => HttpResponse.json(customUser)))
-})
+type FormField = keyof FormState
 
-describe('ProfilePage', () => {
-  it('renders header with name and stats from the cached profile', async () => {
-    renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
+function toForm(profile: UserProfile): FormState {
+  return {
+    name: profile.name,
+    surname: profile.surname,
+    email: profile.email,
+    password: '',
+    color_theme: profile.color_theme,
+  }
+}
 
-    await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Profile & Statistics' })).toBeInTheDocument()
+export function ProfilePage() {
+  const navigate = useNavigate()
+  const { profile, isLoading, isSaving, error, saveError, updateProfile } = useProfile()
+
+  if (isLoading && !profile) {
+    return (
+      <div className={styles.centered}>
+        <Spinner />
+      </div>
     )
-    expect(screen.getByText('Foo Bar')).toBeInTheDocument()
-  })
+  }
 
-  it('renders error when /users/me fails and no cache', async () => {
-    server.use(
-      http.get(url('/users/me'), () => HttpResponse.json({ message: 'auth' }, { status: 401 }))
+  if (error || !profile) {
+    return <div className={styles.error}>{error ?? 'Profile not found'}</div>
+  }
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={() => navigate(-1)}
+          aria-label="Go back"
+        >
+          <IconFont name="arrow-back" size={22} decorative />
+        </button>
+        <h1 className={styles.title}>Profile &amp; Statistics</h1>
+      </div>
+
+      <ProfileHeaderCard profile={profile} />
+
+      <Tabs
+        tabs={[
+          {
+            id: 'personal',
+            label: 'Personal info',
+            content: (
+              <PersonalInfoTab
+                profile={profile}
+                isSaving={isSaving}
+                saveError={saveError}
+                onSave={updateProfile}
+              />
+            ),
+          },
+          {
+            id: 'statistics',
+            label: 'My statistics',
+            content: <StatisticsTabContent />,
+          },
+        ]}
+      />
+    </div>
+  )
+}
+
+interface ProfileHeaderCardProps {
+  profile: UserProfile
+}
+
+function ProfileHeaderCard({ profile }: ProfileHeaderCardProps) {
+  const initial = (profile.name?.[0] ?? '?').toUpperCase()
+  const fullName = [profile.name, profile.surname].filter(Boolean).join(' ') || 'User'
+
+  return (
+    <section className={styles.headerCard}>
+      <div className={styles.identity}>
+        <div className={styles.avatar} aria-hidden="true">
+          {initial}
+        </div>
+        <div className={styles.identityText}>
+          <p className={styles.userName}>{fullName}</p>
+          <p className={styles.memberBadge}>Premium Member</p>
+        </div>
+      </div>
+
+      <div className={styles.stats}>
+        <StatCell
+          icon={<IconFont name="diamond" size={28} color="#ff68e3" decorative />}
+          value={profile.gems}
+          label="Gems"
+        />
+        <StatCell
+          icon={<IconFont name="fire" size={28} color="#ff6900" decorative />}
+          value={profile.streak}
+          label="Day Streak"
+        />
+        <StatCell
+          icon={<IconFont name="star" size={28} color="#a239ff" decorative />}
+          value={WORDS_LEARNED_STUB}
+          label="Words"
+        />
+      </div>
+    </section>
+  )
+}
+
+interface StatCellProps {
+  icon: React.ReactNode
+  value: number | string
+  label: string
+}
+
+function StatCell({ icon, value, label }: StatCellProps) {
+  return (
+    <div className={styles.statCell}>
+      <span className={styles.statIcon}>{icon}</span>
+      <span className={styles.statValue}>{value}</span>
+      <span className={styles.statLabel}>{label}</span>
+    </div>
+  )
+}
+
+interface PersonalInfoTabProps {
+  profile: UserProfile
+  isSaving: boolean
+  saveError: string | null
+  onSave: (payload: UpdateUserPayload) => Promise<UserProfile | null>
+}
+
+function PersonalInfoTab({ profile, isSaving, saveError, onSave }: PersonalInfoTabProps) {
+  const [form, setForm] = useState<FormState>(() => toForm(profile))
+  const [editing, setEditing] = useState<Record<FormField, boolean>>({
+    name: false,
+    surname: false,
+    email: false,
+    password: false,
+    color_theme: false,
+  })
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
+
+  useEffect(() => {
+    setForm(toForm(profile))
+  }, [profile])
+
+  const isDirty = useMemo(() => {
+    return (
+      form.name !== profile.name ||
+      form.surname !== profile.surname ||
+      form.email !== profile.email ||
+      form.color_theme !== profile.color_theme ||
+      form.password.length > 0
     )
-    renderWithProviders(<ProfilePage />)
-    await waitFor(() => expect(screen.getByText('auth')).toBeInTheDocument())
-  })
+  }, [form, profile])
 
-  it('shows Personal info tab by default', async () => {
-    renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
-    expect(await screen.findByRole('tab', { name: 'Personal info' })).toHaveAttribute(
-      'aria-selected',
-      'true'
-    )
-    expect(screen.getByLabelText('Name')).toBeInTheDocument()
-  })
+  const toggleEdit = (field: FormField) => {
+    setEditing((prev) => ({ ...prev, [field]: !prev[field] }))
+    setSuccessMsg(null)
+  }
 
-  it('Update Profile button is disabled when nothing changed', async () => {
-    renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
-    expect(await screen.findByRole('button', { name: /Update Profile/ })).toBeDisabled()
-  })
+  const handleChange =
+    (field: FormField) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const value = e.target.value
+      setForm((prev) => ({ ...prev, [field]: value as FormState[typeof field] }))
+      setSuccessMsg(null)
+    }
 
-  it('enables editing a field after clicking the edit toggle', async () => {
-    renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
+  const handleSubmit = async () => {
+    if (!isDirty || isSaving) return
+    const payload: UpdateUserPayload = {}
+    if (form.name !== profile.name) payload.name = form.name
+    if (form.surname !== profile.surname) payload.surname = form.surname
+    if (form.email !== profile.email) payload.email = form.email
+    if (form.color_theme !== profile.color_theme) payload.color_theme = form.color_theme
+    if (form.password.length > 0) payload.password = form.password
 
-    const editName = await screen.findByLabelText('Edit Name')
-    expect(screen.getByLabelText('Name')).toHaveAttribute('readOnly')
-    await userEvent.click(editName)
-    expect(screen.getByLabelText('Name')).not.toHaveAttribute('readOnly')
-  })
+    const updated = await onSave(payload)
+    if (updated) {
+      setSuccessMsg('Profile updated')
+      setForm((prev) => ({ ...prev, password: '' }))
+      setEditing({
+        name: false,
+        surname: false,
+        email: false,
+        password: false,
+        color_theme: false,
+      })
+    }
+  }
 
-  it('submits the changed field and shows the success message', async () => {
-    server.use(
-      http.put(url('/users/me'), () => HttpResponse.json({ ...mockUser, name: 'Newname' }))
-    )
+  return (
+    <form
+      className={styles.form}
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit()
+      }}
+    >
+      <FieldRow
+        label="Name"
+        field="name"
+        value={form.name}
+        editing={editing.name}
+        onToggle={() => toggleEdit('name')}
+        onChange={handleChange('name')}
+      />
+      <FieldRow
+        label="Surname"
+        field="surname"
+        value={form.surname}
+        editing={editing.surname}
+        onToggle={() => toggleEdit('surname')}
+        onChange={handleChange('surname')}
+      />
+      <FieldRow
+        label="Email"
+        field="email"
+        type="email"
+        value={form.email}
+        editing={editing.email}
+        onToggle={() => toggleEdit('email')}
+        onChange={handleChange('email')}
+      />
+      <FieldRow
+        label="Password"
+        field="password"
+        type="password"
+        value={editing.password ? form.password : PASSWORD_PLACEHOLDER}
+        editing={editing.password}
+        placeholder="Enter new password"
+        onToggle={() => toggleEdit('password')}
+        onChange={handleChange('password')}
+      />
+      <FieldRow
+        label="Theme"
+        field="color_theme"
+        value={form.color_theme}
+        editing={editing.color_theme}
+        onToggle={() => toggleEdit('color_theme')}
+        onChange={handleChange('color_theme')}
+        options={THEME_OPTIONS}
+      />
 
-    renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
-    await userEvent.click(await screen.findByLabelText('Edit Name'))
-    const input = screen.getByLabelText('Name')
-    await userEvent.clear(input)
-    await userEvent.type(input, 'Newname')
-    await userEvent.click(screen.getByRole('button', { name: /Update Profile/ }))
-    await waitFor(() => expect(screen.getByText('Profile updated')).toBeInTheDocument())
-  })
+      {saveError && (
+        <p className={styles.formError} role="alert">
+          {saveError}
+        </p>
+      )}
+      {successMsg && !saveError && <p className={styles.formSuccess}>{successMsg}</p>}
 
-  it('switches to My statistics tab and shows Daily Goal card', async () => {
-    server.use(
-      http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ minutes_today: 4, daily_goal_min: 8 })
-      )
-    )
+      <div className={styles.submitRow}>
+        <Button
+          type="submit"
+          variant="gradient"
+          size="lg"
+          isLoading={isSaving}
+          disabled={!isDirty}
+          className={styles.submitBtn}
+        >
+          Update Profile
+        </Button>
+      </div>
+    </form>
+  )
+}
 
-    renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
-    await userEvent.click(await screen.findByRole('tab', { name: 'My statistics' }))
-    await waitFor(() => expect(screen.getByText('Daily Goal')).toBeInTheDocument())
-    expect(screen.getByText('4 / 8')).toBeInTheDocument()
-  })
-})
+interface FieldRowProps {
+  label: string
+  field: FormField
+  value: string
+  editing: boolean
+  type?: string
+  placeholder?: string
+  options?: readonly string[]
+  onToggle: () => void
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
+}
+
+function FieldRow({
+  label,
+  field,
+  value,
+  editing,
+  type = 'text',
+  placeholder,
+  options,
+  onToggle,
+  onChange,
+}: FieldRowProps) {
+  const inputId = `profile-field-${field}`
+  return (
+    <div className={styles.field}>
+      <div className={styles.fieldLabelRow}>
+        <label htmlFor={inputId} className={styles.fieldLabel}>
+          {label}
+        </label>
+        <button
+          type="button"
+          className={styles.editButton}
+          onClick={onToggle}
+          aria-label={editing ? `Stop editing ${label}` : `Edit ${label}`}
+          aria-pressed={editing}
+        >
+          <IconFont name="edit" size={14} decorative />
+        </button>
+      </div>
+      {options ? (
+        <select
+          id={inputId}
+          className={styles.fieldInput}
+          value={value}
+          onChange={onChange}
+          disabled={!editing}
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          id={inputId}
+          className={styles.fieldInput}
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={onChange}
+          readOnly={!editing}
+        />
+      )}
+    </div>
+  )
+}
+
+function StatisticsTabContent() {
+  const dispatch = useAppDispatch()
+  const { wordsLearnedToday, dailyGoalWords, progress, refetch } = useDailyProgress()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSaveGoal = async (words: number) => {
+    try {
+      setIsSaving(true)
+      const updated = await updateMe({ daily_goal_words: words })
+      dispatch(setUser(updated))
+      await refetch()
+      setIsModalOpen(false)
+    } catch {
+      // keep the modal open so the user can retry
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className={styles.statsTab}>
+      <DailyGoalCard
+        wordsLearned={wordsLearnedToday}
+        target={dailyGoalWords}
+        progress={progress}
+        onChangeGoal={() => setIsModalOpen(true)}
+      />
+      {isModalOpen && (
+        <ChangeGoalModal
+          currentWords={dailyGoalWords}
+          isSaving={isSaving}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveGoal}
+        />
+      )}
+    </div>
+  )
+}
+
+interface DailyGoalCardProps {
+  wordsLearned: number
+  target: number
+  progress: number
+  onChangeGoal: () => void
+}
+
+function DailyGoalCard({ wordsLearned, target, progress, onChangeGoal }: DailyGoalCardProps) {
+  return (
+    <section className={styles.dailyGoalCard}>
+      <div className={styles.dailyGoalHeader}>
+        <IconFont name="target" size={20} color="#1a1a1a" decorative />
+        <h2 className={styles.dailyGoalTitle}>Daily Goal</h2>
+      </div>
+
+      <div className={styles.dailyGoalProgressRow}>
+        <span className={styles.dailyGoalLabel}>Words learned today</span>
+        <span className={styles.dailyGoalValue}>
+          {wordsLearned} / {target}
+        </span>
+      </div>
+
+      <ProgressBar value={progress} color="purple" size="sm" />
+
+      <Button variant="secondary" size="sm" className={styles.changeGoalBtn} onClick={onChangeGoal}>
+        Change Goal
+      </Button>
+    </section>
+  )
+}

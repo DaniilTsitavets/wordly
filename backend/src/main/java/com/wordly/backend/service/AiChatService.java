@@ -1,8 +1,9 @@
 package com.wordly.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wordly.backend.dto.AiChatMessage;
 import com.wordly.backend.dto.AiChatRequest;
-import com.wordly.backend.dto.AiChatResponse;
 import com.wordly.backend.entity.Subtopic;
 import com.wordly.backend.entity.Word;
 import com.wordly.backend.exception.NotFoundException;
@@ -13,9 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +33,7 @@ public class AiChatService {
     private final SubtopicRepository subtopicRepository;
     private final WordRepository wordRepository;
     private final RestClient restClient;
+    private final ObjectMapper objectMapper;
 
     @Value("${openrouter.api-key}")
     private String apiKey;
@@ -38,36 +44,71 @@ public class AiChatService {
     @Value("${openrouter.base-url}")
     private String baseUrl;
 
-    @Transactional(readOnly = true)
-    public AiChatResponse chat(AiChatRequest request) {
-        Subtopic subtopic = subtopicRepository.findById(request.subtopicId())
-                .orElseThrow(() -> new NotFoundException("Subtopic not found: " + request.subtopicId()));
+    public void streamChat(AiChatRequest request, SseEmitter emitter) {
+        try {
+            Subtopic subtopic = subtopicRepository.findById(request.subtopicId())
+                    .orElseThrow(() -> new NotFoundException("Subtopic not found: " + request.subtopicId()));
 
-        List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(request.subtopicId());
+            List<Word> words = wordRepository.findBySubtopicIdOrderByIdAsc(request.subtopicId());
+            String systemPrompt = buildSystemPrompt(subtopic, words);
+            List<OpenRouterMessage> messages = buildMessages(systemPrompt, request);
 
-        String systemPrompt = buildSystemPrompt(subtopic, words);
-        List<OpenRouterMessage> messages = buildMessages(systemPrompt, request);
+            OpenRouterRequest openRouterRequest = new OpenRouterRequest(model, messages, true);
 
-        OpenRouterRequest openRouterRequest = new OpenRouterRequest(model, messages);
+            log.debug("Sending streaming chat request to OpenRouter, subtopicId={}, historySize={}",
+                    request.subtopicId(), request.history().size());
 
-        log.debug("Sending chat request to OpenRouter, subtopicId={}, historySize={}",
-                request.subtopicId(), request.history().size());
-
-        OpenRouterResponse response = restClient.post()
-                .uri(baseUrl + "/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(openRouterRequest)
-                .retrieve()
-                .body(OpenRouterResponse.class);
-
-        if (response == null || response.choices() == null || response.choices().isEmpty()) {
-            log.error("Empty response from OpenRouter");
-            throw new IllegalStateException("No response from AI service");
+            restClient.post()
+                    .uri(baseUrl + "/chat/completions")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(openRouterRequest)
+                    .exchange((req, response) -> {
+                        try (BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(response.getBody(), StandardCharsets.UTF_8))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                if (!line.startsWith("data: ")) continue;
+                                String data = line.substring(6).trim();
+                                if ("[DONE]".equals(data)) break;
+                                try {
+                                    JsonNode root = objectMapper.readTree(data);
+                                    JsonNode content = root.path("choices").path(0).path("delta").path("content");
+                                    if (!content.isMissingNode() && !content.isNull()) {
+                                        String token = content.asText();
+                                        if (!token.isEmpty()) {
+                                            // Leading spaces in LLM tokens conflict with SSE "data: " prefix:
+                                            // Spring writes data:<token>, so " world" becomes "data: world"
+                                            // and the frontend's slice(6) strips that space. Double it so one survives.
+                                            String sseData = token.startsWith(" ") ? " " + token : token;
+                                            try {
+                                                emitter.send(SseEmitter.event().data(sseData));
+                                            } catch (IllegalStateException ignored) {
+                                                // Client disconnected — stop reading
+                                                return null;
+                                            }
+                                        }
+                                    }
+                                } catch (IOException e) {
+                                    log.warn("Failed to parse SSE chunk: {}", data);
+                                }
+                            }
+                            try {
+                                emitter.complete();
+                            } catch (IllegalStateException ignored) {}
+                        } catch (IOException e) {
+                            try {
+                                emitter.completeWithError(e);
+                            } catch (IllegalStateException ignored) {}
+                        }
+                        return null;
+                    });
+        } catch (Exception e) {
+            log.error("Error in streamChat, subtopicId={}", request.subtopicId(), e);
+            try {
+                emitter.completeWithError(e);
+            } catch (Exception ignore) {}
         }
-
-        String reply = response.choices().get(0).message().content();
-        return new AiChatResponse(reply);
     }
 
     private String buildSystemPrompt(Subtopic subtopic, List<Word> words) {
@@ -76,10 +117,14 @@ public class AiChatService {
                 .collect(Collectors.joining("\n"));
 
         return """
-                You are an immersive English conversation tutor inside a vocabulary learning app.
-                Your learner is a Russian-speaking adult who has recently studied a set of English
-                words and is now practicing them in a real conversation. Your job is to make that
-                practice feel like a genuine, enjoyable exchange — not a classroom drill.
+                You are a friendly English conversation partner inside a vocabulary learning app.
+                Your learner is a Russian-speaking adult at A2-B1 English level (elementary to
+                pre-intermediate) who has recently studied a set of English words and is now
+                practicing them in a real conversation.
+
+                LANGUAGE LEVEL: Use simple, clear English. Short sentences. Common everyday words.
+                No idioms, no phrasal verbs, no complex grammar. If you use a slightly harder word,
+                follow it with a simple explanation in the same sentence.
 
                 SUBTOPIC: {subtopicName}
                 TARGET WORD LIST:
@@ -97,11 +142,11 @@ public class AiChatService {
                    speak and to use the target words organically through the situation.
                 2. Establish your character role within the scenario and invite the learner to participate.
                    Do NOT introduce yourself as an AI or tutor. Stay in character throughout Phase 1.
-                3. Keep your opening turn to 3–4 sentences maximum.
+                3. Keep your opening turn to 2–3 short sentences maximum.
 
                 ### PHASE 1 — CONVERSATION RULES
 
-                TURN LENGTH: Every one of your responses must be 2–4 sentences. Never more.
+                TURN LENGTH: Every one of your responses must be 1–2 short sentences. Never more.
 
                 WORD TRACKING: Internally keep a running list of which target words the learner
                 has used at least once in a natural, contextually appropriate way.
@@ -110,6 +155,10 @@ public class AiChatService {
                 NUDGING TARGET WORDS: Guide the conversation so the situation creates natural
                 reasons to use the target words through questions or describing objects/situations.
                 Never say "now use the word X" or "try to say Y." The nudge must be situational.
+                Every question or situation you create must be designed so that the most natural 
+                answer requires a word from the target word list. Do NOT build questions around 
+                words that are not in the list. Do NOT say a target word yourself — create a 
+                "gap" so the learner produces it naturally.
 
                 CORRECTIVE FEEDBACK — IMPLICIT RECASTS ONLY:
                 If the learner makes a grammar or vocabulary error mid-conversation:
@@ -206,11 +255,7 @@ public class AiChatService {
         return messages;
     }
 
-    private record OpenRouterRequest(String model, List<OpenRouterMessage> messages) {}
+    private record OpenRouterRequest(String model, List<OpenRouterMessage> messages, boolean stream) {}
 
     private record OpenRouterMessage(String role, String content) {}
-
-    private record OpenRouterResponse(List<Choice> choices) {}
-
-    private record Choice(OpenRouterMessage message) {}
 }

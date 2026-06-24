@@ -10,7 +10,6 @@ import { completeSession } from '@/api/completeSession'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useAppDispatch } from '@/store/hooks'
 import { addGems } from '@/store/slices/authSlice'
-import { useActivityTracker } from '@/shared/hooks/useActivityTracker'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
 
@@ -49,7 +48,6 @@ export const FillingGapsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  useActivityTracker()
   const { words, isLoading, error } = useWords(Number(subtopicId))
 
   const [currentIndex, setCurrentIndex] = useState(0)

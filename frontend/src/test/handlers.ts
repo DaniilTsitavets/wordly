@@ -10,8 +10,7 @@ export const mockUser: UserProfile = {
   is_guest: false,
   role: 'USER',
   interface_language: 'en',
-  daily_goal_min: 10,
-  daily_goal_words: 8,
+  daily_goal_min: 15,
   notifications_enabled: true,
   color_theme: 'light',
   onboarding_completed: true,
@@ -46,5 +45,21 @@ export const handlers = [
   ),
   http.post(url('/users/me/activity'), () =>
     HttpResponse.json({ minutes_today: 8, daily_goal_min: 10 })
+  ),
+]
+
+/**
+ * No-op stubs for `useFinishSession` (`/users/me/daily-goal/claim`) and
+ * `useActivityHeartbeat` (`/users/me/activity`). Imported from per-test
+ * `beforeEach` blocks on the 5 mechanic pages — kept out of the global
+ * handler list because some test files run with `onUnhandledRequest: 'error'`
+ * and react badly to surprise interceptions on unrelated routes.
+ */
+export const gameSessionHandlers = [
+  http.post(url('/users/me/activity'), () =>
+    HttpResponse.json({ minutes_today: 0, daily_goal_min: mockUser.daily_goal_min })
+  ),
+  http.post(url('/users/me/daily-goal/claim'), () =>
+    HttpResponse.json({ reached: false, gems_awarded: 0 })
   ),
 ]
