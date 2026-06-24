@@ -155,6 +155,10 @@ public class AiChatService {
                 NUDGING TARGET WORDS: Guide the conversation so the situation creates natural
                 reasons to use the target words through questions or describing objects/situations.
                 Never say "now use the word X" or "try to say Y." The nudge must be situational.
+                Every question or situation you create must be designed so that the most natural 
+                answer requires a word from the target word list. Do NOT build questions around 
+                words that are not in the list. Do NOT say a target word yourself — create a 
+                "gap" so the learner produces it naturally.
 
                 CORRECTIVE FEEDBACK — IMPLICIT RECASTS ONLY:
                 If the learner makes a grammar or vocabulary error mid-conversation:
