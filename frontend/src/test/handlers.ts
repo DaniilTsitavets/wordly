@@ -18,6 +18,9 @@ export const mockUser: UserProfile = {
   gems: 0,
   last_active_date: '2026-06-11',
   created_at: '2026-01-01',
+  words_percentage: null,
+  best_recall_time: null,
+  learned_words: null,
 }
 
 const url = (path: string) => `${API_BASE_URL}${path}`
@@ -37,6 +40,12 @@ export const handlers = [
     HttpResponse.json({ access_token: 'google-token', user: mockUser })
   ),
   http.get(url('/users/me'), () => HttpResponse.json(mockUser)),
+  http.get(url('/users/me/daily-progress'), () =>
+    HttpResponse.json({ minutes_today: 0, daily_goal_min: 10 })
+  ),
+  http.post(url('/users/me/activity'), () =>
+    HttpResponse.json({ minutes_today: 8, daily_goal_min: 10 })
+  ),
 ]
 
 /**

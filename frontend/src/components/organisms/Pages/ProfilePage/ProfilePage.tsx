@@ -369,14 +369,14 @@ function FieldRow({
 
 function StatisticsTabContent() {
   const dispatch = useAppDispatch()
-  const { minutesToday, dailyGoalMin, progress, refetch } = useDailyProgress()
+  const { wordsLearnedToday, dailyGoalWords, progress, refetch } = useDailyProgress()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  const handleSaveGoal = async (minutes: number) => {
+  const handleSaveGoal = async (words: number) => {
     try {
       setIsSaving(true)
-      const updated = await updateMe({ daily_goal_min: minutes })
+      const updated = await updateMe({ daily_goal_words: words })
       dispatch(setUser(updated))
       await refetch()
       setIsModalOpen(false)
@@ -390,14 +390,14 @@ function StatisticsTabContent() {
   return (
     <div className={styles.statsTab}>
       <DailyGoalCard
-        minutesStudied={minutesToday}
-        target={dailyGoalMin}
+        wordsLearned={wordsLearnedToday}
+        target={dailyGoalWords}
         progress={progress}
         onChangeGoal={() => setIsModalOpen(true)}
       />
       {isModalOpen && (
         <ChangeGoalModal
-          currentMinutes={dailyGoalMin}
+          currentWords={dailyGoalWords}
           isSaving={isSaving}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveGoal}
@@ -408,13 +408,13 @@ function StatisticsTabContent() {
 }
 
 interface DailyGoalCardProps {
-  minutesStudied: number
+  wordsLearned: number
   target: number
   progress: number
   onChangeGoal: () => void
 }
 
-function DailyGoalCard({ minutesStudied, target, progress, onChangeGoal }: DailyGoalCardProps) {
+function DailyGoalCard({ wordsLearned, target, progress, onChangeGoal }: DailyGoalCardProps) {
   return (
     <section className={styles.dailyGoalCard}>
       <div className={styles.dailyGoalHeader}>
@@ -423,9 +423,9 @@ function DailyGoalCard({ minutesStudied, target, progress, onChangeGoal }: Daily
       </div>
 
       <div className={styles.dailyGoalProgressRow}>
-        <span className={styles.dailyGoalLabel}>Minutes studied today</span>
+        <span className={styles.dailyGoalLabel}>Words learned today</span>
         <span className={styles.dailyGoalValue}>
-          {minutesStudied} / {target} min
+          {wordsLearned} / {target}
         </span>
       </div>
 

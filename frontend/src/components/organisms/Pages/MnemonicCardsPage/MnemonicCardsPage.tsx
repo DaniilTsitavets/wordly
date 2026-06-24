@@ -7,22 +7,21 @@ import { Button } from '@/components/atoms/Button'
 import { IconFont } from '@/components/atoms/IconFont'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
-import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
-import { useAppSelector } from '@/store/hooks'
+import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import styles from './MnemonicCardsPage.module.scss'
 
 export const MnemonicCardsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const { finishSession, isCompleting } = useFinishSession()
+  const dispatch = useAppDispatch()
   const { words: allWords, isLoading, error } = useWords(Number(subtopicId))
-  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
-  useActivityHeartbeat()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
+  const [isCompleting, setIsCompleting] = useState(false)
 
   const words = allWords?.filter((w) => w.has_mnemonic) ?? []
 
@@ -69,12 +68,16 @@ export const MnemonicCardsPage = () => {
 
   const handleComplete = async () => {
     if (isCompleting) return
+    setIsCompleting(true)
     try {
-      const result = await finishSession(Number(subtopicId), 'mnemonic_cards')
-      setGemsEarned(result.gemsEarned)
+      const result = await completeSession(Number(subtopicId), 'mnemonic_cards')
+      setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
+    } finally {
+      setIsCompleting(false)
     }
   }
 
@@ -134,7 +137,6 @@ export const MnemonicCardsPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
-        hideReward={isGuest}
       />
     </section>
   )

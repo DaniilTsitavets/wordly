@@ -6,7 +6,6 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { getRecall, type RecallWord, recallAnswer, recallComplete } from '@/api/recall'
-import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
 import { useAppDispatch } from '@/store/hooks'
 import { addGems } from '@/store/slices/authSlice'
 
@@ -67,7 +66,6 @@ export function RecallMechanicPage() {
   const [words, setWords] = useState<RecallWord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedIndices, setSelectedIndices] = useState<number[]>([])

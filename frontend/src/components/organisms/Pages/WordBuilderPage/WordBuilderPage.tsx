@@ -7,9 +7,9 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { useWords } from '@/shared/hooks/useWords'
-import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
-import { useAppSelector } from '@/store/hooks'
+import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import testImg from '@/assets/test_img/test_img2.jpg'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -31,28 +31,23 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 export const WordBuilderPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const { finishSession, isCompleting } = useFinishSession()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
-  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
-  useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedIndices, setSelectedIndices] = useState<number[]>([])
   const [answerState, setAnswerState] = useState<AnswerState>('pending')
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
+  const [isCompleting, setIsCompleting] = useState(false)
 
   const word = words?.[currentIndex]
-  // Hoist the optional-chained access so the manual hook deps below match what
-  // the React Compiler infers — `word?.word_en` in a dep array gets inferred
-  // as `word` (broader) and trips `react-hooks/preserve-manual-memoization`.
-  const wordEn = word?.word_en
   const isLast = currentIndex >= (words?.length ?? 0) - 1
   const progress = words?.length ? ((currentIndex + 1) / words.length) * 100 : 0
 
   const shuffledLetters = useMemo<LetterItem[]>(() => {
-    if (!wordEn) return []
-    const letters = wordEn
+    if (!word?.word_en) return []
+    const letters = word.word_en
       .toLowerCase()
       .split('')
       .map((letter, index) => ({
@@ -60,14 +55,11 @@ export const WordBuilderPage = () => {
         originalIndex: index,
       }))
     return shuffleArray(letters)
-  }, [wordEn])
+  }, [word?.word_en])
 
   useEffect(() => {
-    // Reset answer state when the word changes — intentional cascading update.
-    /* eslint-disable react-hooks/set-state-in-effect */
     setSelectedIndices([])
     setAnswerState('pending')
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [currentIndex])
 
   const currentAnswer = useMemo(() => {
@@ -75,12 +67,12 @@ export const WordBuilderPage = () => {
   }, [selectedIndices, shuffledLetters])
 
   const handleSpeak = useCallback(() => {
-    if ('speechSynthesis' in window && wordEn) {
-      const utterance = new SpeechSynthesisUtterance(wordEn)
+    if ('speechSynthesis' in window && word?.word_en) {
+      const utterance = new SpeechSynthesisUtterance(word.word_en)
       utterance.lang = 'en-US'
       speechSynthesis.speak(utterance)
     }
-  }, [wordEn])
+  }, [word?.word_en])
 
   const handleLetterClick = useCallback(
     (shuffledIndex: number) => {
@@ -102,10 +94,10 @@ export const WordBuilderPage = () => {
   }, [])
 
   const handleCheckAnswer = useCallback(() => {
-    if (!wordEn) return
-    const isCorrect = currentAnswer.toLowerCase() === wordEn.toLowerCase()
+    if (!word?.word_en) return
+    const isCorrect = currentAnswer.toLowerCase() === word.word_en.toLowerCase()
     setAnswerState(isCorrect ? 'correct' : 'incorrect')
-  }, [currentAnswer, wordEn])
+  }, [currentAnswer, word?.word_en])
 
   const handleNextWord = useCallback(() => {
     if (!isLast) {
@@ -115,14 +107,18 @@ export const WordBuilderPage = () => {
 
   const handleComplete = useCallback(async () => {
     if (isCompleting) return
+    setIsCompleting(true)
     try {
-      const result = await finishSession(Number(subtopicId), 'word_builder')
-      setGemsEarned(result.gemsEarned)
+      const result = await completeSession(Number(subtopicId), 'word_builder')
+      setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
+    } finally {
+      setIsCompleting(false)
     }
-  }, [finishSession, isCompleting, subtopicId])
+  }, [isCompleting, subtopicId, dispatch])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)
@@ -261,7 +257,6 @@ export const WordBuilderPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
-        hideReward={isGuest}
       />
     </div>
   )

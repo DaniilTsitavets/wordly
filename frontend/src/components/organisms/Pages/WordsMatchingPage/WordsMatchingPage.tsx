@@ -2,9 +2,9 @@ import styles from './WordsMatchingPage.module.scss'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
-import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
-import { useAppSelector } from '@/store/hooks'
+import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
@@ -39,10 +39,8 @@ type PageType = { en: WordType[]; ru: WordType[] }
 export const WordsMatchingPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const { finishSession, isCompleting } = useFinishSession()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
-  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
-  useActivityHeartbeat()
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
   const [selectedRu, setSelectedRu] = useState<number | null>(null)
   const [matched, setMatched] = useState<
@@ -52,6 +50,7 @@ export const WordsMatchingPage = () => {
   const [page, setPage] = useState(0)
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
+  const [isCompleting, setIsCompleting] = useState(false)
   const [pages, setPages] = useState<PageType[]>([])
   const pagesInitializedRef = useRef(false)
 
@@ -129,18 +128,21 @@ export const WordsMatchingPage = () => {
 
   useEffect(() => {
     if (isAllComplete && !showReward && !isCompleting) {
+      queueMicrotask(() => setIsCompleting(true))
       const complete = async () => {
         try {
-          const result = await finishSession(Number(subtopicId), 'matching')
-          setGemsEarned(result.gemsEarned)
+          const result = await completeSession(Number(subtopicId), 'matching')
+          setGemsEarned(result.gems_earned)
+          dispatch(addGems(result.gems_earned))
         } catch (e) {
           console.error('Failed to complete session:', e)
         }
         setShowReward(true)
+        setIsCompleting(false)
       }
       complete()
     }
-  }, [isAllComplete, showReward, isCompleting, subtopicId, finishSession])
+  }, [isAllComplete, showReward, isCompleting, subtopicId, dispatch])
 
   const handleBack = useCallback(() => {
     navigate(-1)
@@ -247,7 +249,6 @@ export const WordsMatchingPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
-        hideReward={isGuest}
       />
     </div>
   )

@@ -6,10 +6,10 @@ import { Button } from '@/components/atoms/Button'
 import { IconFont } from '@/components/atoms/IconFont'
 import { Input } from '@/components/atoms/Input'
 import { useWords } from '@/shared/hooks/useWords'
-import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
-import { useAppSelector } from '@/store/hooks'
+import { completeSession } from '@/api/completeSession'
 import { RewardModal } from '@/components/molecules/RewardModal'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
 
@@ -47,45 +47,37 @@ const normalizeAnswer = (str: string): string => {
 export const FillingGapsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const { finishSession, isCompleting } = useFinishSession()
+  const dispatch = useAppDispatch()
   const { words, isLoading, error } = useWords(Number(subtopicId))
-  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
-  useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState('')
   const [answerState, setAnswerState] = useState<AnswerState>('pending')
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
+  const [isCompleting, setIsCompleting] = useState(false)
 
   const word = words?.[currentIndex]
-  // Hoist the optional-chained access so the manual hook deps below match what
-  // the React Compiler infers — `word?.word_en` in a dep array gets inferred
-  // as `word` (broader) and trips `react-hooks/preserve-manual-memoization`.
-  const wordEn = word?.word_en
   const isLast = currentIndex >= (words?.length ?? 0) - 1
   const progress = words?.length ? ((currentIndex + 1) / words.length) * 100 : 0
 
   const wordWithGaps = useMemo(() => {
-    if (!wordEn) return ''
-    return createWordWithGaps(wordEn)
-  }, [wordEn])
+    if (!word?.word_en) return ''
+    return createWordWithGaps(word.word_en)
+  }, [word?.word_en])
 
   useEffect(() => {
-    // Reset answer state when the word changes — intentional cascading update.
-    /* eslint-disable react-hooks/set-state-in-effect */
     setUserAnswer('')
     setAnswerState('pending')
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [currentIndex])
 
   const handleSpeak = useCallback(() => {
-    if ('speechSynthesis' in window && wordEn) {
-      const utterance = new SpeechSynthesisUtterance(wordEn)
+    if ('speechSynthesis' in window && word?.word_en) {
+      const utterance = new SpeechSynthesisUtterance(word.word_en)
       utterance.lang = 'en-US'
       speechSynthesis.speak(utterance)
     }
-  }, [wordEn])
+  }, [word?.word_en])
 
   const handleReset = useCallback(() => {
     setUserAnswer('')
@@ -93,10 +85,10 @@ export const FillingGapsPage = () => {
   }, [])
 
   const handleCheckAnswer = useCallback(() => {
-    if (!wordEn) return
-    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(wordEn)
+    if (!word?.word_en) return
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(word.word_en)
     setAnswerState(isCorrect ? 'correct' : 'incorrect')
-  }, [userAnswer, wordEn])
+  }, [userAnswer, word?.word_en])
 
   const handleNextWord = useCallback(() => {
     if (!isLast) {
@@ -106,14 +98,18 @@ export const FillingGapsPage = () => {
 
   const handleComplete = useCallback(async () => {
     if (isCompleting) return
+    setIsCompleting(true)
     try {
-      const result = await finishSession(Number(subtopicId), 'filling_gaps')
-      setGemsEarned(result.gemsEarned)
+      const result = await completeSession(Number(subtopicId), 'filling_gaps')
+      setGemsEarned(result.gems_earned)
+      dispatch(addGems(result.gems_earned))
       setShowReward(true)
     } catch {
       // TODO: show error toast
+    } finally {
+      setIsCompleting(false)
     }
-  }, [finishSession, isCompleting, subtopicId])
+  }, [dispatch, isCompleting, subtopicId])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)
@@ -228,7 +224,6 @@ export const FillingGapsPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
-        hideReward={isGuest}
       />
     </div>
   )

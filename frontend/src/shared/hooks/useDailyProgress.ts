@@ -22,10 +22,10 @@ export function useDailyProgress() {
     fetch()
   }, [fetch])
 
-  const minutesToday = data?.minutes_today ?? 0
-  const dailyGoalMin = data?.daily_goal_min ?? 15
+  const wordsLearnedToday = data?.words_learned_today ?? 0
+  const dailyGoalWords = data?.daily_goal_words ?? 10
   const progress =
-    dailyGoalMin > 0 ? Math.min(100, Math.round((minutesToday / dailyGoalMin) * 100)) : 0
+    dailyGoalWords > 0 ? Math.min(100, Math.round((wordsLearnedToday / dailyGoalWords) * 100)) : 0
 
-  return { minutesToday, dailyGoalMin, progress, isLoading, refetch: fetch, setData }
+  return { wordsLearnedToday, dailyGoalWords, progress, isLoading, refetch: fetch }
 }
