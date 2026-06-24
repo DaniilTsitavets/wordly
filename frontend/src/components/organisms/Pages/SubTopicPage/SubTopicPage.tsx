@@ -7,12 +7,12 @@ import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import type { LevelProgress } from '@/api/topics'
 import { useDailyProgress } from '@/shared/hooks/useDailyProgress'
-import { claimDailyGoal, getMe } from '@/api/user'
+import { claimDailyGoal } from '@/api/user'
 import { useSubtopic } from './hooks/useSubtopic'
 import { MECHANIC_INFO } from './utils/mechanics'
 import styles from './SubTopicPage.module.scss'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { addGems, setUser } from '@/store/slices/authSlice'
+import { addGems } from '@/store/slices/authSlice'
 import { useState } from 'react'
 
 export function SubTopicPage() {
@@ -39,7 +39,6 @@ export function SubTopicPage() {
       sessionStorage.removeItem('sessionCompleted')
       refetch()
       refetchDaily()
-      getMe().then((profile) => dispatch(setUser(profile))).catch(() => {})
 
       const claimReward = async () => {
         try {
