@@ -25,18 +25,10 @@ export interface RecallAnswerResponse {
   correct_answer: string
 }
 
-export function recallAnswer(
-  wordId: number,
-  userAnswer: string,
-  recallTimeMs?: number
-): Promise<RecallAnswerResponse> {
+export function recallAnswer(wordId: number, userAnswer: string): Promise<RecallAnswerResponse> {
   return apiRequest<RecallAnswerResponse>('/recall/answer', {
     method: 'POST',
-    body: {
-      word_id: wordId,
-      user_answer: userAnswer,
-      ...(recallTimeMs != null ? { recall_time_ms: recallTimeMs } : {}),
-    },
+    body: { word_id: wordId, user_answer: userAnswer },
   })
 }
 
