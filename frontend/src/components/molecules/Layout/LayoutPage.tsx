@@ -84,7 +84,15 @@ export function Layout() {
         ))}
 
       {token ? (
-        <Outlet key={token} />
+        // Keyed on user identity (not token) so the subtree only resets when
+        // the *user* actually changes — login → logout → login as someone
+        // else. Same-user token rotations (Google OAuth callback, refresh,
+        // guest-to-real upgrade) don't churn the page anymore, which was
+        // racing `useAiChat`'s kickoff into a 401 against a half-applied
+        // session. While `user` is still loading (bootstrap), a stable
+        // sentinel keeps the tree mounted instead of remounting once
+        // `user` flips from null → loaded.
+        <Outlet key={user?.id ?? 'bootstrap'} />
       ) : bootstrapError ? (
         <div className={styles.bootstrapState} role="alert">
           <p>Couldn't start the session: {bootstrapError}</p>
