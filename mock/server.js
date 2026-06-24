@@ -313,17 +313,19 @@ app.post('/api/v1/auth/oauth/google', (req, res) => {
 
 // Stats-screen word progress: per the contract these are populated only on GET/PUT /users/me, and
 // null in the auth responses — so they are injected here rather than stored on MOCK_USER.
-const STATS_PROGRESS = { learned_words: 42, words_percentage: 21 };
+// best_recall_time: fastest correct recall across the user's words, in ms (null when none yet).
+let bestRecallTimeMs = 3400;
+const statsProgress = () => ({ learned_words: 42, words_percentage: 21, best_recall_time: bestRecallTimeMs });
 
 app.get('/api/v1/users/me', (req, res) => {
   if (isGuest(req)) {
-    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, longest_streak: 0, gems: 0, learned_words: 0, words_percentage: 0 });
+    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, longest_streak: 0, gems: 0, learned_words: 0, words_percentage: 0, best_recall_time: null });
   }
-  res.json({ ...MOCK_USER, ...STATS_PROGRESS });
+  res.json({ ...MOCK_USER, ...statsProgress() });
 });
 app.put('/api/v1/users/me', (req, res) => {
   Object.assign(MOCK_USER, req.body);
-  res.json({ ...MOCK_USER, ...STATS_PROGRESS });
+  res.json({ ...MOCK_USER, ...statsProgress() });
 });
 
 app.get('/api/v1/users/me/daily-progress', (req, res) => {
@@ -497,10 +499,14 @@ app.get('/api/v1/recall', (req, res) => {
 });
 
 app.post('/api/v1/recall/answer', (req, res) => {
-  const { word_id, user_answer } = req.body;
+  const { word_id, user_answer, recall_time_ms } = req.body;
   const word = words.find(w => w.id === word_id);
   const is_correct = user_answer?.toLowerCase().trim() === (word?.word_en || '').toLowerCase();
   recallAnswers.set(word_id, is_correct); // remember for gem scoring on complete
+  // Mirror the backend: only on a correct answer keep the plausible minimum (300ms..3min).
+  if (is_correct && recall_time_ms >= 300 && recall_time_ms <= 180000) {
+    bestRecallTimeMs = bestRecallTimeMs == null ? recall_time_ms : Math.min(bestRecallTimeMs, recall_time_ms);
+  }
   res.json({ word_id, is_correct, correct_answer: word?.word_en || '' });
 });
 

@@ -46,6 +46,9 @@ public record UserProfileResponse(
         @JsonProperty("words_percentage")
         Integer wordsPercentage,
 
+        @JsonProperty("best_recall_time")
+        Integer bestRecallTime,
+
         @JsonProperty("onboarding_completed")
         boolean onboardingCompleted,
 
@@ -64,7 +67,7 @@ public record UserProfileResponse(
      * no {@code from(User)} overload so no caller can accidentally surface the stale raw column.
      */
     public static UserProfileResponse from(User user, Integer streak) {
-        return build(user, streak, null, null);
+        return build(user, streak, null, null, null);
     }
 
     /**
@@ -73,15 +76,17 @@ public record UserProfileResponse(
      * word on the platform ({@code totalWords}, 0% when the platform has no words). Used by
      * GET/PUT /users/me. {@code streak} must still be the grace-checked value (see above).
      */
-    public static UserProfileResponse from(User user, Integer streak, long learnedWords, long totalWords) {
+    public static UserProfileResponse from(
+            User user, Integer streak, long learnedWords, long totalWords, Integer bestRecallTime) {
         int percentage = totalWords == 0
                 ? 0
                 : (int) Math.round((double) learnedWords / totalWords * 100);
-        return build(user, streak, (int) learnedWords, percentage);
+        return build(user, streak, (int) learnedWords, percentage, bestRecallTime);
     }
 
     private static UserProfileResponse build(
-            User user, Integer streak, Integer learnedWords, Integer wordsPercentage) {
+            User user, Integer streak, Integer learnedWords, Integer wordsPercentage,
+            Integer bestRecallTime) {
         return new UserProfileResponse(
                 user.getId(),
                 user.getName(),
@@ -99,6 +104,7 @@ public record UserProfileResponse(
                 user.getGems(),
                 learnedWords,
                 wordsPercentage,
+                bestRecallTime,
                 user.isOnboardingCompleted(),
                 user.getLastActiveDate(),
                 user.getCreatedAt()

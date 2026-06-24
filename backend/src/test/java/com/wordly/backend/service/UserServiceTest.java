@@ -146,6 +146,32 @@ class UserServiceTest {
         }
 
         @Test
+        @DisplayName("exposes best_recall_time (ms) from the user's per-word minimum")
+        void shouldExposeBestRecallTime() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubWordProgress(5, 10);
+            when(userWordStateRepository.findBestRecallTimeMs(1L)).thenReturn(Optional.of(3400));
+
+            UserProfileResponse response = userService.getCurrentUserProfile(1L);
+
+            assertThat(response.bestRecallTime()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("best_recall_time is null (never 0) when the user has no recorded recall yet")
+        void shouldReportNullBestRecallTimeWhenNoRecord() {
+            User user = regularUser(1L);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            stubWordProgress(0, 10);
+            when(userWordStateRepository.findBestRecallTimeMs(1L)).thenReturn(Optional.empty());
+
+            UserProfileResponse response = userService.getCurrentUserProfile(1L);
+
+            assertThat(response.bestRecallTime()).isNull();
+        }
+
+        @Test
         @DisplayName("should throw NotFoundException when user does not exist")
         void shouldThrowWhenUserNotFound() {
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
