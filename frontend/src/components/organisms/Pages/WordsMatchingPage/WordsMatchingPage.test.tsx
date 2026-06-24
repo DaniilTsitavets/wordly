@@ -1,13 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { Routes, Route } from 'react-router-dom'
 import { http, HttpResponse } from 'msw'
 import { server } from '@/test/server'
 import { API_BASE_URL } from '@/api/client'
+import { gameSessionHandlers } from '@/test/handlers'
 import { renderWithProviders } from '@/test/test-utils'
 import { WordsMatchingPage } from './WordsMatchingPage'
 
 const url = (path: string) => `${API_BASE_URL}${path}`
+
+beforeEach(() => {
+  server.use(...gameSessionHandlers)
+})
 
 const word = (id: number, en: string, ru: string) => ({
   id,
