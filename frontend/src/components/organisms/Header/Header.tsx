@@ -16,6 +16,7 @@ interface HeaderAuthProps {
   onProfileClick?: () => void
   onVocabularyClick?: () => void
   onRecallClick?: () => void
+  onProgressClick?: () => void
   onAiChatClick?: () => void
   onAdminClick?: () => void
   avatarSrc?: string
@@ -53,7 +54,7 @@ export const Header = (props: HeaderProps) => {
   return (
     <header className={`${styles.header} ${className}`} role="banner">
       <Link to="/" className={styles.left} aria-label="Home">
-        <WordlyLogo />
+        <WordlyLogo height={50} />
       </Link>
 
       {isAuthenticated ? (
@@ -101,7 +102,12 @@ export const Header = (props: HeaderProps) => {
               <IconFont name="brain" />
               <span className={styles.tooltip}>Recall</span>
             </button>
-            <button className={styles.navBtn} aria-label="Progress">
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="Progress"
+              onClick={props.onProgressClick}
+            >
               <IconFont name="increase" />
               <span className={styles.tooltip}>Progress</span>
             </button>
