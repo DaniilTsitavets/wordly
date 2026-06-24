@@ -139,6 +139,38 @@ describe('OAuthCallbackPage', () => {
     await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('/'))
   })
 
+  it('still dispatches loginSuccess when the instance unmounts mid-exchange', async () => {
+    // Mirrors the production race where Layout's getMe wins, the Outlet
+    // re-keys on the resulting setUser(guest), and the OAuthCallbackPage
+    // instance gets torn down before its exchange resolves. The real user
+    // returned by the exchange must still land in Redux — otherwise the
+    // app stays on the guest session forever.
+    let resolveExchange: (() => void) | null = null
+    const exchangeReady = new Promise<void>((r) => {
+      resolveExchange = r
+    })
+    server.use(
+      http.post(url('/auth/oauth/google'), async () => {
+        await exchangeReady
+        return HttpResponse.json({
+          access_token: 'real-tok',
+          user: { ...mockUser, is_guest: false, onboarding_completed: true },
+        })
+      })
+    )
+
+    const { unmount, store } = renderWithProviders(<OAuthCallbackPage />, {
+      route: '/oauth/callback?code=code-race-unmount',
+    })
+
+    // Tear down the page before the exchange resolves, then let it resolve.
+    unmount()
+    resolveExchange?.()
+
+    await waitFor(() => expect(store.getState().auth.token).toBe('real-tok'))
+    expect(store.getState().auth.user?.is_guest).toBe(false)
+  })
+
   it('clicking "Back to home" navigates to /', async () => {
     renderWithProviders(
       <Routes>
