@@ -2,29 +2,139 @@ import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SendHorizontal } from 'lucide-react'
-import { Spinner } from '@/components/atoms/Spinner'
 import { IconFont } from '@/components/atoms/IconFont'
 import { IS_DEMO_API } from '@/api/client'
+import { getSubtopic } from '@/api/topics'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
 import { useAiChat } from './hooks/useAiChat'
 import type { ChatDisplayMessage } from './hooks/useAiChat'
+import { TopicPickerModal } from './components'
+import type { PickedSubtopic } from './components'
 import styles from './AiChatPage.module.scss'
-
-const DEFAULT_SUBTOPIC_ID = 1
-
-const SUGGESTED_PROMPTS = [
-  'Can you help me practice French food vocabulary?',
-  "Let's have a conversation about drinks in French",
-  "Quiz me on the words I've learned",
-  'Can you create a story using food words?',
-]
 
 export function AiChatPage() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const subtopicId = Number(searchParams.get('subtopicId')) || DEFAULT_SUBTOPIC_ID
+  const [searchParams, setSearchParams] = useSearchParams()
+  const rawSubtopicId = Number(searchParams.get('subtopicId'))
+  const subtopicId = Number.isFinite(rawSubtopicId) && rawSubtopicId > 0 ? rawSubtopicId : null
 
-  const { messages, isBootstrapping, isSending, error, hasUserMessages, send } =
-    useAiChat(subtopicId)
+  const [topicLabel, setTopicLabel] = useState<{
+    id: number
+    topic: string
+    subtopic: string
+  } | null>(null)
+  const [isPickerManuallyOpen, setIsPickerManuallyOpen] = useState(false)
+  const isPickerOpen = subtopicId === null || isPickerManuallyOpen
+
+  // On hard reload with `?subtopicId=N` we don't have the name yet — fetch it
+  // so the header pill stays informative. The picker path sets the label
+  // synchronously so this only fires on cold load or external URL changes.
+  useEffect(() => {
+    if (subtopicId === null) return
+    if (topicLabel?.id === subtopicId) return
+    let cancelled = false
+    getSubtopic(subtopicId)
+      .then((data) => {
+        if (!cancelled) setTopicLabel({ id: subtopicId, topic: '', subtopic: data.name })
+      })
+      .catch(() => {
+        /* leave the pill blank — non-fatal */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [subtopicId, topicLabel])
+
+  const handlePicked = (picked: PickedSubtopic) => {
+    setTopicLabel({
+      id: picked.subtopicId,
+      topic: picked.topicName,
+      subtopic: picked.subtopicName,
+    })
+    setIsPickerManuallyOpen(false)
+    const next = new URLSearchParams(searchParams)
+    next.set('subtopicId', String(picked.subtopicId))
+    // `replace: true` so the bare `/ai-chat` entry (which would just re-open
+    // the required picker) is removed from history — the header's back button
+    // takes the user back to the page they came from instead of bouncing
+    // through the picker again.
+    setSearchParams(next, { replace: true })
+  }
+
+  return (
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={() => navigate(-1)}
+          aria-label="Go back"
+        >
+          <IconFont name="arrow-back" size={22} decorative />
+        </button>
+        <div className={styles.headerText}>
+          <h1 className={styles.title}>AI Practice Chat</h1>
+          <p className={styles.subtitle}>
+            {topicLabel
+              ? topicLabel.topic
+                ? `${topicLabel.topic} · ${topicLabel.subtopic}`
+                : topicLabel.subtopic
+              : 'Practice your vocabulary with AI'}
+          </p>
+        </div>
+        {subtopicId !== null && (
+          <button
+            type="button"
+            className={styles.changeTopicButton}
+            onClick={() => setIsPickerManuallyOpen(true)}
+          >
+            Change topic
+          </button>
+        )}
+        {IS_DEMO_API && (
+          <span className={styles.demoBadge}>
+            <span className={styles.demoDot} aria-hidden="true" />
+            Demo Mode
+          </span>
+        )}
+      </header>
+
+      {subtopicId === null ? (
+        <EmptyState onPick={() => setIsPickerManuallyOpen(true)} />
+      ) : (
+        <AiChatBody key={subtopicId} subtopicId={subtopicId} />
+      )}
+
+      <TopicPickerModal
+        isOpen={isPickerOpen}
+        required={subtopicId === null}
+        onClose={() => setIsPickerManuallyOpen(false)}
+        onPick={handlePicked}
+      />
+    </div>
+  )
+}
+
+function EmptyState({ onPick }: { onPick: () => void }) {
+  return (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyAvatar} aria-hidden="true">
+        <IconFont name="sparkle" size={28} color="#ffffff" decorative />
+      </div>
+      <h2 className={styles.emptyTitle}>Pick a topic to start practicing</h2>
+      <p className={styles.emptyText}>
+        The AI uses the vocabulary from your chosen subtopic to guide the conversation.
+      </p>
+      <button type="button" className={styles.emptyButton} onClick={onPick}>
+        Choose topic
+      </button>
+    </div>
+  )
+}
+
+function AiChatBody({ subtopicId }: { subtopicId: number }) {
+  const { messages, isSending, error, send } = useAiChat(subtopicId)
+  useActivityHeartbeat()
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -46,64 +156,21 @@ export function AiChatPage() {
     }
   }
 
-  const showPrompts = !isBootstrapping && !hasUserMessages
+  const lastMessage = messages[messages.length - 1]
+  const showTyping =
+    isSending && (!lastMessage || lastMessage.role === 'user' || lastMessage.content === '')
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <button
-          type="button"
-          className={styles.backButton}
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-        >
-          <IconFont name="arrow-back" size={22} decorative />
-        </button>
-        <div className={styles.headerText}>
-          <h1 className={styles.title}>AI Practice Chat</h1>
-          <p className={styles.subtitle}>Practice your vocabulary with AI</p>
-        </div>
-        {IS_DEMO_API && (
-          <span className={styles.demoBadge}>
-            <span className={styles.demoDot} aria-hidden="true" />
-            Demo Mode
-          </span>
-        )}
-      </header>
-
+    <>
       <div className={styles.chat}>
         <div className={styles.messages} ref={scrollRef}>
-          {isBootstrapping ? (
-            <div className={styles.centered}>
-              <Spinner />
-            </div>
-          ) : (
-            <>
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-              {isSending && <TypingBubble />}
-            </>
-          )}
+          {messages
+            .filter((m) => !(m.role === 'assistant' && m.content === ''))
+            .map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
+          {showTyping && <TypingBubble />}
         </div>
-
-        {showPrompts && (
-          <div className={styles.prompts}>
-            <p className={styles.promptsLabel}>Try these prompts:</p>
-            <div className={styles.promptsList}>
-              {SUGGESTED_PROMPTS.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  className={styles.promptChip}
-                  onClick={() => handleSend(prompt)}
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {error && (
@@ -133,7 +200,7 @@ export function AiChatPage() {
         </button>
       </div>
       <p className={styles.hint}>Press Enter to send • Shift + Enter for new line</p>
-    </div>
+    </>
   )
 }
 

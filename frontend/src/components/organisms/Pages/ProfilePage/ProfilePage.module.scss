@@ -315,48 +315,6 @@ select.fieldInput {
   margin-top: 4px;
 }
 
-.learningStatsCard {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.learningStat {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.learningStatRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.learningStatCols {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-.learningStatCol {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.learningStatLabel {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.learningStatValue {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
 .centered {
   display: flex;
   align-items: center;

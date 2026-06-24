@@ -5,24 +5,24 @@ import { ChangeGoalModal } from './ChangeGoalModal'
 
 describe('ChangeGoalModal', () => {
   const baseProps = {
-    currentWords: 10,
+    currentMinutes: 15,
     isSaving: false,
     onClose: vi.fn(),
     onSave: vi.fn(),
   }
 
-  it('renders three goal options', () => {
+  it('renders three goal options (5 / 15 / 30 min)', () => {
     render(<ChangeGoalModal {...baseProps} />)
-    expect(screen.getByText('5 words')).toBeInTheDocument()
-    expect(screen.getByText('10 words')).toBeInTheDocument()
-    expect(screen.getByText('20 words')).toBeInTheDocument()
+    expect(screen.getByText('5 min')).toBeInTheDocument()
+    expect(screen.getByText('15 min')).toBeInTheDocument()
+    expect(screen.getByText('30 min')).toBeInTheDocument()
   })
 
-  it('marks the currentWords option as active and disables Save initially', () => {
-    render(<ChangeGoalModal {...baseProps} currentWords={10} />)
+  it('marks the currentMinutes option as active and disables Save initially', () => {
+    render(<ChangeGoalModal {...baseProps} currentMinutes={15} />)
     const radios = screen.getAllByRole('radio')
-    const tenWords = radios.find((r) => r.textContent?.includes('10 words'))!
-    expect(tenWords).toHaveAttribute('aria-checked', 'true')
+    const fifteen = radios.find((r) => r.textContent?.includes('15 min'))!
+    expect(fifteen).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByRole('button', { name: 'Save Goal' })).toBeDisabled()
   })
 
@@ -31,8 +31,8 @@ describe('ChangeGoalModal', () => {
     render(<ChangeGoalModal {...baseProps} onSave={onSave} />)
 
     const radios = screen.getAllByRole('radio')
-    const fiveWords = radios.find((r) => r.textContent?.includes('5 words'))!
-    await userEvent.click(fiveWords)
+    const five = radios.find((r) => r.textContent?.includes('5 min'))!
+    await userEvent.click(five)
 
     const save = screen.getByRole('button', { name: 'Save Goal' })
     expect(save).not.toBeDisabled()
@@ -49,7 +49,6 @@ describe('ChangeGoalModal', () => {
 
   it('shows loading state on the Save button when isSaving=true', () => {
     render(<ChangeGoalModal {...baseProps} isSaving />)
-    // Save button gets aria-busy via Button.isLoading; the close button does not.
     const busyButtons = screen
       .getAllByRole('button')
       .filter((b) => b.getAttribute('aria-busy') === 'true')
