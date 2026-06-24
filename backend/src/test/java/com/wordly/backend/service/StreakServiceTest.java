@@ -1,16 +1,27 @@
 package com.wordly.backend.service;
 
 import com.wordly.backend.entity.User;
+import com.wordly.backend.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("StreakService (stored incremental, grace model)")
 class StreakServiceTest {
+
+    @Mock UserRepository userRepository;
+    @InjectMocks StreakService streakService;
 
     private static final LocalDate TODAY = LocalDate.of(2026, 6, 15);
 
@@ -105,6 +116,44 @@ class StreakServiceTest {
             User u = User.builder().streak(0).longestStreak(null).lastActiveDate(null).build();
             StreakService.applyActivity(u, TODAY);
             assertThat(u.getLongestStreak()).isEqualTo(1);
+        }
+    }
+
+    @Nested
+    @DisplayName("recordActivity (public, delegates to applyActivity + save)")
+    class RecordActivity {
+
+        @Test
+        @DisplayName("saves user when activity causes a state change")
+        void savesWhenChanged() {
+            User u = user(0, null);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(u));
+
+            streakService.recordActivity(1L);
+
+            verify(userRepository).save(u);
+            assertThat(u.getStreak()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("does not save when activity is same-day no-op")
+        void doesNotSaveOnSameDayNoOp() {
+            User u = user(3, LocalDate.now());
+            when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+
+            streakService.recordActivity(2L);
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("does nothing when user not found")
+        void doesNothingWhenUserNotFound() {
+            when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+            streakService.recordActivity(99L);
+
+            verify(userRepository, never()).save(any());
         }
     }
 
