@@ -43,9 +43,7 @@ export const WordBuilderPage = () => {
   const [gemsEarned, setGemsEarned] = useState(0)
 
   const word = words?.[currentIndex]
-  // Hoist the optional-chained access so the manual hook deps below match what
-  // the React Compiler infers — `word?.word_en` in a dep array gets inferred
-  // as `word` (broader) and trips `react-hooks/preserve-manual-memoization`.
+  // Hoisted so hook deps match what the React Compiler infers.
   const wordEn = word?.word_en
   const isLast = currentIndex >= (words?.length ?? 0) - 1
   const progress = words?.length ? ((currentIndex + 1) / words.length) * 100 : 0
@@ -63,7 +61,6 @@ export const WordBuilderPage = () => {
   }, [wordEn])
 
   useEffect(() => {
-    // Reset answer state when the word changes — intentional cascading update.
     /* eslint-disable react-hooks/set-state-in-effect */
     setSelectedIndices([])
     setAnswerState('pending')

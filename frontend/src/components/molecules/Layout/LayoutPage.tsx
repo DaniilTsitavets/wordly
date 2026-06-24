@@ -36,11 +36,7 @@ export function Layout() {
       getMe()
         .then((profile) => dispatch(setUser(profile)))
         .catch((err: unknown) => {
-          // A stale/invalid token in localStorage (expired guest session, backend
-          // restart, signing-key rotation) → drop it so the next render falls
-          // back to the `!token` branch and bootstraps a fresh guest session.
-          // Without this the user lands on the home page with the raw Spring
-          // Security 401 message rendered as page content.
+          // Stale token → drop it so the next render re-bootstraps as guest.
           if (err instanceof ApiError && err.status === 401) {
             dispatch(logoutSuccess())
           }
@@ -84,14 +80,9 @@ export function Layout() {
         ))}
 
       {token ? (
-        // Keyed on user identity (not token) so the subtree only resets when
-        // the *user* actually changes — login → logout → login as someone
-        // else. Same-user token rotations (Google OAuth callback, refresh,
-        // guest-to-real upgrade) don't churn the page anymore, which was
-        // racing `useAiChat`'s kickoff into a 401 against a half-applied
-        // session. While `user` is still loading (bootstrap), a stable
-        // sentinel keeps the tree mounted instead of remounting once
-        // `user` flips from null → loaded.
+        // Key by user identity so the subtree resets only on actual user
+        // change, not on token rotation. Sentinel keeps it stable while
+        // `user` is still loading on bootstrap.
         <Outlet key={user?.id ?? 'bootstrap'} />
       ) : bootstrapError ? (
         <div className={styles.bootstrapState} role="alert">

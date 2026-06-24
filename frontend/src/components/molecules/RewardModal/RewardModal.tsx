@@ -8,11 +8,7 @@ interface RewardModalProps {
   onCollect: () => void
   completionTarget?: number | string
   reward?: string
-  /**
-   * Hide the gems block + relabel the button to "Continue". Used for guests —
-   * the backend doesn't accrue gems on guest accounts, so showing "+0 Gems"
-   * next to a "Collect Reward" button looks like a bug instead of a feature.
-   */
+  /** Hide gems block + show "Continue" instead of "Collect Reward". */
   hideReward?: boolean
 }
 

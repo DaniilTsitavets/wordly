@@ -26,9 +26,7 @@ export function AiChatPage() {
   const [isPickerManuallyOpen, setIsPickerManuallyOpen] = useState(false)
   const isPickerOpen = subtopicId === null || isPickerManuallyOpen
 
-  // On hard reload with `?subtopicId=N` we don't have the name yet — fetch it
-  // so the header pill stays informative. The picker path sets the label
-  // synchronously so this only fires on cold load or external URL changes.
+  // Hard reload with `?subtopicId=N` — fetch the name for the header pill.
   useEffect(() => {
     if (subtopicId === null) return
     if (topicLabel?.id === subtopicId) return
@@ -54,10 +52,7 @@ export function AiChatPage() {
     setIsPickerManuallyOpen(false)
     const next = new URLSearchParams(searchParams)
     next.set('subtopicId', String(picked.subtopicId))
-    // `replace: true` so the bare `/ai-chat` entry (which would just re-open
-    // the required picker) is removed from history — the header's back button
-    // takes the user back to the page they came from instead of bouncing
-    // through the picker again.
+    // Replace so back button skips the picker step.
     setSearchParams(next, { replace: true })
   }
 

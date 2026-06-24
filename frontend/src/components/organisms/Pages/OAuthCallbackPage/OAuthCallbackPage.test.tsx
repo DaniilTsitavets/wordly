@@ -27,9 +27,8 @@ describe('OAuthCallbackPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('access_denied')
   })
 
-  // Each test below uses a unique `code=` value because the page dedupes
-  // exchange attempts at module scope — sharing a code across tests would
-  // make the second test short-circuit and never hit the network.
+  // Codes below are unique per test — module-level dedupe in the page would
+  // short-circuit a shared code on the second test.
   it('exchanges the code and dispatches loginSuccess', async () => {
     server.use(
       http.post(url('/auth/oauth/google'), () =>
@@ -84,12 +83,6 @@ describe('OAuthCallbackPage', () => {
   })
 
   it('exchanges each code at most once — a remount with the same code is a no-op', async () => {
-    // Simulates the production race: the first exchange succeeds, the Outlet
-    // remounts because auth state changed, and the page mounts a second time
-    // with the same `?code=` still in the URL. The second mount must NOT
-    // re-hit the backend — otherwise Google rejects the already-used code
-    // and the user sees "Google authentication failed" over an already-
-    // logged-in session.
     let calls = 0
     server.use(
       http.post(url('/auth/oauth/google'), () => {
@@ -111,12 +104,6 @@ describe('OAuthCallbackPage', () => {
   })
 
   it('navigates away when mounted with an already-real user in the store', async () => {
-    // Mirrors the post-`<Outlet>`-remount situation: the first instance
-    // already exchanged the code and put a real user in Redux, then a new
-    // instance mounts on the same `/oauth/callback?code=…` URL because the
-    // Outlet re-keyed. The dedupe guard makes that mount a no-op against
-    // the backend, but the page still needs to leave — driven by the user
-    // it now sees in Redux.
     renderWithProviders(
       <Routes>
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />

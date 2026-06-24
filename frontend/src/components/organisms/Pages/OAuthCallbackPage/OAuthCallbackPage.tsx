@@ -7,14 +7,8 @@ import { loginSuccess } from '@/store/slices/authSlice'
 import { GOOGLE_REDIRECT_URI } from '@/utils/oauth'
 import styles from './OAuthCallbackPage.module.scss'
 
-// Codes Google issues are single-use. The successful exchange happens inside
-// `dispatch(loginSuccess(...))`, which changes the auth state and remounts the
-// `<Outlet>` keyed in `LayoutPage` — at which point a fresh instance of this
-// page sees the same `?code=…` in the URL and would race a second exchange
-// against the now-used code, getting back HTTP 400 from Google. The remounted
-// instance then paints "Google authentication failed" over an already-logged-in
-// session. Tracking attempted codes at the module level survives those
-// remounts (the module stays loaded) so a code is exchanged at most once.
+// Google codes are single-use. Module-level Set survives Outlet remount so a
+// code is exchanged at most once.
 const attemptedCodes = new Set<string>()
 
 export function OAuthCallbackPage() {
@@ -28,11 +22,7 @@ export function OAuthCallbackPage() {
   const initialError = oauthError ?? (code ? null : 'Missing authorization code')
   const [error, setError] = useState<string | null>(initialError)
 
-  // Navigation is owned by this effect, not by the exchange callback, so that
-  // a remount-after-success (the `<Outlet>` re-keys on user.id) still leaves
-  // the page when it sees the now-real user in Redux. Otherwise instance #2
-  // short-circuits the exchange (good) but sits forever on the "Signing
-  // you in" spinner (bad).
+  // Drive navigation off Redux so a remounted instance still leaves the page.
   useEffect(() => {
     if (user && !user.is_guest) {
       navigate(user.onboarding_completed ? '/' : '/onboarding/daily-goal', { replace: true })

@@ -16,12 +16,7 @@ interface TopicPickerModalProps {
   isOpen: boolean
   onClose: () => void
   onPick: (picked: PickedSubtopic) => void
-  /**
-   * `true` blocks the close affordances (no X button, no overlay/Escape close).
-   * Use on the first-time pick where the chat has no subtopic yet and the user
-   * MUST choose one. After a topic is picked, "Change topic" opens the modal
-   * with `required=false` so an accidental click can still be dismissed.
-   */
+  /** Blocks the close affordances (X, overlay, Escape) — for the first pick. */
   required?: boolean
 }
 
