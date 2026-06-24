@@ -27,6 +27,9 @@ describe('OAuthCallbackPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('access_denied')
   })
 
+  // Each test below uses a unique `code=` value because the page dedupes
+  // exchange attempts at module scope — sharing a code across tests would
+  // make the second test short-circuit and never hit the network.
   it('exchanges the code and dispatches loginSuccess', async () => {
     server.use(
       http.post(url('/auth/oauth/google'), () =>
@@ -40,7 +43,7 @@ describe('OAuthCallbackPage', () => {
         <Route path="/" element={<LocationProbe />} />
         <Route path="/onboarding/daily-goal" element={<LocationProbe />} />
       </Routes>,
-      { route: '/oauth/callback?code=abc' }
+      { route: '/oauth/callback?code=code-success' }
     )
 
     await waitFor(() => expect(store.getState().auth.token).toBe('google-tok'))
@@ -61,7 +64,7 @@ describe('OAuthCallbackPage', () => {
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
         <Route path="/onboarding/daily-goal" element={<LocationProbe />} />
       </Routes>,
-      { route: '/oauth/callback?code=abc' }
+      { route: '/oauth/callback?code=code-onboarding' }
     )
 
     await waitFor(() =>
@@ -76,8 +79,35 @@ describe('OAuthCallbackPage', () => {
       )
     )
 
-    renderWithProviders(<OAuthCallbackPage />, { route: '/oauth/callback?code=abc' })
+    renderWithProviders(<OAuthCallbackPage />, { route: '/oauth/callback?code=code-error' })
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('invalid grant'))
+  })
+
+  it('exchanges each code at most once — a remount with the same code is a no-op', async () => {
+    // Simulates the production race: the first exchange succeeds, the Outlet
+    // remounts because auth state changed, and the page mounts a second time
+    // with the same `?code=` still in the URL. The second mount must NOT
+    // re-hit the backend — otherwise Google rejects the already-used code
+    // and the user sees "Google authentication failed" over an already-
+    // logged-in session.
+    let calls = 0
+    server.use(
+      http.post(url('/auth/oauth/google'), () => {
+        calls += 1
+        return HttpResponse.json({ access_token: 'google-tok', user: { ...mockUser } })
+      })
+    )
+
+    const { unmount } = renderWithProviders(<OAuthCallbackPage />, {
+      route: '/oauth/callback?code=code-dedupe',
+    })
+    await waitFor(() => expect(calls).toBe(1))
+    unmount()
+
+    renderWithProviders(<OAuthCallbackPage />, { route: '/oauth/callback?code=code-dedupe' })
+    // give any spurious effect a chance to fire
+    await new Promise((r) => setTimeout(r, 30))
+    expect(calls).toBe(1)
   })
 
   it('clicking "Back to home" navigates to /', async () => {

@@ -7,6 +7,16 @@ import { loginSuccess } from '@/store/slices/authSlice'
 import { GOOGLE_REDIRECT_URI } from '@/utils/oauth'
 import styles from './OAuthCallbackPage.module.scss'
 
+// Codes Google issues are single-use. The successful exchange happens inside
+// `dispatch(loginSuccess(...))`, which changes the auth state and remounts the
+// `<Outlet>` keyed in `LayoutPage` — at which point a fresh instance of this
+// page sees the same `?code=…` in the URL and would race a second exchange
+// against the now-used code, getting back HTTP 400 from Google. The remounted
+// instance then paints "Google authentication failed" over an already-logged-in
+// session. Tracking attempted codes at the module level survives those
+// remounts (the module stays loaded) so a code is exchanged at most once.
+const attemptedCodes = new Set<string>()
+
 export function OAuthCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -19,6 +29,9 @@ export function OAuthCallbackPage() {
 
   useEffect(() => {
     if (initialError || !code) return
+    if (attemptedCodes.has(code)) return
+    attemptedCodes.add(code)
+
     let cancelled = false
     const run = async () => {
       try {
