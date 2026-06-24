@@ -181,7 +181,7 @@ let nextDailyGameId = 4;
 
 const mockUsers = [
   { id: 1, name: 'Alex', surname: 'Smith', email: 'mock@test.com',
-    is_guest: false, role: 'ADMIN', streak: 5, gems: 150,
+    is_guest: false, role: 'ADMIN', streak: 0, gems: 150,
     last_active_date: '2026-04-09', created_at: '2026-01-01T00:00:00Z' },
   { id: 2, name: null, surname: null, email: null,
     is_guest: true, role: 'USER', streak: 0, gems: 0,

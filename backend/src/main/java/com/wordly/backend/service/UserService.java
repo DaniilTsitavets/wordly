@@ -202,6 +202,17 @@ public class UserService {
 
         user.setGems(user.getGems() + GEMS_PER_DAILY_GOAL);
         user.setDailyGoalAwardedDate(today);
+
+        // Update streak: increment if last active was yesterday, reset to 1 if a day was skipped,
+        // keep at 1 if this is the very first daily goal ever.
+        LocalDate lastActive = user.getLastActiveDate();
+        if (lastActive != null && lastActive.equals(today.minusDays(1))) {
+            user.setStreak(user.getStreak() + 1);
+        } else {
+            user.setStreak(1);
+        }
+        user.setLastActiveDate(today);
+
         userRepository.save(user);
         return new DailyGoalClaimResponse(true, GEMS_PER_DAILY_GOAL);
     }

@@ -9,8 +9,6 @@ import { useWords } from '@/shared/hooks/useWords'
 import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
 import { completeSession } from '@/api/completeSession'
 import { RewardModal } from '@/components/molecules/RewardModal'
-import { useAppDispatch } from '@/store/hooks'
-import { addGems } from '@/store/slices/authSlice'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
 
@@ -48,7 +46,7 @@ const normalizeAnswer = (str: string): string => {
 export const FillingGapsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   useActivityHeartbeat()
 
@@ -57,7 +55,6 @@ export const FillingGapsPage = () => {
   const [answerState, setAnswerState] = useState<AnswerState>('pending')
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
-  const [isCompleting, setIsCompleting] = useState(false)
 
   const word = words?.[currentIndex]
   const isLast = currentIndex >= (words?.length ?? 0) - 1
@@ -100,18 +97,14 @@ export const FillingGapsPage = () => {
 
   const handleComplete = useCallback(async () => {
     if (isCompleting) return
-    setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'filling_gaps')
-      setGemsEarned(result.gems_earned)
-      dispatch(addGems(result.gems_earned))
+      const result = await finishSession(Number(subtopicId), 'filling_gaps')
+      setGemsEarned(result.gemsEarned)
       setShowReward(true)
     } catch {
       // TODO: show error toast
-    } finally {
-      setIsCompleting(false)
     }
-  }, [dispatch, isCompleting, subtopicId])
+  }, [finishSession, isCompleting, subtopicId])
 
   const handleCollect = useCallback(() => {
     setShowReward(false)

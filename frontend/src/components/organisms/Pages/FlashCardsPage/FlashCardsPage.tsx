@@ -16,14 +16,13 @@ import styles from './FlashCardsPage.module.scss'
 export const FlashCardsPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   useActivityHeartbeat()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
-  const [isCompleting, setIsCompleting] = useState(false)
 
   const handlePlayAudio = useCallback(() => {
     const currentWord = words?.[currentIndex]
@@ -67,16 +66,12 @@ export const FlashCardsPage = () => {
 
   const handleComplete = async () => {
     if (isCompleting) return
-    setIsCompleting(true)
     try {
-      const result = await completeSession(Number(subtopicId), 'flashcards')
-      setGemsEarned(result.gems_earned)
-      dispatch(addGems(result.gems_earned))
+      const result = await finishSession(Number(subtopicId), 'flashcards')
+      setGemsEarned(result.gemsEarned)
       setShowReward(true)
     } catch {
       // TODO: show error toast
-    } finally {
-      setIsCompleting(false)
     }
   }
 

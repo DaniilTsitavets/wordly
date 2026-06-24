@@ -40,7 +40,7 @@ type PageType = { en: WordType[]; ru: WordType[] }
 export const WordsMatchingPage = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
   useActivityHeartbeat()
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
@@ -52,7 +52,6 @@ export const WordsMatchingPage = () => {
   const [page, setPage] = useState(0)
   const [showReward, setShowReward] = useState(false)
   const [gemsEarned, setGemsEarned] = useState(0)
-  const [isCompleting, setIsCompleting] = useState(false)
   const [pages, setPages] = useState<PageType[]>([])
   const pagesInitializedRef = useRef(false)
 
@@ -130,21 +129,18 @@ export const WordsMatchingPage = () => {
 
   useEffect(() => {
     if (isAllComplete && !showReward && !isCompleting) {
-      queueMicrotask(() => setIsCompleting(true))
       const complete = async () => {
         try {
-          const result = await completeSession(Number(subtopicId), 'matching')
-          setGemsEarned(result.gems_earned)
-          dispatch(addGems(result.gems_earned))
+          const result = await finishSession(Number(subtopicId), 'matching')
+          setGemsEarned(result.gemsEarned)
         } catch (e) {
           console.error('Failed to complete session:', e)
         }
         setShowReward(true)
-        setIsCompleting(false)
       }
       complete()
     }
-  }, [isAllComplete, showReward, isCompleting, subtopicId, dispatch])
+  }, [isAllComplete, showReward, isCompleting, subtopicId, finishSession])
 
   const handleBack = useCallback(() => {
     navigate(-1)
