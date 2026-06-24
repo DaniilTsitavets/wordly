@@ -59,6 +59,94 @@
   margin: 0;
 }
 
+.changeTopicButton {
+  background: var(--accent-surface);
+  color: var(--brand-purple);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:hover {
+    border-color: var(--focus-purple);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-purple);
+    outline-offset: 2px;
+  }
+
+  @include mobile {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--surface-elevated);
+}
+
+.emptyAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: $gradient-accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 28rem;
+  line-height: 1.5;
+}
+
+.emptyButton {
+  margin-top: 4px;
+  background: $gradient-primary;
+  color: $color-white;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-purple);
+    outline-offset: 2px;
+  }
+}
+
 .demoBadge {
   display: inline-flex;
   align-items: center;
@@ -201,50 +289,6 @@
   }
 }
 
-.prompts {
-  padding: 12px 24px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.promptsLabel {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.promptsList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-
-.promptChip {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 13px;
-  color: var(--brand-blue);
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
-
-  &:hover {
-    border-color: $color-primary;
-    background: var(--accent-surface);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--focus-purple);
-    outline-offset: 2px;
-  }
-}
-
 .error {
   color: $color-error;
   font-size: 13px;
@@ -320,18 +364,58 @@
   padding: 0 24px 16px;
 }
 
-@media (max-width: 600px) {
+@include mobile {
+  .page {
+    height: calc(100vh - 64px);
+  }
+
   .row {
     max-width: 92%;
   }
 
   .header {
     padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .title {
+    font-size: 17px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .demoBadge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .chat {
+    padding: 1rem;
   }
 
   .messages,
   .composer {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .bubble {
+    padding: 10px 14px;
+  }
+
+  .bubbleText {
+    font-size: 14px;
+  }
+
+  .sendButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .hint {
+    font-size: 11px;
+    padding: 0 16px 12px;
   }
 }

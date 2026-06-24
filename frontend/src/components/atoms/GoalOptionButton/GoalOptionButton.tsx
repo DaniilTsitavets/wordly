@@ -2,15 +2,15 @@ import { IconFont } from '@/components/atoms/IconFont'
 import styles from './GoalOptionButton.module.scss'
 
 interface GoalOptionButtonProps {
-  words: number
+  minutes: number
   label: string
   icon: string
   isActive: boolean
-  onSelect: (words: number) => void
+  onSelect: (minutes: number) => void
 }
 
 export function GoalOptionButton({
-  words,
+  minutes,
   label,
   icon,
   isActive,
@@ -22,10 +22,10 @@ export function GoalOptionButton({
       role="radio"
       aria-checked={isActive}
       className={`${styles.option} ${isActive ? styles.optionActive : ''}`}
-      onClick={() => onSelect(words)}
+      onClick={() => onSelect(minutes)}
     >
       <IconFont name={icon} size={22} decorative />
-      <span className={styles.optionMinutes}>{words} words</span>
+      <span className={styles.optionMinutes}>{minutes} min</span>
       <span className={styles.optionLabel}>{label}</span>
     </button>
   )

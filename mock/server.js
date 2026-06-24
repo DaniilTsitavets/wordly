@@ -26,8 +26,8 @@ const DEFAULT_USER = {
   is_guest: false, role: 'ADMIN', interface_language: 'ru', daily_goal_min: 10, daily_goal_words: 10,
   notifications_enabled: true, color_theme: 'system',
   onboarding_completed: false,
-  streak: 0, gems: 150,
-  last_active_date: null, created_at: '2026-01-01T00:00:00Z',
+  streak: 5, longest_streak: 21, gems: 150,
+  last_active_date: '2026-04-09', created_at: '2026-01-01T00:00:00Z',
 };
 
 const MOCK_USER = { ...DEFAULT_USER };
@@ -238,22 +238,20 @@ const subtopicProgress = {
   2: 'flashcards',   // subtopic 2 starts with flashcards (mnemonic_cards disabled)
 };
 
-// Track words learned today (resets on server restart)
-const dailyProgress = {
-  completedSubtopicFirstMechanics: new Set([1]), // subtopic 1 already passed first mechanic
-};
+// Daily study time accumulator (seconds; resets on server restart, mock has no persistence).
+// Mirrors the daily_activity table: client reports seconds, server sums; minutes derived on read.
+let secondsSpentToday = 0;
+let lastActivityAt = null;                 // ms epoch of the last activity report (wall-clock baseline)
+const MAX_CREDITED_SECONDS_PER_REQUEST = 120; // mirrors UserService anti-cheat ceiling
 
 // Gem-award bookkeeping (all reset on server restart; mock has no persistence)
 const awardedTopicBonus = new Set();   // topic ids that already granted the +15 bonus
 const recallAnswers = new Map();       // word_id -> is_correct for the current recall session
 let dailyGoalClaimed = false;          // dedupes the +10 daily-goal bonus (per server run)
 
-function getWordsLearnedToday() {
-  let total = 0;
-  for (const subtopicId of dailyProgress.completedSubtopicFirstMechanics) {
-    total += words.filter(w => w.subtopic_id === subtopicId).length;
-  }
-  return total;
+function getMinutesToday() {
+  // floor: minutes hit the goal exactly when seconds cross goal×60 (mirrors UserService.toMinutes)
+  return Math.floor(secondsSpentToday / 60);
 }
 
 const makeLevels = (currentMechanic, disabled = []) => {
@@ -313,29 +311,53 @@ app.post('/api/v1/auth/oauth/google', (req, res) => {
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
+// Stats-screen word progress: per the contract these are populated only on GET/PUT /users/me, and
+// null in the auth responses — so they are injected here rather than stored on MOCK_USER.
+// best_recall_time: fastest correct recall across the user's words, in ms (null when none yet).
+let bestRecallTimeMs = 3400;
+const statsProgress = () => ({ learned_words: 42, words_percentage: 21, best_recall_time: bestRecallTimeMs });
+
 app.get('/api/v1/users/me', (req, res) => {
   if (isGuest(req)) {
-    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, gems: 0 });
+    return res.json({ ...MOCK_USER, id: 2, name: null, surname: null, email: null, is_guest: true, role: 'USER', streak: 0, longest_streak: 0, gems: 0, learned_words: 0, words_percentage: 0, best_recall_time: null });
   }
-  res.json(MOCK_USER);
+  res.json({ ...MOCK_USER, ...statsProgress() });
 });
 app.put('/api/v1/users/me', (req, res) => {
   Object.assign(MOCK_USER, req.body);
-  res.json(MOCK_USER);
+  res.json({ ...MOCK_USER, ...statsProgress() });
 });
 
 app.get('/api/v1/users/me/daily-progress', (req, res) => {
   res.json({
-    words_learned_today: getWordsLearnedToday(),
-    daily_goal_words: MOCK_USER.daily_goal_words,
+    minutes_today: getMinutesToday(),
+    daily_goal_min: MOCK_USER.daily_goal_min,
   });
+});
+
+app.post('/api/v1/users/me/activity', (req, res) => {
+  const { seconds } = req.body || {};
+  if (!Number.isInteger(seconds) || seconds < 1 || seconds > 86400) {
+    return res.status(400).json({ code: 'BAD_REQUEST', message: 'seconds must be an integer in [1, 86400]' });
+  }
+  // Wall-clock anti-cheat (mirrors UserService.creditableSeconds): credit at most the real time
+  // elapsed since the last report, capped by a per-request ceiling.
+  const now = Date.now();
+  const elapsed = lastActivityAt === null
+    ? MAX_CREDITED_SECONDS_PER_REQUEST
+    : Math.max(0, Math.floor((now - lastActivityAt) / 1000));
+  const credited = Math.min(seconds, Math.min(elapsed, MAX_CREDITED_SECONDS_PER_REQUEST));
+  lastActivityAt = now;
+  secondsSpentToday += credited;
+  res.json({ minutes_today: getMinutesToday(), daily_goal_min: MOCK_USER.daily_goal_min });
 });
 
 app.post('/api/v1/users/me/daily-goal/claim', (req, res) => {
   // Guests never accumulate gems (mirrors backend UserService.claimDailyGoal)
   if (MOCK_USER.is_guest) return res.json({ reached: false, gems_awarded: 0 });
 
-  const reached = getWordsLearnedToday() >= MOCK_USER.daily_goal_words;
+  // Time-based goal: today's seconds must reach daily_goal_min × 60 (mirrors isDailyGoalReached)
+  const reached = secondsSpentToday >= MOCK_USER.daily_goal_min * 60;
   if (!reached || dailyGoalClaimed) return res.json({ reached, gems_awarded: 0 });
 
   dailyGoalClaimed = true;
@@ -447,11 +469,7 @@ app.post('/api/v1/subtopics/:id/session/complete', (req, res) => {
   const idx = availableMechanics.indexOf(mechanic_type);
   const next = idx >= 0 && idx < availableMechanics.length - 1 ? availableMechanics[idx + 1] : null;
   subtopicProgress[id] = next;
-  // Track words learned today: first mechanic of a subtopic = new words
-  if (idx === 0) {
-    dailyProgress.completedSubtopicFirstMechanics.add(id);
-  }
-  console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}, words today: ${getWordsLearnedToday()}`);
+  console.log(`Subtopic ${id}: completed ${mechanic_type}, next is ${next}`);
 
   // +5 per level; +15 once when this completion finishes the whole topic (mirrors LearningService)
   let gemsEarned = 5;
@@ -481,10 +499,14 @@ app.get('/api/v1/recall', (req, res) => {
 });
 
 app.post('/api/v1/recall/answer', (req, res) => {
-  const { word_id, user_answer } = req.body;
+  const { word_id, user_answer, recall_time_ms } = req.body;
   const word = words.find(w => w.id === word_id);
   const is_correct = user_answer?.toLowerCase().trim() === (word?.word_en || '').toLowerCase();
   recallAnswers.set(word_id, is_correct); // remember for gem scoring on complete
+  // Mirror the backend: only on a correct answer keep the plausible minimum (300ms..3min).
+  if (is_correct && recall_time_ms >= 300 && recall_time_ms <= 180000) {
+    bestRecallTimeMs = bestRecallTimeMs == null ? recall_time_ms : Math.min(bestRecallTimeMs, recall_time_ms);
+  }
   res.json({ word_id, is_correct, correct_answer: word?.word_en || '' });
 });
 
@@ -505,14 +527,23 @@ app.post('/api/v1/recall/complete', (req, res) => {
 // ─── VOCABULARY ───────────────────────────────────────────────────────────────
 
 app.get('/api/v1/vocabulary', (req, res) => {
-  const subWords = words.filter(w => w.subtopic_id === 1);
+  const topicId = req.query.topic_id ? parseInt(req.query.topic_id) : null;
+  let filtered = words;
+  if (topicId) {
+    const subtopicIds = subtopics.filter(s => s.topic_id === topicId).map(s => s.id);
+    filtered = words.filter(w => subtopicIds.includes(w.subtopic_id));
+  }
   res.json({
-    total: subWords.length, page: 1,
-    words: subWords.map(w => ({
-      id: w.id, word_en: w.word_en, transcription_en: w.transcription_en,
-      translation_ru: w.translation_ru, image_url: w.image_url,
-      status: 'learning', next_recall: '2026-04-12',
-    })),
+    total: filtered.length, page: 1,
+    words: filtered.map(w => {
+      const subtopic = subtopics.find(s => s.id === w.subtopic_id);
+      return {
+        id: w.id, word_en: w.word_en, transcription_en: w.transcription_en,
+        translation_ru: w.translation_ru, image_url: w.image_url,
+        topic_id: subtopic ? subtopic.topic_id : null,
+        status: 'learning', next_recall: '2026-04-12',
+      };
+    }),
   });
 });
 
@@ -738,15 +769,31 @@ app.post('/api/v1/ai/chat', (req, res) => {
   if (!subtopic) {
     return res.status(404).json({ code: 'NOT_FOUND', message: 'Subtopic not found' });
   }
+
+  let reply;
   if (history.length === 0) {
     const subtopicWords = words.filter(w => w.subtopic_id === subtopicId).map(w => w.word_en).join(', ');
-    return res.json({
-      reply: `Great choice! Let's practice words from "${subtopic.name}". Today we'll work with: ${subtopicWords}. Imagine you're in the kitchen preparing dinner — what do you need to set the table?`,
-    });
+    reply = `Great choice! Let's practice words from "${subtopic.name}". Today we'll work with: ${subtopicWords}. Imagine you're in the kitchen preparing dinner — what do you need to set the table?`;
+  } else {
+    reply = MOCK_CHAT_REPLIES[mockChatReplyIndex % MOCK_CHAT_REPLIES.length];
+    mockChatReplyIndex++;
   }
-  const reply = MOCK_CHAT_REPLIES[mockChatReplyIndex % MOCK_CHAT_REPLIES.length];
-  mockChatReplyIndex++;
-  res.json({ reply });
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const tokens = reply.split(/(?<=\s)|(?=\s)/);
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= tokens.length) {
+      clearInterval(interval);
+      res.end();
+      return;
+    }
+    res.write(`data: ${tokens[i]}\n\n`);
+    i++;
+  }, 30);
 });
 
 // ─── START ───────────────────────────────────────────────────────────────────

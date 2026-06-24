@@ -134,7 +134,7 @@ Header: Authorization: Bearer <token>
 
 ```
 GET /users/me
-→ { id, name, surname, email, is_guest, role, gems, streak, daily_goal_min, ... }
+→ { id, name, surname, email, is_guest, role, gems, streak, longest_streak, learned_words, words_percentage, daily_goal_min, ... }
 ```
 
 ```

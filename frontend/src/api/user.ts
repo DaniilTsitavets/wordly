@@ -9,7 +9,6 @@ export interface UserProfile {
   role: 'ADMIN' | 'USER'
   interface_language: string
   daily_goal_min: number
-  daily_goal_words: number
   notifications_enabled: boolean
   color_theme: 'light' | 'dark' | 'system'
   onboarding_completed: boolean
@@ -27,7 +26,6 @@ export type UpdateUserPayload = Partial<
     | 'email'
     | 'interface_language'
     | 'daily_goal_min'
-    | 'daily_goal_words'
     | 'notifications_enabled'
     | 'color_theme'
     | 'onboarding_completed'
@@ -43,12 +41,26 @@ export function updateMe(payload: UpdateUserPayload): Promise<UserProfile> {
 }
 
 export interface DailyProgress {
-  words_learned_today: number
-  daily_goal_words: number
+  minutes_today: number
+  daily_goal_min: number
 }
 
 export function getDailyProgress(): Promise<DailyProgress> {
   return apiRequest<DailyProgress>('/users/me/daily-progress')
+}
+
+/**
+ * Heartbeat — reports study seconds for the daily goal.
+ * Per the backend contract (BRD §9.1) the server credits at most the
+ * wall-clock time since the last call (capped at 120s/request), so a
+ * forged value cannot fast-forward the goal. Send periodically (≤120s)
+ * while a learning screen is active.
+ */
+export function trackActivity(seconds: number): Promise<DailyProgress> {
+  return apiRequest<DailyProgress>('/users/me/activity', {
+    method: 'POST',
+    body: { seconds },
+  })
 }
 
 export interface DailyGoalClaimResponse {

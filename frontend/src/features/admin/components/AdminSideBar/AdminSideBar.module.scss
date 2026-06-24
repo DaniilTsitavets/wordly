@@ -83,7 +83,7 @@
   align-self: flex-start;
 }
 
-@media (max-width: 56.25rem) {
+@include tablet {
   .container {
     max-width: none;
     min-height: auto;
@@ -103,5 +103,19 @@
     align-items: center;
     padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
+  }
+}
+
+@include mobile {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .title__panel {
+    font-size: 1.125rem;
+  }
+
+  .backButton {
+    margin-top: 0.5rem;
   }
 }

@@ -7,6 +7,16 @@
   align-items: center;
   gap: 2rem;
   padding: 2rem 9.5rem;
+
+  @include tablet {
+    padding: 1.75rem 3rem;
+    gap: 1.5rem;
+  }
+
+  @include mobile {
+    padding: 1rem 1rem 2rem;
+    gap: 1rem;
+  }
 }
 
 .header {
@@ -14,6 +24,10 @@
   align-items: center;
   gap: 1rem;
   width: 100%;
+
+  @include mobile {
+    gap: 0.75rem;
+  }
 }
 
 .backButton {
@@ -33,6 +47,11 @@
   &:hover {
     background-color: var(--border-subtle);
   }
+
+  @include mobile {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 .heading {
@@ -51,6 +70,11 @@
   font-weight: 700;
   margin-bottom: 0.5rem;
   text-align: center;
+
+  @include mobile {
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+  }
 }
 
 .matchingBoard {
@@ -58,12 +82,25 @@
   justify-content: center;
   gap: 2rem;
   margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 36rem;
+
+  @include mobile {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .column {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+
+  @include mobile {
+    gap: 0.5rem;
+  }
 }
 
 .matchedRow {
@@ -72,6 +109,10 @@
   align-items: center;
   gap: 2rem;
   margin-top: 0.75rem;
+
+  @include mobile {
+    gap: 0.75rem;
+  }
 }
 
 .matchedWord {
@@ -82,21 +123,19 @@
   font-size: 1.125rem;
   color: $color-accent-emerald;
   margin-bottom: 0;
+
+  @include mobile {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
 }
 
 .matchedAmount {
   text-align: center;
   color: $color-neutral-gray;
   font-weight: 500;
-}
 
-@media (max-width: 43.75rem) {
-  .matchingBoard {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .matchedRow {
-    flex-direction: column;
-    gap: 0.75rem;
+  @include mobile {
+    font-size: 0.875rem;
   }
 }

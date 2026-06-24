@@ -37,6 +37,8 @@ class RecallServiceTest {
     private UserWordStateRepository userWordStateRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private StreakService streakService;
 
     @InjectMocks
     private RecallService recallService;
@@ -108,7 +110,7 @@ class RecallServiceTest {
             UserWordState s = state(10L, w, 1, LocalDate.now());
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
 
-            RecallAnswerRequest request = new RecallAnswerRequest(1L, "plate");
+            RecallAnswerRequest request = new RecallAnswerRequest(1L, "plate", null);
             AnswerResultResponse result = recallService.submitAnswer(request, 10L);
 
             assertThat(result.isCorrect()).isTrue();
@@ -116,6 +118,8 @@ class RecallServiceTest {
             assertThat(s.getRecallInterval()).isEqualTo(3);
             assertThat(s.getNextRecall()).isEqualTo(LocalDate.now().plusDays(3));
             verify(userWordStateRepository).save(s);
+            // A recall answer records an active day for the streak (US-028).
+            verify(streakService).recordActivity(10L);
         }
 
         @Test
@@ -127,7 +131,7 @@ class RecallServiceTest {
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
 
             for (int expected : expectedSequence) {
-                recallService.submitAnswer(new RecallAnswerRequest(1L, "fork"), 10L);
+                recallService.submitAnswer(new RecallAnswerRequest(1L, "fork", null), 10L);
                 assertThat(s.getRecallInterval()).isEqualTo(expected);
             }
         }
@@ -139,7 +143,7 @@ class RecallServiceTest {
             UserWordState s = state(10L, w, 30, LocalDate.now());
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
 
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", null), 10L);
 
             assertThat(s.getStatus()).isEqualTo(WordStatus.LONG_TERM_MEMORY);
             assertThat(s.getNextRecall()).isNull();
@@ -152,7 +156,7 @@ class RecallServiceTest {
             UserWordState s = state(10L, w, 14, LocalDate.now());
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
 
-            AnswerResultResponse result = recallService.submitAnswer(new RecallAnswerRequest(1L, "wrong"), 10L);
+            AnswerResultResponse result = recallService.submitAnswer(new RecallAnswerRequest(1L, "wrong", null), 10L);
 
             assertThat(result.isCorrect()).isFalse();
             assertThat(result.correctAnswer()).isEqualTo("plate");
@@ -170,7 +174,7 @@ class RecallServiceTest {
                     .recallInterval(30).nextRecall(null).build();
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
 
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "wrong"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "wrong", null), 10L);
 
             assertThat(s.getStatus()).isEqualTo(WordStatus.RECALLING);
             assertThat(s.getRecallInterval()).isEqualTo(1);
@@ -183,7 +187,7 @@ class RecallServiceTest {
             UserWordState s = state(10L, w, 1, LocalDate.now());
             when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
 
-            AnswerResultResponse result = recallService.submitAnswer(new RecallAnswerRequest(1L, "  PLATE  "), 10L);
+            AnswerResultResponse result = recallService.submitAnswer(new RecallAnswerRequest(1L, "  PLATE  ", null), 10L);
 
             assertThat(result.isCorrect()).isTrue();
         }
@@ -193,8 +197,129 @@ class RecallServiceTest {
         void shouldThrowWhenWordStateNotFound() {
             when(userWordStateRepository.findByUserIdAndWordId(10L, 99L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> recallService.submitAnswer(new RecallAnswerRequest(99L, "plate"), 10L))
+            assertThatThrownBy(() -> recallService.submitAnswer(new RecallAnswerRequest(99L, "plate", null), 10L))
                     .isInstanceOf(NotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("recall time tracking")
+    class RecallTimeTracking {
+
+        @Test
+        @DisplayName("should store recall time on a correct answer")
+        void shouldStoreRecallTimeOnCorrect() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", 3400L), 10L);
+
+            assertThat(s.getRecallTimeMs()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("should not store recall time on an incorrect answer")
+        void shouldNotStoreRecallTimeOnIncorrect() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 5, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "wrong", 1200L), 10L);
+
+            assertThat(s.getRecallTimeMs()).isNull();
+        }
+
+        @Test
+        @DisplayName("should keep the minimum: a faster time lowers the stored best")
+        void shouldLowerStoredBestWhenFaster() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            s.setRecallTimeMs(5000);
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", 3400L), 10L);
+
+            assertThat(s.getRecallTimeMs()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("should keep the minimum: a slower time does not replace the stored best")
+        void shouldKeepStoredBestWhenSlower() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            s.setRecallTimeMs(3400);
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", 5000L), 10L);
+
+            assertThat(s.getRecallTimeMs()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("should leave recall time untouched when the client reports none (null)")
+        void shouldIgnoreMissingRecallTime() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            s.setRecallTimeMs(3400);
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", null), 10L);
+
+            assertThat(s.getRecallTimeMs()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("should ignore a non-positive time (clock skew) without failing the answer")
+        void shouldIgnoreNonPositiveRecallTime() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            AnswerResultResponse result = recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", -50L), 10L);
+
+            assertThat(result.isCorrect()).isTrue();
+            assertThat(s.getRecallTimeMs()).isNull();
+        }
+
+        @Test
+        @DisplayName("should ignore an implausibly fast time below the plausibility floor")
+        void shouldIgnoreImplausiblyFastRecallTime() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            s.setRecallTimeMs(3400);
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", 1L), 10L);
+
+            assertThat(s.getRecallTimeMs()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("should ignore an implausibly slow time above the ceiling (user walked away)")
+        void shouldIgnoreImplausiblySlowRecallTime() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            s.setRecallTimeMs(3400);
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", 600_000L), 10L);
+
+            assertThat(s.getRecallTimeMs()).isEqualTo(3400);
+        }
+
+        @Test
+        @DisplayName("should ignore a value beyond int range without overflowing or failing")
+        void shouldIgnoreValueBeyondIntRange() {
+            Word w = word(1L, "plate");
+            UserWordState s = state(10L, w, 1, LocalDate.now());
+            when(userWordStateRepository.findByUserIdAndWordId(10L, 1L)).thenReturn(Optional.of(s));
+
+            AnswerResultResponse result = recallService.submitAnswer(
+                    new RecallAnswerRequest(1L, "plate", (long) Integer.MAX_VALUE + 1L), 10L);
+
+            assertThat(result.isCorrect()).isTrue();
+            assertThat(s.getRecallTimeMs()).isNull();
         }
     }
 
@@ -220,9 +345,9 @@ class RecallServiceTest {
             User user = User.builder().id(10L).gems(50).build();
             when(userRepository.findById(10L)).thenReturn(Optional.of(user));
 
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
-            recallService.submitAnswer(new RecallAnswerRequest(2L, "fork"), 10L);
-            recallService.submitAnswer(new RecallAnswerRequest(3L, "wrong"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", null), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(2L, "fork", null), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(3L, "wrong", null), 10L);
 
             RecallCompleteResponse response = recallService.completeRecall(10L);
 
@@ -249,8 +374,8 @@ class RecallServiceTest {
             User user = User.builder().id(10L).gems(50).build();
             when(userRepository.findById(10L)).thenReturn(Optional.of(user));
 
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
-            recallService.submitAnswer(new RecallAnswerRequest(2L, "fork"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", null), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(2L, "fork", null), 10L);
 
             RecallCompleteResponse response = recallService.completeRecall(10L);
 
@@ -287,7 +412,7 @@ class RecallServiceTest {
             User user = User.builder().id(10L).gems(0).build();
             when(userRepository.findById(10L)).thenReturn(Optional.of(user));
 
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 10L);
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", null), 10L);
             recallService.completeRecall(10L);
 
             RecallCompleteResponse secondCall = recallService.completeRecall(10L);
@@ -308,7 +433,7 @@ class RecallServiceTest {
                     .thenReturn(List.of(s));
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate"), 99L);
+            recallService.submitAnswer(new RecallAnswerRequest(1L, "plate", null), 99L);
 
             assertThatThrownBy(() -> recallService.completeRecall(99L))
                     .isInstanceOf(NotFoundException.class);

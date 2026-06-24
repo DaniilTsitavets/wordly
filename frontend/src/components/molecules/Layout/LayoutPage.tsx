@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { setUser, logoutSuccess, loginSuccess } from '@/store/slices/authSlice'
 import { getMe } from '@/api/user'
 import { logout, loginAsGuest } from '@/api/auth'
+import { ApiError } from '@/api/client'
 import styles from './LayoutPage.module.scss'
 
 const ONBOARDING_PATH = '/onboarding/daily-goal'
@@ -34,7 +35,16 @@ export function Layout() {
     if (!user) {
       getMe()
         .then((profile) => dispatch(setUser(profile)))
-        .catch(() => {})
+        .catch((err: unknown) => {
+          // A stale/invalid token in localStorage (expired guest session, backend
+          // restart, signing-key rotation) → drop it so the next render falls
+          // back to the `!token` branch and bootstraps a fresh guest session.
+          // Without this the user lands on the home page with the raw Spring
+          // Security 401 message rendered as page content.
+          if (err instanceof ApiError && err.status === 401) {
+            dispatch(logoutSuccess())
+          }
+        })
     }
   }, [token, user, dispatch])
 

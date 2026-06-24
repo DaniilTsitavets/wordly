@@ -1,3 +1,5 @@
+@use '../../../../styles/index' as *;
+
 .page {
   min-height: calc(100vh - 80px);
   display: flex;
@@ -5,6 +7,11 @@
   justify-content: center;
   padding: 24px;
   background: var(--background);
+
+  @include mobile {
+    min-height: calc(100vh - 64px);
+    padding: 16px;
+  }
 }
 
 .error {

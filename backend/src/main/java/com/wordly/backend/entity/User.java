@@ -66,12 +66,19 @@ public class User {
     @Builder.Default
     private Integer streak = 0;
 
+    @Column(name = "longest_streak", nullable = false)
+    @Builder.Default
+    private Integer longestStreak = 0;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer gems = 0;
 
     @Column(name = "last_active_date")
     private LocalDate lastActiveDate;
+
+    @Column(name = "last_activity_at")
+    private LocalDateTime lastActivityAt;
 
     @Column(name = "onboarding_completed", nullable = false)
     @Builder.Default

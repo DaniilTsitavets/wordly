@@ -2,7 +2,10 @@ import styles from './WordsMatchingPage.module.scss'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
+import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
@@ -39,6 +42,7 @@ export const WordsMatchingPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  useActivityHeartbeat()
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
   const [selectedRu, setSelectedRu] = useState<number | null>(null)
   const [matched, setMatched] = useState<

@@ -1,7 +1,10 @@
 package com.wordly.backend.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.VirtualThreadTaskExecutor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +14,11 @@ import java.time.Clock;
 
 @Configuration
 public class AppConfig {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 
     @Bean
     public Clock clock() {
@@ -26,7 +34,12 @@ public class AppConfig {
     public RestClient restClient() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
-        factory.setReadTimeout(30000);
+        factory.setReadTimeout(60000);
         return RestClient.builder().requestFactory(factory).build();
+    }
+
+    @Bean
+    public TaskExecutor aiChatExecutor() {
+        return new VirtualThreadTaskExecutor("ai-chat-");
     }
 }

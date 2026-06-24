@@ -20,7 +20,11 @@ export function HomePage() {
   }
 
   if (error) {
-    return <div className={styles.centered}>Error: {error}</div>
+    return (
+      <div className={styles.centered} role="alert">
+        Couldn&apos;t load topics. Please refresh and try again.
+      </div>
+    )
   }
 
   if (!topics || topics.length === 0) {

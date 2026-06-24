@@ -46,6 +46,7 @@ POST /api/v1/auth/oauth/google
     "color_theme": "system",
     "onboarding_completed": true,
     "streak": 5,
+    "longest_streak": 21,
     "gems": 150,
     "last_active_date": "2026-01-15",
     "created_at": "2026-01-01T00:00:00Z"

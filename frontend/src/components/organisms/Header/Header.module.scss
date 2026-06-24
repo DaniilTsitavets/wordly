@@ -1,3 +1,5 @@
+@use '../../../styles/index' as *;
+
 .header {
   width: 100%;
   height: 105px;
@@ -7,6 +9,16 @@
   padding: 0 32px;
   background: var(--header-bg);
   border-bottom: 1px solid var(--border-subtle);
+
+  @include tablet {
+    height: 80px;
+    padding: 0 24px;
+  }
+
+  @include mobile {
+    height: 64px;
+    padding: 0 16px;
+  }
 }
 
 .left {
@@ -19,6 +31,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @include mobile {
+    gap: 4px;
+  }
 }
 
 .divider {
@@ -26,12 +42,20 @@
   height: 24px;
   background: var(--border-subtle);
   margin: 0 4px;
+
+  @include mobile {
+    display: none;
+  }
 }
 
 .navIcons {
   display: flex;
   align-items: center;
   gap: 4px;
+
+  @include mobile {
+    gap: 2px;
+  }
 }
 
 .tooltipWrapper {
@@ -42,6 +66,11 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
     pointer-events: auto;
+  }
+
+  // Stat buttons crowd the bar on phones — drop them on mobile.
+  @include mobile {
+    display: none;
   }
 }
 
@@ -79,6 +108,31 @@
     outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
+
+  @include mobile {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+
+    svg,
+    [class^='icon'] {
+      width: 22px;
+      height: 22px;
+      font-size: 22px;
+    }
+  }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+
+    svg,
+    [class^='icon'] {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+  }
 }
 
 .tooltip {
@@ -98,6 +152,11 @@
     opacity 0.15s,
     transform 0.15s;
   z-index: 10;
+
+  // No hover on touch devices — hide tooltips, they only flash on tap.
+  @include mobile {
+    display: none;
+  }
 }
 
 .statBtnFire {
@@ -120,6 +179,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @include mobile {
+    gap: 8px;
+  }
 }
 
 .adminBtn {
@@ -140,6 +203,10 @@
     width: 22px;
     height: 22px;
     font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--brand-purple);
   }
 
@@ -157,12 +224,44 @@
     outline: 2px solid var(--focus-purple);
     outline-offset: 2px;
   }
+
+  @include mobile {
+    width: 36px;
+    height: 36px;
+
+    svg,
+    [class^='icon'] {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+    border-width: 1.5px;
+
+    svg,
+    [class^='icon'] {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
 }
 
 .loginBtn {
   height: 44px;
   min-width: 110px;
   border-radius: 3rem !important;
+
+  @include mobile {
+    height: 36px;
+    min-width: 0;
+    padding: 0 1rem !important;
+    font-size: 14px;
+  }
 }
 
 .avatarWrapper {

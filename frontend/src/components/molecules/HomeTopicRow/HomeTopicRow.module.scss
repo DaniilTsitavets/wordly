@@ -4,6 +4,14 @@
   max-width: 75rem;
   margin: 0 auto;
   padding: 2rem 1rem 2.5rem;
+
+  @include tablet {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  @include mobile {
+    padding: 1rem 0.75rem 1.5rem;
+  }
 }
 
 .title {
@@ -22,6 +30,12 @@
   font-size: 0.95rem;
   line-height: 1.5;
   color: var(--text-muted);
+
+  @include mobile {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    padding: 0 0.5rem;
+  }
 }
 
 .feedback,
@@ -47,6 +61,16 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
+
+  @include tablet {
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  @include mobile {
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
 }
 
 .item {

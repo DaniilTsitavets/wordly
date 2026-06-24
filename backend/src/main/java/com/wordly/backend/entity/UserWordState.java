@@ -49,4 +49,7 @@ public class UserWordState {
 
     @Column(name = "session_correct")
     private Boolean sessionCorrect;
+
+    @Column(name = "recall_time_ms")
+    private Integer recallTimeMs;
 }

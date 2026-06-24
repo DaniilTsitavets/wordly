@@ -9,7 +9,8 @@ const CARD_COLOR_CLASSES = [styles.cardBlue, styles.cardYellow, styles.cardPink,
 
 export function VocabularyPage() {
   const navigate = useNavigate()
-  const { data, isLoading, error } = useVocabulary()
+  const { data, totalWords, topics, selectedTopicId, setSelectedTopicId, isLoading, error } =
+    useVocabulary()
 
   if (isLoading) {
     return (
@@ -42,8 +43,31 @@ export function VocabularyPage() {
           <IconFont name="book" size={20} color="#1a1a1a" decorative />
           <h2 className={styles.totalTitle}>Total Words Learned</h2>
         </div>
-        <p className={styles.totalSubtitle}>You've learned {data.total} words so far!</p>
+        <p className={styles.totalSubtitle}>You've learned {totalWords} words so far!</p>
       </section>
+
+      {topics.length > 0 && (
+        <div className={styles.filterBar}>
+          <label htmlFor="topic-filter" className={styles.filterLabel}>
+            Topic:
+          </label>
+          <select
+            id="topic-filter"
+            className={styles.filterSelect}
+            value={selectedTopicId ?? ''}
+            onChange={(e) =>
+              setSelectedTopicId(e.target.value === '' ? null : Number(e.target.value))
+            }
+          >
+            <option value="">All</option>
+            {topics.map((topic) => (
+              <option key={topic.id} value={topic.id}>
+                {topic.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <ul className={styles.list}>
         {data.words.map((word, index) => (

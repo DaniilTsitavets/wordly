@@ -85,13 +85,13 @@ describe('ProfilePage', () => {
   it('switches to My statistics tab and shows Daily Goal card', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ words_learned_today: 4, daily_goal_words: 8 })
+        HttpResponse.json({ minutes_today: 6, daily_goal_min: 15 })
       )
     )
 
     renderWithProviders(<ProfilePage />, { preloadedState: preloaded })
     await userEvent.click(await screen.findByRole('tab', { name: 'My statistics' }))
     await waitFor(() => expect(screen.getByText('Daily Goal')).toBeInTheDocument())
-    expect(screen.getByText('4 / 8')).toBeInTheDocument()
+    expect(screen.getByText('6 / 15 min')).toBeInTheDocument()
   })
 })

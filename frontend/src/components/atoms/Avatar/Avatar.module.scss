@@ -1,3 +1,5 @@
+@use '../../../styles/index' as *;
+
 .avatar {
   border-radius: 999px;
   overflow: hidden;
@@ -33,18 +35,43 @@
 .sm {
   width: 32px;
   height: 32px;
+
+  @include mobile {
+    width: 28px;
+    height: 28px;
+  }
 }
 .md {
   width: 48px;
   height: 48px;
+
+  @include mobile {
+    width: 36px;
+    height: 36px;
+  }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+  }
 }
 .lg {
   width: 64px;
   height: 64px;
+
+  @include mobile {
+    width: 48px;
+    height: 48px;
+  }
 }
 .xl {
   width: 80px;
   height: 80px;
+
+  @include mobile {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 .placeholder {

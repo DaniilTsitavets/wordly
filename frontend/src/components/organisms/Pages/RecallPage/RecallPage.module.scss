@@ -8,6 +8,12 @@
   gap: 16px;
   max-width: 880px;
   margin: 0 auto;
+
+  @include mobile {
+    min-height: calc(100vh - 64px); // Header is 64px on mobile (see Header.module.scss).
+    padding: 16px 16px 32px;
+    gap: 12px;
+  }
 }
 
 .backLink {
@@ -46,6 +52,10 @@
 .brainIcon {
   font-size: 48px;
   line-height: 1;
+
+  @include mobile {
+    font-size: 36px;
+  }
 }
 
 .title {
@@ -54,6 +64,10 @@
   color: var(--text-primary);
   margin: 0;
   line-height: 1.1;
+
+  @include mobile {
+    font-size: 24px;
+  }
 }
 
 .description {
@@ -62,6 +76,10 @@
   line-height: 1.5;
   margin: 0;
   max-width: 540px;
+
+  @include mobile {
+    font-size: 14px;
+  }
 }
 
 .summaryCard {
@@ -72,6 +90,12 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  @include mobile {
+    padding: 18px 20px;
+    border-radius: 16px;
+    gap: 14px;
+  }
 }
 
 .summaryStats {
@@ -101,6 +125,10 @@
   font-size: 40px;
   font-weight: 800;
   line-height: 1;
+
+  @include mobile {
+    font-size: 32px;
+  }
 }
 
 .summaryValueBlue {
@@ -148,6 +176,12 @@
   align-items: center;
   gap: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  @include mobile {
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 12px;
+  }
 }
 
 .intervalInactive {
@@ -170,6 +204,12 @@
 
   .intervalInactive & {
     opacity: 0.5;
+  }
+
+  @include mobile {
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
   }
 }
 
@@ -331,6 +371,11 @@
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  @include mobile {
+    padding: 16px;
+    border-radius: 12px;
+  }
 }
 
 .howItWorksHeader {
@@ -391,7 +436,7 @@
   padding: 24px;
 }
 
-@media (max-width: 600px) {
+@include mobile {
   .summaryStats {
     flex-direction: column;
     align-items: flex-start;

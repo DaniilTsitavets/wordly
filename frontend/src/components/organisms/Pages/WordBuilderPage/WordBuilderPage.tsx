@@ -7,7 +7,10 @@ import { LetterTile } from '@/components/atoms/LetterTile'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { IconFont } from '@/components/atoms/IconFont'
 import { useWords } from '@/shared/hooks/useWords'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
+import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import testImg from '@/assets/test_img/test_img2.jpg'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -31,6 +34,7 @@ export const WordBuilderPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedIndices, setSelectedIndices] = useState<number[]>([])

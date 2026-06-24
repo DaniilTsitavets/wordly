@@ -7,7 +7,10 @@ import { Button } from '@/components/atoms/Button'
 import { IconFont } from '@/components/atoms/IconFont'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
+import { completeSession } from '@/api/completeSession'
+import { useAppDispatch } from '@/store/hooks'
+import { addGems } from '@/store/slices/authSlice'
 import styles from './FlashCardsPage.module.scss'
 
 export const FlashCardsPage = () => {
@@ -15,6 +18,7 @@ export const FlashCardsPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  useActivityHeartbeat()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const [showReward, setShowReward] = useState(false)

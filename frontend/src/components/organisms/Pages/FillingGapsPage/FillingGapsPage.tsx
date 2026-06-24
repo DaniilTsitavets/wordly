@@ -6,7 +6,8 @@ import { Button } from '@/components/atoms/Button'
 import { IconFont } from '@/components/atoms/IconFont'
 import { Input } from '@/components/atoms/Input'
 import { useWords } from '@/shared/hooks/useWords'
-import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
+import { completeSession } from '@/api/completeSession'
 import { RewardModal } from '@/components/molecules/RewardModal'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -47,6 +48,7 @@ export const FillingGapsPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState('')
