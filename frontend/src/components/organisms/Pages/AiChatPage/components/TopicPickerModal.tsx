@@ -16,9 +16,21 @@ interface TopicPickerModalProps {
   isOpen: boolean
   onClose: () => void
   onPick: (picked: PickedSubtopic) => void
+  /**
+   * `true` blocks the close affordances (no X button, no overlay/Escape close).
+   * Use on the first-time pick where the chat has no subtopic yet and the user
+   * MUST choose one. After a topic is picked, "Change topic" opens the modal
+   * with `required=false` so an accidental click can still be dismissed.
+   */
+  required?: boolean
 }
 
-export function TopicPickerModal({ isOpen, onClose, onPick }: TopicPickerModalProps) {
+export function TopicPickerModal({
+  isOpen,
+  onClose,
+  onPick,
+  required = false,
+}: TopicPickerModalProps) {
   const [topics, setTopics] = useState<TopicSummary[] | null>(null)
   const [topicsError, setTopicsError] = useState<string | null>(null)
   const [isLoadingTopics, setIsLoadingTopics] = useState(false)
@@ -89,7 +101,12 @@ export function TopicPickerModal({ isOpen, onClose, onPick }: TopicPickerModalPr
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideCloseButton ariaLabel="Choose topic for AI chat">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      hideCloseButton={required}
+      ariaLabel="Choose topic for AI chat"
+    >
       <div className={styles.container}>
         <header className={styles.header}>
           {selectedTopic ? (

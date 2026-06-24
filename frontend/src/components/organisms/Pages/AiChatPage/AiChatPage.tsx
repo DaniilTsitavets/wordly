@@ -54,7 +54,11 @@ export function AiChatPage() {
     setIsPickerManuallyOpen(false)
     const next = new URLSearchParams(searchParams)
     next.set('subtopicId', String(picked.subtopicId))
-    setSearchParams(next, { replace: false })
+    // `replace: true` so the bare `/ai-chat` entry (which would just re-open
+    // the required picker) is removed from history — the header's back button
+    // takes the user back to the page they came from instead of bouncing
+    // through the picker again.
+    setSearchParams(next, { replace: true })
   }
 
   return (
@@ -103,6 +107,7 @@ export function AiChatPage() {
 
       <TopicPickerModal
         isOpen={isPickerOpen}
+        required={subtopicId === null}
         onClose={() => setIsPickerManuallyOpen(false)}
         onPick={handlePicked}
       />

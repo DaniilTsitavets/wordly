@@ -137,17 +137,21 @@ describe('TopicPickerModal', () => {
     await waitFor(() => expect(screen.getByText('1 word')).toBeInTheDocument())
   })
 
-  it('blocks Escape close — user must pick a topic to proceed', async () => {
+  it('required mode blocks Escape and hides the close button', async () => {
     server.use(http.get(url('/topics'), () => HttpResponse.json({ topics: [sampleTopic] })))
     const onClose = vi.fn()
-    renderWithProviders(<TopicPickerModal isOpen onClose={onClose} onPick={() => {}} />)
+    renderWithProviders(<TopicPickerModal isOpen required onClose={onClose} onPick={() => {}} />)
+    expect(screen.queryByRole('button', { name: /Закрыть/i })).not.toBeInTheDocument()
     await userEvent.keyboard('{Escape}')
     expect(onClose).not.toHaveBeenCalled()
   })
 
-  it('does not render the corner close button', async () => {
+  it('non-required mode shows the close button and forwards Escape', async () => {
     server.use(http.get(url('/topics'), () => HttpResponse.json({ topics: [sampleTopic] })))
-    renderWithProviders(<TopicPickerModal isOpen onClose={() => {}} onPick={() => {}} />)
-    expect(screen.queryByRole('button', { name: /Закрыть/i })).not.toBeInTheDocument()
+    const onClose = vi.fn()
+    renderWithProviders(<TopicPickerModal isOpen onClose={onClose} onPick={() => {}} />)
+    expect(screen.getByRole('button', { name: /Закрыть/i })).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    expect(onClose).toHaveBeenCalled()
   })
 })
