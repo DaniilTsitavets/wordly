@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                            response.getWriter().write(toJson("UNAUTHORIZED", authException.getMessage()));
+                            response.getWriter().write(toJson("UNAUTHORIZED", "Session expired or missing. Please log in again."));
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpStatus.FORBIDDEN.value());
