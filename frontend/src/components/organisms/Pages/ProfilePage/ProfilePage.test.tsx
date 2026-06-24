@@ -85,7 +85,7 @@ describe('ProfilePage', () => {
   it('switches to My statistics tab and shows Daily Goal card', async () => {
     server.use(
       http.get(url('/users/me/daily-progress'), () =>
-        HttpResponse.json({ words_learned_today: 4, daily_goal_words: 8 })
+        HttpResponse.json({ minutes_today: 4, daily_goal_min: 8 })
       )
     )
 

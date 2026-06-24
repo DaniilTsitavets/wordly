@@ -47,16 +47,16 @@ describe('user API', () => {
   })
 
   describe('getDailyProgress', () => {
-    it('returns words_learned_today + daily_goal_words', async () => {
+    it('returns minutes_today + daily_goal_min', async () => {
       server.use(
         http.get(url('/users/me/daily-progress'), () =>
-          HttpResponse.json({ words_learned_today: 3, daily_goal_words: 8 })
+          HttpResponse.json({ minutes_today: 3, daily_goal_min: 8 })
         )
       )
 
       const result = await getDailyProgress()
-      expect(result.words_learned_today).toBe(3)
-      expect(result.daily_goal_words).toBe(8)
+      expect(result.minutes_today).toBe(3)
+      expect(result.daily_goal_min).toBe(8)
     })
   })
 

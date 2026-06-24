@@ -17,6 +17,9 @@ export interface UserProfile {
   gems: number
   last_active_date: string
   created_at: string
+  words_percentage: number | null
+  best_recall_time: number | null
+  learned_words: number | null
 }
 
 export type UpdateUserPayload = Partial<
@@ -43,8 +46,8 @@ export function updateMe(payload: UpdateUserPayload): Promise<UserProfile> {
 }
 
 export interface DailyProgress {
-  words_learned_today: number
-  daily_goal_words: number
+  minutes_today: number
+  daily_goal_min: number
 }
 
 export function getDailyProgress(): Promise<DailyProgress> {
@@ -60,5 +63,17 @@ export function claimDailyGoal(): Promise<DailyGoalClaimResponse> {
   return apiRequest<DailyGoalClaimResponse>('/users/me/daily-goal/claim', {
     method: 'POST',
     body: {},
+  })
+}
+
+export interface ActivityResponse {
+  minutes_today: number
+  daily_goal_min: number
+}
+
+export function postActivity(seconds: number): Promise<ActivityResponse> {
+  return apiRequest<ActivityResponse>('/users/me/activity', {
+    method: 'POST',
+    body: { seconds },
   })
 }

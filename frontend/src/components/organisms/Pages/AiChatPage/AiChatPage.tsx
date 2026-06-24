@@ -7,6 +7,7 @@ import { IconFont } from '@/components/atoms/IconFont'
 import { IS_DEMO_API } from '@/api/client'
 import { useAiChat } from './hooks/useAiChat'
 import type { ChatDisplayMessage } from './hooks/useAiChat'
+import { useActivityTracker } from '@/shared/hooks/useActivityTracker'
 import styles from './AiChatPage.module.scss'
 
 const DEFAULT_SUBTOPIC_ID = 1
@@ -22,6 +23,7 @@ export function AiChatPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const subtopicId = Number(searchParams.get('subtopicId')) || DEFAULT_SUBTOPIC_ID
+  useActivityTracker()
 
   const { messages, isBootstrapping, isSending, error, hasUserMessages, send } =
     useAiChat(subtopicId)

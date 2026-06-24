@@ -5,7 +5,7 @@ import { ChangeGoalModal } from './ChangeGoalModal'
 
 describe('ChangeGoalModal', () => {
   const baseProps = {
-    currentWords: 10,
+    currentMinutes: 15,
     isSaving: false,
     onClose: vi.fn(),
     onSave: vi.fn(),
@@ -13,16 +13,16 @@ describe('ChangeGoalModal', () => {
 
   it('renders three goal options', () => {
     render(<ChangeGoalModal {...baseProps} />)
-    expect(screen.getByText('5 words')).toBeInTheDocument()
-    expect(screen.getByText('10 words')).toBeInTheDocument()
-    expect(screen.getByText('20 words')).toBeInTheDocument()
+    expect(screen.getByText('5 min')).toBeInTheDocument()
+    expect(screen.getByText('15 min')).toBeInTheDocument()
+    expect(screen.getByText('30 min')).toBeInTheDocument()
   })
 
-  it('marks the currentWords option as active and disables Save initially', () => {
-    render(<ChangeGoalModal {...baseProps} currentWords={10} />)
+  it('marks the currentMinutes option as active and disables Save initially', () => {
+    render(<ChangeGoalModal {...baseProps} currentMinutes={15} />)
     const radios = screen.getAllByRole('radio')
-    const tenWords = radios.find((r) => r.textContent?.includes('10 words'))!
-    expect(tenWords).toHaveAttribute('aria-checked', 'true')
+    const fifteenMin = radios.find((r) => r.textContent?.includes('15 min'))!
+    expect(fifteenMin).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByRole('button', { name: 'Save Goal' })).toBeDisabled()
   })
 
@@ -31,8 +31,8 @@ describe('ChangeGoalModal', () => {
     render(<ChangeGoalModal {...baseProps} onSave={onSave} />)
 
     const radios = screen.getAllByRole('radio')
-    const fiveWords = radios.find((r) => r.textContent?.includes('5 words'))!
-    await userEvent.click(fiveWords)
+    const fiveMin = radios.find((r) => r.textContent?.includes('5 min'))!
+    await userEvent.click(fiveMin)
 
     const save = screen.getByRole('button', { name: 'Save Goal' })
     expect(save).not.toBeDisabled()
