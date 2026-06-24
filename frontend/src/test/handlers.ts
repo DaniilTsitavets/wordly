@@ -37,4 +37,13 @@ export const handlers = [
     HttpResponse.json({ access_token: 'google-token', user: mockUser })
   ),
   http.get(url('/users/me'), () => HttpResponse.json(mockUser)),
+  // Default no-op stubs for the activity heartbeat + daily-goal claim that
+  // `useFinishSession` (and useActivityHeartbeat) fire on most game pages.
+  // Individual tests can override via `server.use(...)` when they care.
+  http.post(url('/users/me/activity'), () =>
+    HttpResponse.json({ minutes_today: 0, daily_goal_min: mockUser.daily_goal_min })
+  ),
+  http.post(url('/users/me/daily-goal/claim'), () =>
+    HttpResponse.json({ reached: false, gems_awarded: 0 })
+  ),
 ]

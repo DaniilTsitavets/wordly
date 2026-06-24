@@ -7,7 +7,8 @@ import { IconFont } from '@/components/atoms/IconFont'
 import { Input } from '@/components/atoms/Input'
 import { useWords } from '@/shared/hooks/useWords'
 import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { completeSession } from '@/api/completeSession'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useAppSelector } from '@/store/hooks'
 import { RewardModal } from '@/components/molecules/RewardModal'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -48,6 +49,7 @@ export const FillingGapsPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
   useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -219,6 +221,7 @@ export const FillingGapsPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
+        hideReward={isGuest}
       />
     </div>
   )

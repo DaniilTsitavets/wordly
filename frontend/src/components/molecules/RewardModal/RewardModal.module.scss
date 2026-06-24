@@ -9,6 +9,14 @@
   padding: 3rem 3rem 3rem;
 }
 
+// When the rewards block is hidden (guest flow) the column is much shorter
+// than the parent dialog — vertically center it so the diamond + title +
+// Continue button don't hug the top edge.
+.modalCentered {
+  flex: 1;
+  justify-content: center;
+}
+
 .iconWrapper {
   position: relative;
   width: 6rem;

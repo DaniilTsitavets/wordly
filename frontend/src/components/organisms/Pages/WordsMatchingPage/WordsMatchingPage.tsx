@@ -3,9 +3,8 @@ import { ProgressBar } from '@/components/atoms/ProgressBar'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
 import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { completeSession } from '@/api/completeSession'
-import { useAppDispatch } from '@/store/hooks'
-import { addGems } from '@/store/slices/authSlice'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useAppSelector } from '@/store/hooks'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MatchCard } from '@/components/atoms/MatchCard'
@@ -42,6 +41,7 @@ export const WordsMatchingPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
   useActivityHeartbeat()
   const [selectedEn, setSelectedEn] = useState<number | null>(null)
   const [selectedRu, setSelectedRu] = useState<number | null>(null)
@@ -247,6 +247,7 @@ export const WordsMatchingPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
+        hideReward={isGuest}
       />
     </div>
   )
