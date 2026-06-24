@@ -145,7 +145,7 @@ describe('OAuthCallbackPage', () => {
     // instance gets torn down before its exchange resolves. The real user
     // returned by the exchange must still land in Redux — otherwise the
     // app stays on the guest session forever.
-    let resolveExchange: (() => void) | null = null
+    let resolveExchange!: () => void
     const exchangeReady = new Promise<void>((r) => {
       resolveExchange = r
     })
@@ -165,7 +165,7 @@ describe('OAuthCallbackPage', () => {
 
     // Tear down the page before the exchange resolves, then let it resolve.
     unmount()
-    resolveExchange?.()
+    resolveExchange()
 
     await waitFor(() => expect(store.getState().auth.token).toBe('real-tok'))
     expect(store.getState().auth.user?.is_guest).toBe(false)
