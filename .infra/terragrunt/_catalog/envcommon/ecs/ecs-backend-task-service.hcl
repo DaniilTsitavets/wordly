@@ -77,15 +77,10 @@ inputs = {
   cluster_arn = dependency.cluster.outputs.arn
 
   capacity_provider_strategy = {
-    fargate_spot = {
-      capacity_provider = "FARGATE_SPOT"
-      weight            = 4
-      base              = 0
-    }
     fargate = {
       capacity_provider = "FARGATE"
       weight            = 1
-      base              = 0
+      base              = 1
     }
   }
 
