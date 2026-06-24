@@ -17,11 +17,8 @@ interface UseAiChatResult {
   send: (text: string) => Promise<void>
 }
 
-// Invisible kickoff sent to the backend so the AI's first turn is its real,
-// vocabulary-aware scenario opener instead of a hardcoded UI stub. Per the
-// backend system prompt the AI's first message is always the scenario setup
-// regardless of what the user actually said, so the text here is irrelevant —
-// it just satisfies the required `message` field on the request.
+// Placeholder text — the backend's system prompt always opens with its own
+// scenario, the value of `message` doesn't matter beyond not being empty.
 const KICKOFF_MESSAGE = "Let's start!"
 
 function makeId(): string {
@@ -42,8 +39,7 @@ export function useAiChat(subtopicId: number): UseAiChatResult {
   messagesRef.current = messages
   const abortRef = useRef<AbortController | null>(null)
 
-  // Fire the AI's scenario opener once on mount. AiChatBody keys this hook by
-  // subtopicId, so a topic switch fully remounts and re-kicks off.
+  // Kick off the opener on mount; AiChatBody keys this hook by subtopicId.
   useEffect(() => {
     const assistantId = makeId()
     setMessages([{ id: assistantId, role: 'assistant', content: '', timestamp: Date.now() }])
