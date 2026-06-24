@@ -69,7 +69,6 @@ export function useActivityTracker(): ActivityProgress {
       window.removeEventListener('blur', handleBlur)
       window.removeEventListener('focus', handleFocus)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return progress

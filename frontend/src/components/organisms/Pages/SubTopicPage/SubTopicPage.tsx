@@ -39,7 +39,9 @@ export function SubTopicPage() {
       sessionStorage.removeItem('sessionCompleted')
       refetch()
       refetchDaily()
-      getMe().then((profile) => dispatch(setUser(profile))).catch(() => {})
+      getMe()
+        .then((profile) => dispatch(setUser(profile)))
+        .catch(() => {})
 
       const claimReward = async () => {
         try {
