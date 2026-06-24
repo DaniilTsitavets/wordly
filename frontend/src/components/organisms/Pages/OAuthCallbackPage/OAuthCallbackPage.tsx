@@ -41,7 +41,11 @@ export function OAuthCallbackPage() {
           code,
           redirect_uri: GOOGLE_REDIRECT_URI,
         })
-        if (cancelled) return
+        // Dispatch unconditionally — Redux is global, the result is valid
+        // even if this instance was already unmounted by an Outlet remount
+        // (e.g. a parallel `setUser(guest)` from Layout's `getMe` won the
+        // race). Without this, the real user from the exchange is lost and
+        // the page sits on the spinner forever.
         dispatch(loginSuccess({ token: access_token, user }))
       } catch (err) {
         if (!cancelled) {
