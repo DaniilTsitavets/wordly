@@ -9,10 +9,6 @@ interface ModalProps {
   children?: ReactNode
   ariaLabel?: string
   size?: 'default' | 'compact'
-  /**
-   * Hide the corner close button and ignore overlay/Escape close. Use for
-   * blocking dialogs where the user MUST pick an option to proceed.
-   */
   hideCloseButton?: boolean
 }
 

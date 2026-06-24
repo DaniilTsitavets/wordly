@@ -75,6 +75,7 @@ export function Layout() {
             onProfileClick={() => navigate('/profile')}
             onVocabularyClick={() => navigate('/vocabulary')}
             onRecallClick={() => navigate('/recall')}
+            onProgressClick={() => navigate('/profile')}
             onAiChatClick={() => navigate('/ai-chat')}
             onAdminClick={() => navigate('/admin/dashboard')}
           />

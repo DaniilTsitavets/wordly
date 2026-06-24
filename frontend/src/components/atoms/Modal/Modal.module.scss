@@ -40,6 +40,9 @@
 
   .content {
     padding: 2.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @include mobile {
       padding: 1.5rem 1.25rem;

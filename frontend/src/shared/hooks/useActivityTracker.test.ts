@@ -85,4 +85,3 @@ describe('useActivityTracker', () => {
     expect(mockPost).not.toHaveBeenCalled()
   })
 })
-

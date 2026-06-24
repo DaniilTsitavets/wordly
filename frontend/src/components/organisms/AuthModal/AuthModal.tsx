@@ -27,10 +27,10 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      ariaLabel={activeTab === 'login' ? 'Вход в аккаунт' : 'Регистрация'}
+      ariaLabel={activeTab === 'login' ? 'Login' : 'Sign Up'}
     >
       <div className={styles.header}>
-        <WordlyLogo />
+        <WordlyLogo height={60} />
         <p className={styles.subtitle}>
           {activeTab === 'login' ? 'Start your learning journey' : 'Create your account'}
         </p>
