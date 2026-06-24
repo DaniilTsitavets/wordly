@@ -23,6 +23,20 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 })
 
+// MSW v2's experimental network mode occasionally fires an "unhandled
+// rejection" with `Cannot bypass a request when using the "error" strategy`
+// when a fetch is aborted during component cleanup (e.g. router redirects
+// that unmount a page mid-request). The response was never going to ship,
+// and the rejection isn't caused by a real bug in the test — it's noise from
+// the test-runner cleanup race. Swallow only that specific message so we
+// keep catching genuine unhandled errors.
+process.on('unhandledRejection', (reason) => {
+  if (reason instanceof Error && /Cannot bypass a request/.test(reason.message)) {
+    return
+  }
+  throw reason
+})
+
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => {
   cleanup()

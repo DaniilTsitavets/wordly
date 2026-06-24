@@ -8,9 +8,8 @@ import { IconFont } from '@/components/atoms/IconFont'
 import { RewardModal } from '@/components/molecules/RewardModal'
 import { useWords } from '@/shared/hooks/useWords'
 import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { completeSession } from '@/api/completeSession'
-import { useAppDispatch } from '@/store/hooks'
-import { addGems } from '@/store/slices/authSlice'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useAppSelector } from '@/store/hooks'
 import styles from './MnemonicCardsPage.module.scss'
 
 export const MnemonicCardsPage = () => {
@@ -18,6 +17,7 @@ export const MnemonicCardsPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words: allWords, isLoading, error } = useWords(Number(subtopicId))
+  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
   useActivityHeartbeat()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
@@ -134,6 +134,7 @@ export const MnemonicCardsPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
+        hideReward={isGuest}
       />
     </section>
   )

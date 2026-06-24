@@ -8,6 +8,12 @@ interface RewardModalProps {
   onCollect: () => void
   completionTarget?: number | string
   reward?: string
+  /**
+   * Hide the gems block + relabel the button to "Continue". Used for guests —
+   * the backend doesn't accrue gems on guest accounts, so showing "+0 Gems"
+   * next to a "Collect Reward" button looks like a bug instead of a feature.
+   */
+  hideReward?: boolean
 }
 
 export const RewardModal = ({
@@ -16,6 +22,7 @@ export const RewardModal = ({
   onCollect,
   completionTarget = 1,
   reward = '+10 Gems',
+  hideReward = false,
 }: RewardModalProps) => {
   let completionText = String(completionTarget)
   if (typeof completionTarget === 'number') {
@@ -24,7 +31,7 @@ export const RewardModal = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} ariaLabel="Reward modal">
-      <div className={styles.modal}>
+      <div className={`${styles.modal} ${hideReward ? styles.modalCentered : ''}`.trim()}>
         <div style={{ position: 'relative' }}>
           <div className={styles.iconWrapper} aria-hidden="true">
             <IconFont name="diamond-white" size={48} decorative />
@@ -42,21 +49,23 @@ export const RewardModal = ({
           <p className={styles.subtitle}>Congratulations on completing {completionText}</p>
         </div>
 
-        <div className={styles.rewardBox} aria-label={`Reward: ${reward}`}>
-          <div className={styles.rewardIconWrapper} aria-hidden="true">
-            <IconFont name="diamond" size={28} color="#ffffff" decorative />
+        {!hideReward && (
+          <div className={styles.rewardBox} aria-label={`Reward: ${reward}`}>
+            <div className={styles.rewardIconWrapper} aria-hidden="true">
+              <IconFont name="diamond" size={28} color="#ffffff" decorative />
+            </div>
+            <div className={styles.rewardInfo}>
+              <span className={styles.rewardValue}>{reward}</span>
+            </div>
           </div>
-          <div className={styles.rewardInfo}>
-            <span className={styles.rewardValue}>{reward}</span>
-          </div>
-        </div>
+        )}
 
         <button
           className={styles.collectButton}
           onClick={onCollect}
-          aria-label={`Collect reward: ${reward}`}
+          aria-label={hideReward ? 'Continue' : `Collect reward: ${reward}`}
         >
-          Collect Reward
+          {hideReward ? 'Continue' : 'Collect Reward'}
         </button>
       </div>
     </Modal>

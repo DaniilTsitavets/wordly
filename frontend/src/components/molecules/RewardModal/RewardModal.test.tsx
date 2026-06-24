@@ -38,4 +38,15 @@ describe('RewardModal', () => {
     await userEvent.click(screen.getByRole('button', { name: /Collect reward/ }))
     expect(onCollect).toHaveBeenCalled()
   })
+
+  it('hides the gems block and switches the button to "Continue" when hideReward is set', async () => {
+    const onCollect = vi.fn()
+    render(<RewardModal {...baseProps} reward="+0 Gems" hideReward onCollect={onCollect} />)
+    expect(screen.queryByText('+0 Gems')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Reward:/)).not.toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Continue' })
+    expect(button).toBeInTheDocument()
+    await userEvent.click(button)
+    expect(onCollect).toHaveBeenCalled()
+  })
 })

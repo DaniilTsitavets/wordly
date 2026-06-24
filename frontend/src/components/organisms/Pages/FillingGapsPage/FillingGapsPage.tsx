@@ -7,7 +7,8 @@ import { IconFont } from '@/components/atoms/IconFont'
 import { Input } from '@/components/atoms/Input'
 import { useWords } from '@/shared/hooks/useWords'
 import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
-import { completeSession } from '@/api/completeSession'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useAppSelector } from '@/store/hooks'
 import { RewardModal } from '@/components/molecules/RewardModal'
 
 type AnswerState = 'pending' | 'correct' | 'incorrect'
@@ -48,6 +49,7 @@ export const FillingGapsPage = () => {
   const navigate = useNavigate()
   const { finishSession, isCompleting } = useFinishSession()
   const { words, isLoading, error } = useWords(Number(subtopicId))
+  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
   useActivityHeartbeat()
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -57,26 +59,33 @@ export const FillingGapsPage = () => {
   const [gemsEarned, setGemsEarned] = useState(0)
 
   const word = words?.[currentIndex]
+  // Hoist the optional-chained access so the manual hook deps below match what
+  // the React Compiler infers — `word?.word_en` in a dep array gets inferred
+  // as `word` (broader) and trips `react-hooks/preserve-manual-memoization`.
+  const wordEn = word?.word_en
   const isLast = currentIndex >= (words?.length ?? 0) - 1
   const progress = words?.length ? ((currentIndex + 1) / words.length) * 100 : 0
 
   const wordWithGaps = useMemo(() => {
-    if (!word?.word_en) return ''
-    return createWordWithGaps(word.word_en)
-  }, [word?.word_en])
+    if (!wordEn) return ''
+    return createWordWithGaps(wordEn)
+  }, [wordEn])
 
   useEffect(() => {
+    // Reset answer state when the word changes — intentional cascading update.
+    /* eslint-disable react-hooks/set-state-in-effect */
     setUserAnswer('')
     setAnswerState('pending')
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [currentIndex])
 
   const handleSpeak = useCallback(() => {
-    if ('speechSynthesis' in window && word?.word_en) {
-      const utterance = new SpeechSynthesisUtterance(word.word_en)
+    if ('speechSynthesis' in window && wordEn) {
+      const utterance = new SpeechSynthesisUtterance(wordEn)
       utterance.lang = 'en-US'
       speechSynthesis.speak(utterance)
     }
-  }, [word?.word_en])
+  }, [wordEn])
 
   const handleReset = useCallback(() => {
     setUserAnswer('')
@@ -84,10 +93,10 @@ export const FillingGapsPage = () => {
   }, [])
 
   const handleCheckAnswer = useCallback(() => {
-    if (!word?.word_en) return
-    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(word.word_en)
+    if (!wordEn) return
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(wordEn)
     setAnswerState(isCorrect ? 'correct' : 'incorrect')
-  }, [userAnswer, word?.word_en])
+  }, [userAnswer, wordEn])
 
   const handleNextWord = useCallback(() => {
     if (!isLast) {
@@ -219,6 +228,7 @@ export const FillingGapsPage = () => {
         onCollect={handleCollect}
         completionTarget={Number(subtopicId) || 1}
         reward={`+${gemsEarned} Gems`}
+        hideReward={isGuest}
       />
     </div>
   )
