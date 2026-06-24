@@ -11,5 +11,8 @@ public record RecallAnswerRequest(
 
         @NotBlank
         @JsonProperty("user_answer")
-        String userAnswer
+        String userAnswer,
+
+        @JsonProperty("recall_time_ms")
+        Long recallTimeMs
 ) {}

@@ -245,8 +245,7 @@ paths:
       tags: [Users]
       summary: Get daily learning progress
       description: >
-        Minutes studied today (across all learning mechanics, recall and AI chat) vs the
-        time-based daily goal (BRD §9.1). Study time is accumulated via POST /users/me/activity.
+        Minutes studied today (across all learning mechanics, recall and AI chat). Study time is accumulated via POST /users/me/activity.
       security:
         - bearerAuth: []
       responses:
@@ -264,10 +263,9 @@ paths:
       tags: [Users]
       summary: Claim the daily-goal gem bonus
       description: >
-        Awards the +10 daily-goal bonus the first time today's goal is reached; idempotent per
-        local day. Decoupled from level/topic/recall completion so the client can show a
-        standalone reward screen. Returns whether the goal is reached and how many gems were
-        awarded by this call (0 if not reached or already claimed today).
+        Awards the +10 daily-goal bonus the first time today's goal is reached; idempotent per local
+        day. Returns whether the goal is reached and the gems awarded by this call (0 if not reached or
+        already claimed today).
       security:
         - bearerAuth: []
       responses:
@@ -292,13 +290,9 @@ paths:
       tags: [Users]
       summary: Report study time for the daily goal (heartbeat)
       description: >
-        Adds study time to today's total (local day). The client measures elapsed time on each
-        learning screen (mechanics, recall, AI chat) and reports it here. Treat this as a
-        **heartbeat**: send it periodically (every ≤120s) while a screen is active, not once at the
-        end — the server credits at most the real wall-clock time elapsed since the previous report,
-        capped at 120s per request (anti-cheat), so a single large `seconds` value cannot
-        fast-forward the goal. Returns the updated daily progress so the caller can refresh the
-        progress bar without a second request.
+        Adds study time to today's total. Send as a heartbeat (≤120s while a learning screen is
+        active), not once at the end: the server credits at most the real time elapsed since the last
+        report, capped at 120s per request. Returns the updated daily progress.
       security:
         - bearerAuth: []
       requestBody:
@@ -452,9 +446,9 @@ paths:
       tags: [Learning]
       summary: Get words for current mechanic session
       description: |
-        Returns words and mechanic type for the current level.
-        Mechanic order is fixed: mnemonic_cards → flashcards → matching → filling_gaps → word_builder.
-        mnemonic_cards is skipped if it is listed in disabled_mechanics for this subtopic.
+        Returns words and mechanic type for the current level. Mechanic order is fixed:
+        mnemonic_cards → flashcards → matching → filling_gaps → word_builder (mnemonic_cards skipped
+        if in disabled_mechanics).
       security:
         - bearerAuth: []
       parameters:
@@ -588,6 +582,12 @@ paths:
                 user_answer:
                   type: string
                   example: plate
+                recall_time_ms:
+                  type: integer
+                  format: int64
+                  nullable: true
+                  description: Optional recall time in milliseconds, backing best_recall_time; implausible values (too fast, too slow, or out of int range) are ignored.
+                  example: 3400
       responses:
         '200':
           description: Recall answer result
@@ -1406,18 +1406,23 @@ components:
           type: integer
           nullable: true
           description: >
-            Number of the user's words that are "learned" (status recalling or long_term_memory,
-            i.e. they finished the learning flow and entered spaced repetition). Populated on
-            GET/PUT /users/me; null in the auth responses (login/register/oauth).
+            Number of the user's "learned" words (status recalling or long_term_memory). Populated
+            on GET/PUT /users/me; null in auth responses.
           example: 42
         words_percentage:
           type: integer
           nullable: true
           description: >
-            learned_words as a rounded integer percentage of all words on the platform (0 when the
-            platform has no words). For the statistics screen. Populated on GET/PUT /users/me;
-            null in auth responses.
+            learned_words as a rounded percentage of all platform words (0 if none). Populated on
+            GET/PUT /users/me; null in auth responses.
           example: 21
+        best_recall_time:
+          type: integer
+          nullable: true
+          description: >
+            Fastest recall time across the user's words, in milliseconds; null when none recorded
+            yet. Populated on GET/PUT /users/me; null in auth responses.
+          example: 3400
         last_active_date:
           type: string
           format: date

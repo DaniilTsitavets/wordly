@@ -27,6 +27,9 @@ public class RecallService {
     private static final int GEMS_RECALL_ALL_CORRECT = 10;
     private static final int GEMS_RECALL_PARTIAL = 5;
 
+    private static final int MIN_PLAUSIBLE_RECALL_MS = 300;
+    private static final int MAX_PLAUSIBLE_RECALL_MS = 180_000; // 3 minutes
+
     private final UserWordStateRepository userWordStateRepository;
     private final UserRepository userRepository;
     private final StreakService streakService;
@@ -52,6 +55,7 @@ public class RecallService {
 
         if (isCorrect) {
             advanceInterval(state);
+            recordRecallTime(state, request.recallTimeMs());
         } else {
             resetInterval(state);
         }
@@ -94,6 +98,21 @@ public class RecallService {
         userWordStateRepository.saveAll(sessionStates);
 
         return new RecallCompleteResponse(total, (int) correct, (int) failed, gemsEarned);
+    }
+
+    private void recordRecallTime(UserWordState state, Long recallTimeMs) {
+        // Best-effort: silently drop missing/implausible times (too fast, too slow, or out of
+        // int range) so the secondary metric never fails the answer. The kept range fits an int.
+        if (recallTimeMs == null
+                || recallTimeMs < MIN_PLAUSIBLE_RECALL_MS
+                || recallTimeMs > MAX_PLAUSIBLE_RECALL_MS) {
+            return;
+        }
+        int value = recallTimeMs.intValue();
+        Integer current = state.getRecallTimeMs();
+        if (current == null || value < current) {
+            state.setRecallTimeMs(value);
+        }
     }
 
     private void advanceInterval(UserWordState state) {

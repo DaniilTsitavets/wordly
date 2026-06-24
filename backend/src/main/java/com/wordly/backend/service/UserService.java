@@ -127,7 +127,9 @@ public class UserService {
     private UserProfileResponse buildProfile(User user) {
         long totalWords = wordRepository.count();
         long learnedWords = userWordStateRepository.countByUserIdAndStatusIn(user.getId(), LEARNED_STATUSES);
-        return UserProfileResponse.from(user, streakService.currentStreak(user), learnedWords, totalWords);
+        Integer bestRecallTime = userWordStateRepository.findBestRecallTimeMs(user.getId()).orElse(null);
+        return UserProfileResponse.from(
+                user, streakService.currentStreak(user), learnedWords, totalWords, bestRecallTime);
     }
 
     @Transactional(readOnly = true)
