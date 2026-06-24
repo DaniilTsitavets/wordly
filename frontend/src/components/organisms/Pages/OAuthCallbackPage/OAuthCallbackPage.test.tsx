@@ -110,6 +110,35 @@ describe('OAuthCallbackPage', () => {
     expect(calls).toBe(1)
   })
 
+  it('navigates away when mounted with an already-real user in the store', async () => {
+    // Mirrors the post-`<Outlet>`-remount situation: the first instance
+    // already exchanged the code and put a real user in Redux, then a new
+    // instance mounts on the same `/oauth/callback?code=…` URL because the
+    // Outlet re-keyed. The dedupe guard makes that mount a no-op against
+    // the backend, but the page still needs to leave — driven by the user
+    // it now sees in Redux.
+    renderWithProviders(
+      <Routes>
+        <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+        <Route path="/" element={<LocationProbe />} />
+        <Route path="/onboarding/daily-goal" element={<LocationProbe />} />
+      </Routes>,
+      {
+        route: '/oauth/callback?code=code-already-logged-in',
+        preloadedState: {
+          auth: {
+            token: 'preexisting-tok',
+            user: { ...mockUser, is_guest: false, onboarding_completed: true },
+            isLoading: false,
+            error: null,
+          },
+        },
+      }
+    )
+
+    await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('/'))
+  })
+
   it('clicking "Back to home" navigates to /', async () => {
     renderWithProviders(
       <Routes>

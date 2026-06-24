@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Spinner } from '@/components/atoms/Spinner'
 import { signInWithGoogle } from '@/api/auth'
-import { useAppDispatch } from '@/store/hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { loginSuccess } from '@/store/slices/authSlice'
 import { GOOGLE_REDIRECT_URI } from '@/utils/oauth'
 import styles from './OAuthCallbackPage.module.scss'
@@ -21,11 +21,23 @@ export function OAuthCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const user = useAppSelector((state) => state.auth.user)
 
   const code = searchParams.get('code')
   const oauthError = searchParams.get('error')
   const initialError = oauthError ?? (code ? null : 'Missing authorization code')
   const [error, setError] = useState<string | null>(initialError)
+
+  // Navigation is owned by this effect, not by the exchange callback, so that
+  // a remount-after-success (the `<Outlet>` re-keys on user.id) still leaves
+  // the page when it sees the now-real user in Redux. Otherwise instance #2
+  // short-circuits the exchange (good) but sits forever on the "Signing
+  // you in" spinner (bad).
+  useEffect(() => {
+    if (user && !user.is_guest) {
+      navigate(user.onboarding_completed ? '/' : '/onboarding/daily-goal', { replace: true })
+    }
+  }, [user, navigate])
 
   useEffect(() => {
     if (initialError || !code) return
@@ -41,7 +53,6 @@ export function OAuthCallbackPage() {
         })
         if (cancelled) return
         dispatch(loginSuccess({ token: access_token, user }))
-        navigate(user.onboarding_completed ? '/' : '/onboarding/daily-goal', { replace: true })
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Google sign-in failed')
@@ -52,7 +63,7 @@ export function OAuthCallbackPage() {
     return () => {
       cancelled = true
     }
-  }, [code, initialError, navigate, dispatch])
+  }, [code, initialError, dispatch])
 
   if (error) {
     return (
