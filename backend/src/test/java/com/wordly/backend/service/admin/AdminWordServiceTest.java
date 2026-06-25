@@ -131,7 +131,7 @@ class AdminWordServiceTest {
             service.create(new AdminWordRequest(1L, "apple", "  ", "яблоко",
                     "  ", "  ", "  ", "  ", "  "));
 
-            assertThat(captor.getValue().getTranscriptionEn()).isNull();
+            assertThat(captor.getValue().getTranscriptionEn()).isEqualTo("  ");
             assertThat(captor.getValue().getMnemoText()).isNull();
         }
     }
