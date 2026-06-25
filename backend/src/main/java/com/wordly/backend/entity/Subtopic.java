@@ -1,8 +1,9 @@
 package com.wordly.backend.entity;
 
-import com.wordly.backend.entity.converter.StringListJsonConverter;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class Subtopic {
     @Column(name = "words_count", nullable = false)
     private Integer wordsCount = 0;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "disabled_mechanics", nullable = false, columnDefinition = "jsonb")
     @Builder.Default
     private List<String> disabledMechanics = new ArrayList<>();
