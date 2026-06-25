@@ -1,552 +1,552 @@
-# Wordly. Функциональные требования (User Stories)
+# Wordly. Functional requirements (User Stories)
 
-**Аудитория документа:** Product · Design · Development
+**Document audience:** Product · Design · Development
 
-Документ содержит функциональные требования к продукту Wordly в формате User Stories с приоритизацией по методу **MoSCoW**:
+This document contains the functional requirements for Wordly in User Story format, prioritized with the **MoSCoW** method:
 
-- **Must Have** — критично для MVP, без этого продукт не выпускается.
-- **Should Have** — важно, но не блокирует MVP. Реализуется в первой итерации либо сразу после релиза.
-- **Could Have** — желательно, добавляет ценность. Реализуется при наличии ресурсов.
-- **Won't Have (this time)** — вне скоупа текущего релиза.
+- **Must Have** — critical for the MVP; the product is not released without it.
+- **Should Have** — important, but does not block the MVP. Delivered in the first iteration or right after release.
+- **Could Have** — desirable, adds value. Delivered if resources allow.
+- **Won't Have (this time)** — out of scope for the current release.
 
-Каждая история ссылается на разделы [`requirements.md`](./requirements.md) в качестве источника правды по поведению.
+Each story references sections of [`requirements-en.md`](./requirements-en.md) as the source of truth for behavior.
 
 ---
 
 ## Must Have
 
-### Аутентификация и аккаунт
+### Authentication and account
 
-#### US-001: Регистрация пользователя
+#### US-001: User registration
 
-**Как** новый пользователь
-**Я хочу** зарегистрироваться в системе по email и паролю
-**Чтобы** сохранять прогресс обучения и получить доступ ко всем функциям приложения
+**As** a new user
+**I want** to register in the system with email and password
+**So that** I can save my learning progress and get access to all app features
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Popup регистрации с полями: имя, фамилия, email, пароль
-- [ ] Валидация email (формат)
-- [ ] Валидация пароля (минимум 8 символов)
-- [ ] При повторной регистрации существующего email — понятная ошибка
-- [ ] После успешной регистрации пользователь видит экран выбора дневной цели
+- [ ] Registration popup with fields: first name, last name, email, password
+- [ ] Email validation (format)
+- [ ] Password validation (at least 8 characters)
+- [ ] Registering an existing email again — a clear error
+- [ ] After successful registration the user sees the daily goal selection screen
 
-#### US-002: Авторизация пользователя
+#### US-002: User authentication
 
-**Как** зарегистрированный пользователь
-**Я хочу** войти в свой аккаунт по email и паролю
-**Чтобы** продолжить обучение с того места, где остановился
+**As** a registered user
+**I want** to sign in to my account with email and password
+**So that** I can continue learning from where I left off
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Popup входа с полями email и пароль
-- [ ] При неверной паре — понятная ошибка без раскрытия, что именно неправильно
-- [ ] После входа открывается главный экран авторизованного пользователя
-- [ ] Сессия сохраняется между перезапусками приложения
+- [ ] Sign-in popup with email and password fields
+- [ ] On a wrong pair — a clear error without revealing what exactly is wrong
+- [ ] After sign-in the authenticated user's home screen opens
+- [ ] The session persists across app restarts
 
-#### US-003: Гостевой вход
+#### US-003: Guest sign-in
 
-**Как** неавторизованный пользователь
-**Я хочу** попробовать приложение без регистрации
-**Чтобы** оценить продукт прежде, чем создавать аккаунт
+**As** an unauthenticated user
+**I want** to try the app without registering
+**So that** I can evaluate the product before creating an account
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Главный экран неавторизованного пользователя доступен сразу при открытии
-- [ ] Guest-пользователю доступны подтемы первой темы
-- [ ] После прохождения доступного контента показывается popup регистрации с объяснением ценности (все темы, прогресс, повторения, словарь)
-- [ ] Прогресс guest-сессии не сохраняется после закрытия приложения
+- [ ] The unauthenticated user's home screen is available immediately on open
+- [ ] A guest user can access the subtopics of the first topic
+- [ ] After completing the available content, a registration popup is shown explaining the value (all topics, progress, recalls, vocabulary)
+- [ ] Guest session progress is not saved after the app is closed
 
-#### US-004: Выход из аккаунта
+#### US-004: Sign out
 
-**Как** авторизованный пользователь
-**Я хочу** выйти из своего аккаунта
-**Чтобы** другой человек не получил доступ к моему прогрессу на общем устройстве
+**As** an authenticated user
+**I want** to sign out of my account
+**So that** another person cannot access my progress on a shared device
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] В профиле есть кнопка выхода
-- [ ] После выхода токен авторизации становится невалидным
-- [ ] Пользователь возвращается к главному экрану неавторизованного состояния
+- [ ] There is a sign-out button in the profile
+- [ ] After sign-out the auth token becomes invalid
+- [ ] The user returns to the unauthenticated home screen
 
-#### US-005: Просмотр и редактирование профиля
+#### US-005: View and edit profile
 
-**Как** авторизованный пользователь
-**Я хочу** просматривать и редактировать свои данные
-**Чтобы** держать информацию об аккаунте в актуальном состоянии
+**As** an authenticated user
+**I want** to view and edit my data
+**So that** I can keep my account information up to date
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Просмотр: аватар, имя, фамилия, email, пароль (скрыт), цветовая тема
-- [ ] Редактирование: имя, фамилия, email, пароль, цветовая тема
-- [ ] Кнопка «Сохранить изменения» применяет правки сразу
+- [ ] View: avatar, first name, last name, email, password (hidden), color theme
+- [ ] Edit: first name, last name, email, password, color theme
+- [ ] The "Save changes" button applies edits immediately
 
-См. [`requirements.md` §14.1](./requirements.md#141-профиль-profile).
-
----
-
-### Контент и навигация
-
-#### US-006: Просмотр списка тем и подтем
-
-**Как** пользователь
-**Я хочу** видеть список доступных тем и подтем
-**Чтобы** выбрать, что изучать
-
-##### Критерии приёмки
-
-- [ ] На главном экране отображается список тем с подтемами
-- [ ] Для каждой подтемы виден её статус (доступна, в процессе, завершена)
-- [ ] Доступные для прохождения подтемы видимо отличаются от заблокированных
-
-#### US-007: Просмотр всех слов темы перед началом
-
-**Как** пользователь
-**Я хочу** увидеть список всех слов темы до начала обучения
-**Чтобы** заранее понять, что мне предстоит выучить
-
-##### Критерии приёмки
-
-- [ ] Список слов отображается при открытии темы
-- [ ] Для каждого слова видны: иностранное слово и его перевод
-- [ ] Список доступен до нажатия «Начать учить»
-
-#### US-008: Просмотр уровней подтемы
-
-**Как** пользователь, начавший подтему
-**Я хочу** видеть список её уровней с их статусами
-**Чтобы** понимать, что я уже прошёл и что осталось
-
-##### Критерии приёмки
-
-- [ ] Экран подтемы показывает уровни 0–4
-- [ ] Для каждого уровня виден статус: заблокирован, доступен, завершён
-- [ ] Level 0 присутствует только если в подтеме есть слова с мнемониками
-
-См. [`requirements.md` §8.1](./requirements.md#81-иерархия-контента).
+See [`requirements-en.md` §14.1](./requirements-en.md#141-profile).
 
 ---
 
-### Обучающие механики
+### Content and navigation
 
-#### US-009: Изучение мнемоник (Level 0)
+#### US-006: Browse the list of topics and subtopics
 
-**Как** пользователь, начинающий новую подтему
-**Я хочу** просмотреть карточки-мнемоники со звуковыми ассоциациями
-**Чтобы** быстрее запомнить слова через образный приём
+**As** a user
+**I want** to see the list of available topics and subtopics
+**So that** I can choose what to study
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Карточка содержит мнемо-изображение, изучаемое слово, транскрипцию, текст ассоциации («Представьте...»)
-- [ ] Обратная сторона: перевод (крупно), слово (мелко), пример употребления
-- [ ] Навигация вперёд/назад между карточками
-- [ ] Уровень завершён после просмотра всех карточек и нажатия «Завершить»
-- [ ] Все слова Level 0 автоматически попадают в уровни 1–4
+- [ ] The home screen shows the list of topics with their subtopics
+- [ ] Each subtopic's status is visible (available, in progress, completed)
+- [ ] Subtopics available for study are visibly different from locked ones
 
-См. [`requirements.md` §9](./requirements.md#9-нулевой-уровень-мнемоники).
+#### US-007: View all words of a topic before starting
 
-#### US-010: Прохождение Flashcards (Level 1)
+**As** a user
+**I want** to see the list of all words of a topic before starting to learn
+**So that** I understand in advance what I will need to learn
 
-**Как** пользователь
-**Я хочу** пройти карточки для первичного знакомства со словами
-**Чтобы** запомнить, как слово выглядит, звучит и переводится
+##### Acceptance criteria
 
-##### Критерии приёмки
+- [ ] The word list is shown when the topic is opened
+- [ ] For each word the foreign word and its translation are visible
+- [ ] The list is available before pressing "Start learning"
 
-- [ ] Front карточки: изображение, слово, транскрипция, подсказка переворота
-- [ ] Back карточки: перевод (крупно), слово (мелко), пример в контексте с переводом
-- [ ] Клик по карточке переворачивает её
-- [ ] Навигация вперёд/назад между карточками
-- [ ] Уровень завершён после просмотра всех карточек и нажатия «Завершить»
+#### US-008: View subtopic levels
 
-См. [`requirements.md` §10.1](./requirements.md#101-flashcards-карточки--level-1).
+**As** a user who has started a subtopic
+**I want** to see the list of its levels with their statuses
+**So that** I understand what I have already completed and what is left
 
-#### US-011: Прохождение Matching (Level 2)
+##### Acceptance criteria
 
-**Как** пользователь
-**Я хочу** соотнести иностранные слова с их переводами
-**Чтобы** закрепить связь «слово ↔ перевод»
+- [ ] The subtopic screen shows levels 0–4
+- [ ] Each level's status is visible: locked, available, completed
+- [ ] Level 0 is present only if the subtopic has words with mnemonics
 
-##### Критерии приёмки
-
-- [ ] Экран показывает две колонки: иностранные слова и переводы
-- [ ] Верная пара — зелёная, фиксируется
-- [ ] Неверная пара — красная, можно повторить
-- [ ] Пользователь не пропускается дальше, пока все пары не соединены верно
-- [ ] Уровень завершён, когда все пары сопоставлены верно
-
-См. [`requirements.md` §10.2](./requirements.md#102-matching-сопоставление--level-2).
-
-#### US-012: Прохождение Filling Gaps (Level 3)
-
-**Как** пользователь
-**Я хочу** восстановить пропущенные буквы в слове
-**Чтобы** активно вспомнить корректное написание слова
-
-##### Критерии приёмки
-
-- [ ] Экран: слово с пропущенными буквами, подсказка, поле ввода, кнопки Reset / Check Answer, прогресс-бар
-- [ ] Correct → зелёный, переход к следующему слову
-- [ ] Wrong → красный, повтор попытки
-- [ ] Уровень завершён после правильного ввода всех слов
-
-См. [`requirements.md` §10.3](./requirements.md#103-filling-gaps-заполнение-пропусков--level-3).
-
-#### US-013: Прохождение Word Builder (Level 4)
-
-**Как** пользователь
-**Я хочу** собрать слово из предложенных букв
-**Чтобы** окончательно закрепить написание слова
-
-##### Критерии приёмки
-
-- [ ] Экран: подсказка (перевод и/или изображение), поле ответа, набор букв, кнопки Reset / Check Answer, прогресс-бар
-- [ ] Нажатие букв формирует слово в поле ответа
-- [ ] Клик «Check answer» проверяет ответ
-- [ ] Correct → зелёный, переход к следующему слову
-- [ ] Wrong → красный + «Try again», повтор попытки
-- [ ] Уровень завершён после правильного ввода всех слов
-
-См. [`requirements.md` §10.4](./requirements.md#104-word-builder-сборка-слова--level-4).
+See [`requirements-en.md` §8.1](./requirements-en.md#81-content-hierarchy).
 
 ---
 
-### Повторение (Spaced Repetition)
+### Learning mechanics
 
-#### US-014: Просмотр слов для повторения сегодня
+#### US-009: Learning mnemonics (Level 0)
 
-**Как** пользователь
-**Я хочу** видеть список слов, у которых сегодня наступил интервал повторения
-**Чтобы** не пропустить ежедневное повторение и не забыть выученное
+**As** a user starting a new subtopic
+**I want** to look through mnemonic cards with sound associations
+**So that** I memorize words faster through an imagery technique
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Раздел Recall закреплён в header (иконка «Мозг»)
-- [ ] Открыв раздел, пользователь видит список слов с наступившим интервалом
-- [ ] Если слов нет — отображается соответствующее состояние
+- [ ] The card contains a mnemonic image, the word being learned, transcription, association text ("Imagine...")
+- [ ] Back side: translation (large), word (small), usage example
+- [ ] Forward/back navigation between cards
+- [ ] The level is completed after viewing all cards and pressing "Finish"
+- [ ] All Level 0 words are automatically included in levels 1–4
 
-#### US-015: Прохождение recall-сессии
+See [`requirements-en.md` §9](./requirements-en.md#9-level-0-mnemonics).
 
-**Как** пользователь
-**Я хочу** повторить слова через Word Builder
-**Чтобы** активно вспомнить выученные слова и продлить их жизнь в памяти
+#### US-010: Completing Flashcards (Level 1)
 
-##### Критерии приёмки
+**As** a user
+**I want** to go through flashcards for a first acquaintance with the words
+**So that** I memorize how a word looks, sounds, and translates
 
-- [ ] Для каждого слова показывается перевод, пользователь собирает иностранное слово из букв
-- [ ] При ошибке — «Try again» и повтор
-- [ ] Система фиксирует результат каждого слова
-- [ ] Следующий интервал планируется по шагам: 1 → 3 → 7 → 14 → 21 → 30 дней
-- [ ] При полностью правильной сессии — +10 gems; при наличии ошибок — +5 gems
-- [ ] По завершении показывается Popup окончания Recall
+##### Acceptance criteria
 
-См. [`requirements.md` §10.5](./requirements.md#105-recall).
+- [ ] Card front: image, word, transcription, flip hint
+- [ ] Card back: translation (large), word (small), example in context with translation
+- [ ] Clicking the card flips it
+- [ ] Forward/back navigation between cards
+- [ ] The level is completed after viewing all cards and pressing "Finish"
 
----
+See [`requirements-en.md` §10.1](./requirements-en.md#101-flashcards--level-1).
 
-### Дневная цель и геймификация
+#### US-011: Completing Matching (Level 2)
 
-#### US-016: Установка дневной цели при онбординге
+**As** a user
+**I want** to match foreign words with their translations
+**So that** I reinforce the "word ↔ translation" connection
 
-**Как** новый пользователь
-**Я хочу** задать персональную дневную норму при первом запуске
-**Чтобы** учиться в комфортном для себя темпе
+##### Acceptance criteria
 
-##### Критерии приёмки
+- [ ] The screen shows two columns: foreign words and translations
+- [ ] A correct pair — green, locked in
+- [ ] An incorrect pair — red, can be retried
+- [ ] The user is not advanced until all pairs are matched correctly
+- [ ] The level is completed when all pairs are matched correctly
 
-- [ ] Экран выбора цели появляется сразу после регистрации
-- [ ] Цель задаётся в минутах в день
-- [ ] После сохранения пользователь попадает на главный экран
+See [`requirements-en.md` §10.2](./requirements-en.md#102-matching--level-2).
 
-См. [`requirements.md` §11](./requirements.md#11-система-дневных-целей).
+#### US-012: Completing Filling Gaps (Level 3)
 
-#### US-017: Изменение дневной цели в профиле
+**As** a user
+**I want** to restore the missing letters in a word
+**So that** I actively recall the correct spelling of the word
 
-**Как** пользователь
-**Я хочу** изменить дневную цель в настройках профиля
-**Чтобы** скорректировать темп под изменившийся ритм жизни
+##### Acceptance criteria
 
-##### Критерии приёмки
+- [ ] Screen: word with missing letters, hint, input field, Reset / Check Answer buttons, progress bar
+- [ ] Correct → green, move to the next word
+- [ ] Wrong → red, retry the attempt
+- [ ] The level is completed after correctly entering all words
 
-- [ ] Поле «Дневная цель» доступно в редактировании профиля
-- [ ] После сохранения изменения вступают в силу сразу
+See [`requirements-en.md` §10.3](./requirements-en.md#103-filling-gaps--level-3).
 
-#### US-018: Получение gems за прохождение уровня
+#### US-013: Completing Word Builder (Level 4)
 
-**Как** пользователь, завершивший уровень
-**Я хочу** получить базовые gems
-**Чтобы** видеть прогресс и сохранять мотивацию
+**As** a user
+**I want** to assemble a word from the offered letters
+**So that** I finally reinforce the spelling of the word
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] При завершении уровня начисляется +5 gems
-- [ ] Экран окончания уровня показывает количество заработанных gems
-- [ ] Кнопка «Collect» подтверждает начисление
-- [ ] Общий счёт gems обновляется в header и в профиле
+- [ ] Screen: hint (translation and/or image), answer field, set of letters, Reset / Check Answer buttons, progress bar
+- [ ] Pressing letters forms the word in the answer field
+- [ ] Clicking "Check answer" verifies the answer
+- [ ] Correct → green, move to the next word
+- [ ] Wrong → red + "Try again", retry the attempt
+- [ ] The level is completed after correctly entering all words
 
-#### US-019: Получение gems за прохождение темы
-
-**Как** пользователь, завершивший все подтемы темы
-**Я хочу** получить бонусные gems
-**Чтобы** ощутить достижение крупной вехи
-
-##### Критерии приёмки
-
-- [ ] При завершении последней подтемы темы начисляется +15 gems
-- [ ] Бонус начисляется ровно один раз на тему
-
-#### US-020: Получение gems за выполнение дневной цели
-
-**Как** пользователь, выполнивший дневную цель
-**Я хочу** получить бонусные gems
-**Чтобы** ежедневная активность поощрялась
-
-##### Критерии приёмки
-
-- [ ] При достижении дневной цели начисляется +10 gems
-- [ ] Бонус начисляется ровно один раз в день (по локальному времени пользователя)
-- [ ] Пользователь видит уведомление о достижении цели
-
-#### US-021: Получение gems за recall-сессию
-
-**Как** пользователь, завершивший recall-сессию
-**Я хочу** получить gems за качество повторения
-**Чтобы** регулярные повторения поощрялись больше
-
-##### Критерии приёмки
-
-- [ ] Все слова верно → +10 gems
-- [ ] Есть ошибки → +5 gems
-- [ ] Бонус виден на экране окончания recall-сессии
-
-См. [`requirements.md` §12.1](./requirements.md#121-gems).
+See [`requirements-en.md` §10.4](./requirements-en.md#104-word-builder--level-4).
 
 ---
 
-### Словарь и статистика
+### Recall (Spaced Repetition)
 
-#### US-022: Просмотр изученных слов в словаре
+#### US-014: View words due for recall today
 
-**Как** пользователь
-**Я хочу** видеть список изученных слов и информацию по ним
-**Чтобы** видеть свой прогресс и при необходимости пересматривать пройденное
+**As** a user
+**I want** to see the list of words whose recall interval is due today
+**So that** I don't miss the daily review and don't forget what I learned
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] В словаре отображаются все слова, прошедшие Level 1
-- [ ] Для каждого слова видны: иностранное слово, перевод, дата следующего повторения
+- [ ] The Recall section is pinned in the header (the "Brain" icon)
+- [ ] Opening the section, the user sees the list of words with a due interval
+- [ ] If there are no words — a corresponding state is shown
 
-См. [`requirements.md` §13](./requirements.md#13-словарь-пользователя-vocabulary).
+#### US-015: Completing a recall session
 
-#### US-023: Просмотр статистики профиля
+**As** a user
+**I want** to review words via Word Builder
+**So that** I actively recall learned words and extend their life in memory
 
-**Как** пользователь
-**Я хочу** видеть свою статистику
-**Чтобы** оценивать собственный прогресс
+##### Acceptance criteria
 
-##### Критерии приёмки
+- [ ] For each word the translation is shown, the user assembles the foreign word from letters
+- [ ] On a mistake — "Try again" and a retry
+- [ ] The system records the result of each word
+- [ ] The next interval is scheduled in steps: 1 → 3 → 7 → 14 → 21 → 30 days
+- [ ] On a fully correct session — +10 gems; if there are mistakes — +5 gems
+- [ ] On completion a Recall-finished popup is shown
 
-- [ ] Видны: Gems, Streak, Всего изученных слов, прогресс дневной цели
-- [ ] Gems и Streak дополнительно отображаются в header
-- [ ] Счётчик слов синхронизирован между Stats и Vocabulary
+See [`requirements-en.md` §10.5](./requirements-en.md#105-recall).
 
-См. [`requirements.md` §14.2](./requirements.md#142-статистика-stats).
+---
+
+### Daily goal and gamification
+
+#### US-016: Setting the daily goal during onboarding
+
+**As** a new user
+**I want** to set a personal daily target on first launch
+**So that** I learn at a pace that is comfortable for me
+
+##### Acceptance criteria
+
+- [ ] The goal selection screen appears right after registration
+- [ ] The goal is set in minutes per day
+- [ ] After saving, the user lands on the home screen
+
+See [`requirements-en.md` §11](./requirements-en.md#11-daily-goals-system).
+
+#### US-017: Changing the daily goal in the profile
+
+**As** a user
+**I want** to change the daily goal in the profile settings
+**So that** I can adjust the pace to my changed rhythm of life
+
+##### Acceptance criteria
+
+- [ ] The "Daily goal" field is available in profile editing
+- [ ] After saving, the changes take effect immediately
+
+#### US-018: Earning gems for completing a level
+
+**As** a user who has completed a level
+**I want** to receive base gems
+**So that** I see progress and keep motivation
+
+##### Acceptance criteria
+
+- [ ] On level completion +5 gems are awarded
+- [ ] The level-finished screen shows the number of earned gems
+- [ ] The "Collect" button confirms the award
+- [ ] The total gems count updates in the header and in the profile
+
+#### US-019: Earning gems for completing a topic
+
+**As** a user who has completed all subtopics of a topic
+**I want** to receive bonus gems
+**So that** I feel the achievement of a major milestone
+
+##### Acceptance criteria
+
+- [ ] On completing the last subtopic of a topic +15 gems are awarded
+- [ ] The bonus is awarded exactly once per topic
+
+#### US-020: Earning gems for reaching the daily goal
+
+**As** a user who has reached the daily goal
+**I want** to receive bonus gems
+**So that** daily activity is rewarded
+
+##### Acceptance criteria
+
+- [ ] On reaching the daily goal +10 gems are awarded
+- [ ] The bonus is awarded exactly once per day (by the user's local time)
+- [ ] The user sees a notification about reaching the goal
+
+#### US-021: Earning gems for a recall session
+
+**As** a user who has completed a recall session
+**I want** to receive gems for the quality of the review
+**So that** regular reviews are rewarded more
+
+##### Acceptance criteria
+
+- [ ] All words correct → +10 gems
+- [ ] There are mistakes → +5 gems
+- [ ] The bonus is visible on the recall-finished screen
+
+See [`requirements-en.md` §12.1](./requirements-en.md#121-gems).
+
+---
+
+### Vocabulary and statistics
+
+#### US-022: View learned words in the vocabulary
+
+**As** a user
+**I want** to see the list of learned words and information about them
+**So that** I can see my progress and review what I've covered if needed
+
+##### Acceptance criteria
+
+- [ ] The vocabulary shows all words that have passed Level 1
+- [ ] For each word the foreign word, translation, and next recall date are visible
+
+See [`requirements-en.md` §13](./requirements-en.md#13-user-vocabulary).
+
+#### US-023: View profile statistics
+
+**As** a user
+**I want** to see my statistics
+**So that** I can assess my own progress
+
+##### Acceptance criteria
+
+- [ ] Visible: Gems, Streak, Total learned words, daily goal progress
+- [ ] Gems and Streak are additionally shown in the header
+- [ ] The word counter is synchronized between Stats and Vocabulary
+
+See [`requirements-en.md` §14.2](./requirements-en.md#142-statistics-stats).
 
 ---
 
 ## Should Have
 
-#### US-024: Вход через Google OAuth
+#### US-024: Sign in with Google OAuth
 
-**Как** пользователь
-**Я хочу** войти в приложение через Google-аккаунт
-**Чтобы** не вводить отдельный пароль и быстрее начать пользоваться
+**As** a user
+**I want** to sign in to the app via a Google account
+**So that** I don't have to enter a separate password and can start using it faster
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] На попапе входа/регистрации есть кнопка «Войти через Google»
-- [ ] После успешной авторизации Google создаётся или находится аккаунт по `oauth_provider` + `oauth_id`
-- [ ] Если для этого email существует обычный аккаунт — он связывается с OAuth-идентификатором
-- [ ] Возвращается валидный JWT, пользователь попадает на главный экран
+- [ ] The sign-in/registration popup has a "Sign in with Google" button
+- [ ] After successful Google authentication an account is created or found by `oauth_provider` + `oauth_id`
+- [ ] If a regular account exists for this email — it is linked to the OAuth identifier
+- [ ] A valid JWT is returned, the user lands on the home screen
 
-#### US-025: Разговорная практика с AI-ассистентом
+#### US-025: Conversational practice with the AI assistant
 
-**Как** пользователь, прошедший подтему
-**Я хочу** попрактиковать выученные слова в живом ролевом диалоге
-**Чтобы** перенести их из пассивного знания в активное использование
+**As** a user who has completed a subtopic
+**I want** to practice the learned words in a live role-play dialogue
+**So that** I move them from passive knowledge to active use
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Сессия привязана к подтеме — целевой список слов берётся из неё
-- [ ] Ассистент открывает сессию реалистичным сценарием по подтеме (например, «Еда» → фермерский рынок)
-- [ ] Ассистент держит роль и не представляется как AI
-- [ ] Длина каждого ответа — 2–4 предложения
-- [ ] Корректирующая обратная связь — только неявная (implicit recast)
-- [ ] Off-topic запросы отклоняются в роли
-- [ ] При prompt injection / попытках «снять ограничения» ассистент остаётся в роли
+- [ ] The session is tied to a subtopic — the target word list is taken from it
+- [ ] The assistant opens the session with a realistic scenario based on the subtopic (e.g., "Food" → a farmers' market)
+- [ ] The assistant stays in role and does not introduce itself as an AI
+- [ ] The length of each reply is 2–4 sentences
+- [ ] Corrective feedback is implicit only (implicit recast)
+- [ ] Off-topic requests are declined in role
+- [ ] On prompt injection / attempts to "lift restrictions" the assistant stays in role
 
-#### US-026: Завершение AI-сессии и получение сводки
+#### US-026: Ending the AI session and getting a summary
 
-**Как** пользователь
-**Я хочу** завершить AI-сессию по ключевому слову и получить сводку
-**Чтобы** понять, какие слова закрепил, а какие нужно повторить
+**As** a user
+**I want** to end the AI session by a keyword and get a summary
+**So that** I understand which words I reinforced and which need review
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Сессия завершается по словам типа «stop», «finish», «конец», «хватит»
-- [ ] Ассистент выходит из роли и открывает сводку фразой «Great practice! Here's how your session went 👇»
-- [ ] Сводка содержит блоки: ✅ Words you used, 🔤 Spelling to check, 📝 Words to revisit, 🌟 Overall
+- [ ] The session ends on words like "stop", "finish", "конец", "хватит"
+- [ ] The assistant exits the role and opens the summary with "Great practice! Here's how your session went 👇"
+- [ ] The summary contains blocks: ✅ Words you used, 🔤 Spelling to check, 📝 Words to revisit, 🌟 Overall
 
-См. [`requirements.md` §15](./requirements.md#15-ai-chat-ai-ассистент).
+See [`requirements-en.md` §15](./requirements-en.md#15-ai-chat-ai-assistant).
 
 ---
 
 ## Could Have (in the future)
 
-#### US-027: Аудио произношение слов
+#### US-027: Audio pronunciation of words
 
-**Как** пользователь
-**Я хочу** прослушать произношение слова носителем
-**Чтобы** запомнить, как слово звучит, а не только пишется
+**As** a user
+**I want** to hear a native pronunciation of a word
+**So that** I memorize how a word sounds, not just how it's spelled
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Кнопка воспроизведения присутствует во всех механиках, кроме Matching
-- [ ] Воспроизводится произношение носителем языка или качественный TTS
-- [ ] На Level 0 поддерживается автовоспроизведение
+- [ ] A playback button is present in all mechanics except Matching
+- [ ] A native-speaker pronunciation or quality TTS is played
+- [ ] Autoplay is supported on Level 0
 
-#### US-028: Обновление и сброс Streak
+#### US-028: Streak update and reset
 
-**Как** пользователь, занимающийся регулярно
-**Я хочу** чтобы streak увеличивался за выполнение дневной цели и сбрасывался при пропуске
-**Чтобы** ощущать вес ежедневной активности
+**As** a user who studies regularly
+**I want** the streak to increase for reaching the daily goal and reset on a miss
+**So that** I feel the weight of daily activity
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] При выполнении дневной цели streak увеличивается на 1
-- [ ] Если дневная цель не выполнена за сутки — streak сбрасывается до 0
-- [ ] Текущий streak виден в header и в статистике профиля
+- [ ] When the daily goal is reached, the streak increases by 1
+- [ ] If the daily goal is not reached within a day — the streak resets to 0
+- [ ] The current streak is visible in the header and in the profile statistics
 
-#### US-029: Расширенная карточка слова в словаре
+#### US-029: Extended word card in the vocabulary
 
-**Как** пользователь
-**Я хочу** видеть в словаре дату изучения слова, количество повторений и пример употребления
-**Чтобы** лучше отслеживать историю работы с каждым словом
+**As** a user
+**I want** to see in the vocabulary the date a word was learned, the recall count, and a usage example
+**So that** I can better track the history of working with each word
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Для каждого слова в словаре виден: пример употребления, дата изучения, количество повторений по Recall
+- [ ] For each word in the vocabulary the following are visible: usage example, date learned, number of Recall reviews
 
-#### US-030: Просмотр процента «помню» в статистике
+#### US-030: Viewing the "remembered" percentage in statistics
 
-**Как** пользователь
-**Я хочу** видеть, какой процент слов я успешно вспоминаю на каждом интервале повторения
-**Чтобы** понимать эффективность своего обучения
+**As** a user
+**I want** to see what percentage of words I successfully recall at each review interval
+**So that** I understand the effectiveness of my learning
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] В Stats отображается % вспомненных слов по каждому интервалу (1/3/7/14/21/30 дней)
-- [ ] Метрика обновляется по факту завершения recall-сессий
+- [ ] Stats shows the % of recalled words per interval (1/3/7/14/21/30 days)
+- [ ] The metric updates upon completion of recall sessions
 
-#### US-031: Тамагочи на главном экране
+#### US-031: Tamagotchi on the home screen
 
-**Как** пользователь
-**Я хочу** видеть персонажа-маскота, реагирующего на мою активность
-**Чтобы** иметь эмоциональный якорь, поддерживающий мотивацию
+**As** a user
+**I want** to see a mascot character reacting to my activity
+**So that** I have an emotional anchor that supports motivation
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Персонаж отображается на главном экране
-- [ ] Состояние персонажа меняется в зависимости от выполнения дневной цели
-- [ ] При пропуске дней — персонаж выглядит «грустным» / «голодным»
+- [ ] The character is shown on the home screen
+- [ ] The character's state changes depending on daily goal completion
+- [ ] On missed days the character looks "sad" / "hungry"
 
-#### US-032: Игра дня
+#### US-032: Game of the day
 
-**Как** авторизованный пользователь
-**Я хочу** выполнять ежедневный мини-челлендж
-**Чтобы** разнообразить рутину и получать дополнительные gems
+**As** an authenticated user
+**I want** to complete a daily mini-challenge
+**So that** I diversify the routine and earn extra gems
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Игра дня доступна только авторизованным пользователям
-- [ ] Доступна один раз в день
-- [ ] За выполнение начисляются gems / поинты
+- [ ] The game of the day is available only to authenticated users
+- [ ] Available once per day
+- [ ] Completion awards gems / points
 
-#### US-033: Метрики времени Recall
+#### US-033: Recall time metrics
 
-**Как** пользователь
-**Я хочу** видеть среднее время вспоминания и личный рекорд
-**Чтобы** соревноваться сам с собой и ощущать прогресс в скорости
+**As** a user
+**I want** to see my average recall time and personal best
+**So that** I can compete with myself and feel progress in speed
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Система фиксирует время выполнения каждого слова в recall
-- [ ] Среднее время и личный рекорд видны в Stats
-- [ ] Рекорд обновляется только при улучшении
+- [ ] The system records the completion time of each word in recall
+- [ ] The average time and personal best are visible in Stats
+- [ ] The record updates only on improvement
 
-#### US-034: Контекстный режим Recall
+#### US-034: Contextual Recall mode
 
-**Как** пользователь
-**Я хочу** альтернативный режим повторения — предложение с пропуском, в которое надо вписать перевод целиком
-**Чтобы** тренировать не только написание, но и понимание в контексте
+**As** a user
+**I want** an alternative review mode — a sentence with a gap into which I type the full translation
+**So that** I train not only spelling but also understanding in context
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Альтернативный режим доступен в Recall
-- [ ] Показывается контекстное предложение с пропуском на иностранном языке
-- [ ] Пользователь вводит перевод слова целиком
+- [ ] An alternative mode is available in Recall
+- [ ] A context sentence with a gap is shown in the foreign language
+- [ ] The user types the full translation of the word
 
-#### US-035: Перенос прогресса гостя в аккаунт
+#### US-035: Migrating guest progress to an account
 
-**Как** guest-пользователь, решивший зарегистрироваться
-**Я хочу** сохранить прогресс гостевой сессии в новый аккаунт
-**Чтобы** не начинать обучение заново
+**As** a guest user who decided to register
+**I want** to keep the guest session progress in the new account
+**So that** I don't have to start learning over
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] При регистрации после guest-сессии прогресс по словам и подтемам переносится в аккаунт
-- [ ] Прогресс не дублируется и не теряется при сбоях
+- [ ] On registration after a guest session, progress for words and subtopics is migrated to the account
+- [ ] The progress is not duplicated and not lost on failures
 
-См. [`requirements.md` §16](./requirements.md#16-сценарий-guest-пользователя).
+See [`requirements-en.md` §16](./requirements-en.md#16-guest-user-scenario).
 
 ---
 
 ## Won't Have (this time)
 
-#### US-036: Адаптивный список слов (исключение знакомых)
+#### US-036: Adaptive word list (excluding familiar words)
 
-**Как** пользователь
-**Я хочу** отметить знакомые слова перед стартом и исключить их из обучения
-**Чтобы** не тратить время на то, что я уже знаю
+**As** a user
+**I want** to mark familiar words before starting and exclude them from learning
+**So that** I don't waste time on what I already know
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] В списке слов перед стартом можно отметить знакомые
-- [ ] Отмеченные слова не попадают в уровни обучения
-- [ ] Решение можно изменить позже
+- [ ] In the word list before starting, familiar words can be marked
+- [ ] Marked words are not included in the learning levels
+- [ ] The decision can be changed later
 
-#### US-037: Социальные функции
+#### US-037: Social features
 
-**Как** пользователь
-**Я хочу** сравнивать свой прогресс с друзьями и видеть рейтинги
-**Чтобы** иметь дополнительный социальный стимул
+**As** a user
+**I want** to compare my progress with friends and see leaderboards
+**So that** I have an additional social incentive
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Лента активности друзей
-- [ ] Рейтинги по gems / streak
-- [ ] Возможность добавлять друзей
+- [ ] A friends' activity feed
+- [ ] Leaderboards by gems / streak
+- [ ] Ability to add friends
 
-#### US-038: Адаптация сложности
+#### US-038: Difficulty adaptation
 
-**Как** пользователь
-**Я хочу** чтобы приложение само подстраивало сложность под мои ошибки
-**Чтобы** не скучать на простом и не застревать на сложном
+**As** a user
+**I want** the app to adjust the difficulty to my mistakes by itself
+**So that** I'm not bored on the easy stuff and don't get stuck on the hard stuff
 
-##### Критерии приёмки
+##### Acceptance criteria
 
-- [ ] Алгоритм анализирует частоту и тип ошибок
-- [ ] Сложность подбираемых слов / интервалов адаптируется
-- [ ] Поведение прозрачно для пользователя
+- [ ] The algorithm analyzes the frequency and type of mistakes
+- [ ] The difficulty of selected words / intervals adapts
+- [ ] The behavior is transparent to the user
 
-См. [`requirements.md` §18](./requirements.md#18-вне-скоупа-out-of-scope).
+See [`requirements-en.md` §18](./requirements-en.md#18-out-of-scope).

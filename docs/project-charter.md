@@ -1,112 +1,112 @@
-# 📜 Устав проекта
+# 📜 Project Charter
 
 ```markdown
 # Wordly
 
-## Информация о команде
+## Team information
 
-| Роль                         | Имя                  | GitHub     | Email                             |
+| Role                         | Name                 | GitHub     | Email                             |
 | ---------------------------- | -------------------- | ---------- | --------------------------------- |
 | Team Lead + Frontend + UX/UI | Polina Trybialustava | @iampollyy | polina.trybialustava@stud.esdc.lt |
 | Backend                      | Evgeniya Yankovich   | @username  | evgeniya.yankovich@stud.esdc.lt   |
 | Backend + DevOps             | Daniil Tsitavets     | @username  | daniil.tsitavets@stud.esdc.lt     |
 | Frontend                     | Fiodar Viachorka     | @username  | fiodar.viachorka@stud.esdc.lt     |
 
-**Репозиторий:** https://github.com/DaniilTsitavets/esdc_team_project_2026#
-**Канал Teams:** https://teams.microsoft.com/l/chat/19:4b10461a5e514440bf00107aa89ba546@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D
+**Repository:** https://github.com/DaniilTsitavets/esdc_team_project_2026#
+**Teams channel:** https://teams.microsoft.com/l/chat/19:4b10461a5e514440bf00107aa89ba546@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D
 **Figma UI:** https://www.figma.com/design/6BMtZklYEVAf2kwbxYIDjE/UI-Lang-App?node-id=38-1610&p=f&t=Cvkefo6x3rOlCRuK-0
 **FigJam:** https://www.figma.com/board/x2iFYMD7FVyv7FuWgmNM7S/Language-App?t=ZmOi4AVTFZ36NnTF-0
 
 ---
 
-## Описание проекта
+## Project description
 
-### Проблема
+### Problem
 
-Изучающие иностранные языки часто сталкиваются с трудностью запоминания большого объёма лексики, особенно на долгосрочной основе. Традиционные методы (повторение, карточки) нередко оказываются скучными и неэффективными, что приводит к быстрой потере мотивации и забыванию слов. В результате пользователи тратят много времени, но получают слабый устойчивый результат.
+Language learners often struggle to memorize large volumes of vocabulary, especially over the long term. Traditional methods (repetition, flashcards) are frequently boring and ineffective, which leads to a rapid loss of motivation and forgotten words. As a result, users spend a lot of time but get weak, lasting outcomes.
 
-### Решение
+### Solution
 
-Wordly предлагает изучение слов с помощью звуковых мнемоник — ярких ассоциаций, основанных на звучании, которые упрощают запоминание и делают процесс более естественным. Приложение сочетает персонализированное обучение, игровые механики и адаптивную сложность, помогая пользователю быстрее усваивать лексику и удерживать её в памяти. Такой подход делает обучение более увлекательным и значительно повышает эффективность запоминания.
+Wordly offers word learning through sound mnemonics — vivid associations based on how words sound, which make memorization easier and the process more natural. The app combines personalized learning, game mechanics, and adaptive difficulty, helping the user absorb vocabulary faster and retain it. This approach makes learning more engaging and significantly improves memorization effectiveness.
 
-### Целевая аудитория
+### Target audience
 
-**Первичная ЦА:**
+**Primary audience:**
 
--Студенты и школьники, изучающие иностранные языки
--Самоучки (18–35 лет), которые учат язык для работы, переезда или путешествий
--Пользователи, испытывающие сложности с запоминанием слов
+- Students and pupils learning foreign languages
+- Self-learners (18–35) studying a language for work, relocation, or travel
+- Users who have difficulty memorizing words
 
-**Вторичная ЦА:**
+**Secondary audience:**
 
--Люди, изучающие второй/третий язык
--Преподаватели языков, ищущие дополнительные инструменты для учеников
--Пользователи языковых приложений (например, Duolingo), недовольные эффективностью запоминания
-
----
-
-## Scope проекта
-
-### ‼️ TBD ‼️ В MVP (к защите)
-
-- [ ] Функция 1
-- [ ] Функция 2
-- [ ] Функция 3
-
-### ‼️ TBD !‼️ Вне MVP (после курса)
-
-- [ ] Функция 4
-- [ ] Функция 5
+- People learning a second/third language
+- Language teachers looking for additional tools for their students
+- Users of language apps (e.g., Duolingo) dissatisfied with memorization effectiveness
 
 ---
 
-## Технический стек
+## Project scope
 
-| Компонент   | Технология         |
-| ----------- | ------------------ |
-| Backend     | Java               |
-| Frontend    | React + TypeScript |
-| База данных | PostgreSQL         |
-| Хостинг     | AWS                |
-| CI/CD       | GitHub Actions     |
+### ‼️ TBD ‼️ In the MVP (by the defense)
 
----
+- [ ] Feature 1
+- [ ] Feature 2
+- [ ] Feature 3
 
-## Риски
+### ‼️ TBD !‼️ Out of the MVP (after the course)
 
-| Риск                         | Вероятность | Влияние | Митигация         |
-| ---------------------------- | ----------- | ------- | ----------------- |
-| Нехватка времени на все фичи | Высокая     | Высокое | Приоритизация MVP |
+- [ ] Feature 4
+- [ ] Feature 5
 
 ---
 
-## Коммуникация
+## Tech stack
 
-- **Daily standup:** Понедельник 18.30
-- **Основной канал:** MS Teams
+| Component | Technology         |
+| --------- | ------------------ |
+| Backend   | Java               |
+| Frontend  | React + TypeScript |
+| Database  | PostgreSQL         |
+| Hosting   | AWS                |
+| CI/CD     | GitHub Actions     |
+
+---
+
+## Risks
+
+| Risk                             | Probability | Impact | Mitigation         |
+| -------------------------------- | ----------- | ------ | ------------------ |
+| Not enough time for all features | High        | High   | MVP prioritization |
+
+---
+
+## Communication
+
+- **Daily standup:** Monday 18:30
+- **Main channel:** MS Teams
 - **Code review:** GitHub Pull Requests
-- **Таск-трекер:** GitHub Projects
+- **Task tracker:** GitHub Projects
 
 ---
 
-## Definition of Done (опционально)
+## Definition of Done (optional)
 
-_Задача считается выполненной, если выполнены все применимые пункты:_
+_A task is considered done when all applicable items are met:_
 
-- [ ] Код написан и соответствует стилю проекта
-- [ ] Pull Request создан и одобрен ревьюером
-- [ ] Тесты написаны и проходят
-- [ ] Функционал проверен вручную
-- [ ] Документация обновлена (при необходимости)
+- [ ] Code is written and follows the project style
+- [ ] Pull Request is created and approved by a reviewer
+- [ ] Tests are written and passing
+- [ ] Functionality is verified manually
+- [ ] Documentation is updated (if needed)
 
 ---
 
-## Подписи
+## Signatures
 
-| Участник            | Дата       | Подпись     |
-| ------------------- | ---------- | ----------- |
-| Полина Трибелустова | 22.03.2026 | Согласен(а) |
-| Daniil Tsitavets    | 22.03.2026 | Согласен(а) |
-| Evgeniya Yankovich  | 22.03.2026 | Согласен(а) |
-| Fiodar Viachorka    | 22.03.2026 | Согласен(а) |
+| Member               | Date       | Signature |
+| -------------------- | ---------- | --------- |
+| Polina Trybialustava | 22.03.2026 | Agreed    |
+| Daniil Tsitavets     | 22.03.2026 | Agreed    |
+| Evgeniya Yankovich   | 22.03.2026 | Agreed    |
+| Fiodar Viachorka     | 22.03.2026 | Agreed    |
 ```
