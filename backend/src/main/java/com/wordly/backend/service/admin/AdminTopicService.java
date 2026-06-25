@@ -41,7 +41,7 @@ public class AdminTopicService {
         Topic topic = Topic.builder()
                 .name(request.name().trim())
                 .description(safe(request.description()))
-                .imageUrl(blankToNull(request.imageUrl()))
+                .imageUrl(safe(request.imageUrl()))
                 .sortOrder(request.sortOrder() == null ? Integer.valueOf(0) : request.sortOrder())
                 .build();
         Topic saved = topicRepository.save(topic);
@@ -56,7 +56,7 @@ public class AdminTopicService {
 
         topic.setName(request.name().trim());
         topic.setDescription(safe(request.description()));
-        topic.setImageUrl(blankToNull(request.imageUrl()));
+        topic.setImageUrl(safe(request.imageUrl()));
         topic.setSortOrder(request.sortOrder() == null ? topic.getSortOrder() : request.sortOrder());
 
         Topic saved = topicRepository.save(topic);
@@ -78,9 +78,6 @@ public class AdminTopicService {
 
         topicRepository.delete(topic);
         log.info("Admin deleted topic id={}", topicId);
-    }
-    private static String blankToNull(String value) {
-        return (value == null || value.isBlank()) ? null : value;
     }
     private static String safe(String value) {
         return value == null ? "" : value;
