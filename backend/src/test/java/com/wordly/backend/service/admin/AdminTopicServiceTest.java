@@ -101,14 +101,14 @@ class AdminTopicServiceTest {
             assertThat(captor.getValue().getName()).isEqualTo("Grammar");
         }
 
-        @Test @DisplayName("blank imageUrl becomes null")
+        @Test @DisplayName("blank imageUrl becomes empty string")
         void blankImageUrlBecomesNull() {
             ArgumentCaptor<Topic> captor = ArgumentCaptor.forClass(Topic.class);
             when(topicRepository.save(captor.capture())).thenReturn(topic(1L));
 
             service.create(new AdminTopicRequest("Grammar", null, "  ", 0));
 
-            assertThat(captor.getValue().getImageUrl()).isNull();
+            assertThat(captor.getValue().getImageUrl()).isEqualTo("  ");
         }
     }
 
