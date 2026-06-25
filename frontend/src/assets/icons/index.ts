@@ -1,0 +1,8 @@
+export { AlarmIcon } from './AlarmIcon'
+export { BookIcon } from './BookIcon'
+export { GlobeIcon } from './GlobeIcon'
+export { LightningIcon } from './LightningIcon'
+export { FireIcon } from './FireIcon'
+export { WordlyLogo } from './WordlyLogo'
+export { BrainIcon } from './BrainIcon'
+export { ChatIcon } from './ChatIcon'

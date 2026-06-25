@@ -1,0 +1,103 @@
+# Task runner using mise (https://mise.jdx.dev)
+# Install: brew install mise
+# Usage:   mise run <task>
+# List:    mise tasks
+#
+#   mise run build             # собрать все образы
+#   mise run build:backend     # собрать только бекенд
+#   mise run up                # поднять все сервисы
+#   mise run up:backend        # поднять только бекенд
+#   mise run down              # остановить всё
+#   mise run down:volumes      # остановить + удалить данные БД
+#   mise run rebuild:backend   # пересобрать и перезапустить бекенд
+#   mise run logs:backend      # логи бекенда
+#   mise run up:db             # поднять только БД и накатить миграции
+#   mise run health            # проверить /health
+#   mise run up:backend:prod   # поднять бекенд без dev-профиля (с Security)
+#   mise run mock              # поднять mock-сервер для фронтенда (порт 4010)
+
+[tasks.build]
+description = "Build all Docker images"
+run = "docker compose build"
+
+[tasks."build:backend"]
+description = "Build only the backend image"
+run = "docker compose build backend"
+
+[tasks.up]
+description = "Start all services in detached mode"
+run = "docker compose up -d"
+
+[tasks."up:db"]
+description = "Start only the database and apply migrations"
+run = """
+docker compose up -d db
+docker compose exec db sh -c 'until pg_isready -U postgres; do sleep 1; done'
+for f in $(ls backend/src/main/resources/db/migration/V*.sql | sort); do
+  echo "Applying $f..."
+  docker compose exec -T db psql -U postgres -d wordly -f - < "$f"
+done
+"""
+
+[tasks."up:backend"]
+description = "Start only the backend (and its dependencies)"
+run = "docker compose up -d backend"
+
+[tasks."up:backend:prod"]
+description = "Start backend without dev profile (Security enabled, 401 on missing token)"
+run = "SPRING_PROFILES_ACTIVE=prod docker compose up -d --force-recreate backend"
+
+[tasks.down]
+description = "Stop and remove all containers"
+run = "docker compose down"
+
+[tasks."down:volumes"]
+description = "Stop and remove all containers + volumes (clears DB data)"
+run = "docker compose down -v"
+
+[tasks.restart]
+description = "Restart all services"
+run = "docker compose restart"
+
+[tasks."restart:backend"]
+description = "Restart only the backend"
+run = "docker compose restart backend"
+
+[tasks.rebuild]
+description = "Rebuild and restart all services"
+run = "docker compose build && docker compose up -d"
+
+[tasks."rebuild:backend"]
+description = "Rebuild and restart only the backend"
+run = "docker compose build backend && docker compose up -d backend"
+
+[tasks.logs]
+description = "Follow logs of all services"
+run = "docker compose logs -f"
+
+[tasks."logs:backend"]
+description = "Follow backend logs"
+run = "docker compose logs -f backend"
+
+[tasks."logs:db"]
+description = "Follow database logs"
+run = "docker compose logs -f db"
+
+[tasks.ps]
+description = "Show running containers and their status"
+run = "docker compose ps"
+
+[tasks.mock]
+description = "Build and start mock server for frontend (port 4010)"
+run = "docker compose --profile mock up --build -d mock"
+
+[tasks."mock:down"]
+description = "Stop mock server"
+run = "docker compose --profile mock down mock"
+
+[tasks.health]
+description = "Check backend health endpoint"
+run = "curl -s http://localhost:8080/health"
+
+[tools]
+java = "temurin-21"

@@ -1,0 +1,3 @@
+UPDATE subtopics SET image_url = 'https://images.unsplash.com/photo-1748711366454-143e4bf2ea52?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' WHERE name = 'Fruits';
+UPDATE subtopics SET image_url = 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' WHERE name = 'Vegetables';
+UPDATE subtopics SET image_url = 'https://images.unsplash.com/photo-1594809512566-021e8369702a?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' WHERE name = 'Furniture';

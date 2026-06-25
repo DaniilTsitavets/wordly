@@ -1,0 +1,190 @@
+import { useState, useRef, useEffect } from 'react'
+import { Avatar } from '../../atoms/Avatar'
+import { StatButton } from '../../atoms/StatButton'
+import { Button } from '../../atoms/Button'
+import { WordlyLogo, ChatIcon } from '../../../assets/icons'
+import { IconFont } from '../../atoms/IconFont'
+import styles from './Header.module.scss'
+import { Link } from 'react-router-dom'
+
+interface HeaderAuthProps {
+  isAuthenticated: true
+  streak?: number
+  gems?: number
+  isAdmin?: boolean
+  onLogout: () => void
+  onProfileClick?: () => void
+  onVocabularyClick?: () => void
+  onRecallClick?: () => void
+  onProgressClick?: () => void
+  onAiChatClick?: () => void
+  onAdminClick?: () => void
+  avatarSrc?: string
+  onLoginClick?: never
+  className?: string
+}
+
+interface HeaderGuestProps {
+  isAuthenticated: false
+  onLoginClick: () => void
+  streak?: never
+  gems?: never
+  onLogout?: never
+  avatarSrc?: never
+  className?: string
+}
+
+type HeaderProps = HeaderAuthProps | HeaderGuestProps
+
+export const Header = (props: HeaderProps) => {
+  const { isAuthenticated, className = '' } = props
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <header className={`${styles.header} ${className}`} role="banner">
+      <Link to="/" className={styles.left} aria-label="Home">
+        <WordlyLogo height={50} />
+      </Link>
+
+      {isAuthenticated ? (
+        <div className={styles.center}>
+          <div className={styles.tooltipWrapper}>
+            <StatButton
+              icon={<IconFont name="fire" />}
+              value={props.streak ?? 0}
+              background="transparent"
+              className={styles.statBtnFire}
+              aria-label={`Daily streak: ${props.streak ?? 0}`}
+            />
+            <span className={styles.tooltip}>Daily Streak</span>
+          </div>
+
+          <div className={styles.tooltipWrapper}>
+            <StatButton
+              icon={<IconFont name="diamond" size={18} color="#ff68e3" />}
+              value={props.gems ?? 0}
+              background="transparent"
+              className={styles.statBtnDiamond}
+              aria-label={`Total points: ${props.gems ?? 0}`}
+            />
+            <span className={styles.tooltip}>Total Points</span>
+          </div>
+
+          <span className={styles.divider} aria-hidden="true" />
+
+          <div className={styles.navIcons}>
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="Vocabulary"
+              onClick={props.onVocabularyClick}
+            >
+              <IconFont name="book-colored" />
+              <span className={styles.tooltip}>Vocabulary</span>
+            </button>
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="Recall"
+              onClick={props.onRecallClick}
+            >
+              <IconFont name="brain" />
+              <span className={styles.tooltip}>Recall</span>
+            </button>
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="Progress"
+              onClick={props.onProgressClick}
+            >
+              <IconFont name="increase" />
+              <span className={styles.tooltip}>Progress</span>
+            </button>
+            <button
+              type="button"
+              className={styles.navBtn}
+              aria-label="AI Chat"
+              onClick={props.onAiChatClick}
+            >
+              <ChatIcon size={26} />
+              <span className={styles.tooltip}>AI Chat</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.center} />
+      )}
+
+      <div className={styles.right}>
+        {isAuthenticated && props.isAdmin && (
+          <button
+            type="button"
+            className={styles.adminBtn}
+            aria-label="Admin Panel"
+            onClick={props.onAdminClick}
+          >
+            <IconFont name="settings" />
+            <span className={styles.tooltip}>Admin Panel</span>
+          </button>
+        )}
+        {isAuthenticated ? (
+          <div className={styles.avatarWrapper} ref={menuRef}>
+            <Avatar
+              src={props.avatarSrc}
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-expanded={menuOpen}
+            />
+            {menuOpen && (
+              <div className={styles.dropdownMenu} role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={styles.dropdownItem}
+                  onClick={() => {
+                    setMenuOpen(false)
+                    props.onProfileClick?.()
+                  }}
+                >
+                  <IconFont name="user" size={16} />
+                  Profile
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
+                  onClick={() => {
+                    setMenuOpen(false)
+                    props.onLogout()
+                  }}
+                >
+                  <IconFont name="exit" size={16} />
+                  Log out
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Button
+            variant="gradient"
+            size="md"
+            className={styles.loginBtn}
+            onClick={props.onLoginClick}
+          >
+            Login
+          </Button>
+        )}
+      </div>
+    </header>
+  )
+}

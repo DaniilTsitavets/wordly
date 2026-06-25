@@ -1,0 +1,122 @@
+name: Deploy ECS Service
+
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Runner to use
+        default: ubuntu-latest
+        required: false
+        type: string
+      registries:
+        description: AWS ECR registries
+        required: true
+        type: string
+      repository:
+        description: AWS ECR repository
+        required: true
+        type: string
+      prefix:
+        description: Docker Image Prefix
+        required: false
+        type: string
+        default: ""
+      region:
+        description: AWS region
+        required: true
+        type: string
+      role-to-assume:
+        description: AWS role to assume
+        required: true
+        type: string
+      role-session-name:
+        description: AWS role session name
+        required: false
+        type: string
+        default: wordly_github_actions
+      service:
+        description: ECS Service
+        required: true
+        type: string
+      deploy-env:
+        description: Deployment environment
+        required: false
+        type: string
+        default: "Development"
+      iac-env:
+        description: IaC environment (dev/stage/prod)
+        required: true
+        type: string
+      use-latest-fallback:
+        description: 'Fallback to prefix-latest if image tag does not exist in ECR'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  ECS_SERVICE_NAME: "${{ vars.PROJECT_ENV_REGION }}-ecs-${{ inputs.service }}"
+  ECS_CLUSTER_NAME: ${{ vars.ECS_CLUSTER_NAME }}
+
+jobs:
+  deploy:
+    name: ECS
+    environment:
+      name: ${{ inputs.deploy-env }}
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.14.3'
+
+      - name: Install terragrunt
+        uses: autero1/action-terragrunt@v3
+        with:
+          terragrunt-version: '0.79.0'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.role-to-assume }}
+          role-session-name: ${{ inputs.role-session-name }}
+          aws-region: ${{ inputs.region }}
+          mask-aws-account-id: 'true'
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: ${{ inputs.registries }}
+
+      - name: Set IMAGE_TAG
+        run: |
+          SHA_SHORT=$(git rev-parse --short=8 HEAD)
+          DESIRED="${{ inputs.prefix }}${SHA_SHORT}"
+
+          if [ "${{ inputs.use-latest-fallback }}" = "true" ]; then
+            aws ecr describe-images \
+              --repository-name "${{ inputs.repository }}" \
+              --image-ids imageTag="${DESIRED}" \
+              --region "${{ inputs.region }}" &>/dev/null \
+            && echo "IMAGE_TAG=${DESIRED}" >> "$GITHUB_ENV" \
+            || echo "IMAGE_TAG=${{ inputs.prefix }}latest" >> "$GITHUB_ENV"
+          else
+            echo "IMAGE_TAG=${DESIRED}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Apply terragrunt - ECS Service Update
+        run: terragrunt apply -auto-approve
+        working-directory: .infra/terragrunt/environments/${{ inputs.iac-env }}/${{ inputs.region }}/ecs/${{ inputs.service }}
+
+      - name: Wait for stability
+        run: |
+          AWS_MAX_ATTEMPTS=20 aws ecs wait services-stable \
+            --cluster "${ECS_CLUSTER_NAME}" \
+            --services "${ECS_SERVICE_NAME}"

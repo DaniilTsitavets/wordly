@@ -1,0 +1,127 @@
+@use '../../../styles/index' as *;
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 3rem 3rem 3rem;
+}
+
+// Vertically center the shorter column when the rewards block is hidden.
+.modalCentered {
+  flex: 1;
+  justify-content: center;
+}
+
+.iconWrapper {
+  position: relative;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 62.4375rem;
+  background: $gradient-accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sparkleTopRight {
+  position: absolute;
+  top: -0.625rem;
+  right: -1rem;
+}
+
+.sparkleBottomLeft {
+  position: absolute;
+  bottom: -0.625rem;
+  left: -1rem;
+  transform: scale(0.7);
+}
+
+.texts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.rewardBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--surface-elevated);
+  width: 100%;
+}
+
+.rewardIconWrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.625rem;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow:
+    0 0.25rem 0.375rem -0.25rem rgba(0, 0, 0, 0.1),
+    0 0.625rem 0.9375rem -0.1875rem rgba(0, 0, 0, 0.1);
+}
+
+.rewardInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+.rewardLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.rewardValue {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.collectButton {
+  margin-top: 1.5rem;
+  width: 100%;
+  height: 3.6875rem;
+  border-radius: 62.4375rem;
+  background: $gradient-accent;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+  &:active {
+    opacity: 0.8;
+  }
+  &:focus-visible {
+    outline: 0.125rem solid #a268ff;
+    outline-offset: 0.125rem;
+  }
+}

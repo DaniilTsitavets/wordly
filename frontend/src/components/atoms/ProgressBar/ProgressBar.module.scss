@@ -1,0 +1,56 @@
+@use '../../../styles/index' as *;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 0.5rem;
+  &__bar {
+    width: 100%;
+    background: $color-overlay-progress-bg;
+    border-radius: 62.4375rem;
+    overflow: hidden;
+  }
+}
+.label {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+.label__container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bar {
+  height: 100%;
+  border-radius: 62.4375rem;
+  transition: width 0.4s ease;
+}
+.xs {
+  height: 0.25rem;
+}
+
+.sm {
+  height: 0.5rem;
+}
+.md {
+  height: 0.75rem;
+}
+
+.purple {
+  background: $color-primary;
+}
+.green {
+  background: $color-accent-lime-green;
+}
+.orange {
+  background: $color-secondary-orange;
+}
+.pink {
+  background: $color-secondary-pink;
+}

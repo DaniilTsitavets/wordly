@@ -1,0 +1,80 @@
+@use '../../../styles/index' as *;
+
+.option {
+  width: 112px;
+  min-height: 156px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: 16px;
+  border: 2px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
+
+  &:hover {
+    border-color: $color-primary-light;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  // When the parent stacks them vertically (ChangeGoalModal at ≤480px),
+  // lay the icon out next to the text instead of stacking — much cleaner.
+  @include mobile-sm {
+    width: 100%;
+    min-height: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+}
+
+.optionActive {
+  border-color: $color-primary;
+  background: var(--accent-surface);
+  color: $color-primary;
+}
+
+.optionMinutes {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text-primary);
+
+  .optionActive & {
+    color: $color-primary;
+  }
+
+  @include mobile-sm {
+    font-size: 16px;
+    text-align: left;
+  }
+}
+
+.optionLabel {
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.35;
+  min-height: 30px;
+
+  @include mobile-sm {
+    font-size: 12px;
+    text-align: left;
+    min-height: 0;
+    margin-left: auto;
+    color: var(--text-secondary);
+  }
+}

@@ -1,0 +1,17 @@
+name: OpenAPI - CI
+
+on:
+  pull_request:
+    paths:
+      - 'openapi.yaml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint OpenAPI spec
+        run: npx @redocly/cli@latest lint openapi.yaml

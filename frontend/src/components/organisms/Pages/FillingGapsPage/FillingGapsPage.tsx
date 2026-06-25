@@ -1,0 +1,232 @@
+import styles from './FillingGapsPage.module.scss'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ProgressBar } from '@/components/atoms/ProgressBar'
+import { Button } from '@/components/atoms/Button'
+import { IconFont } from '@/components/atoms/IconFont'
+import { Input } from '@/components/atoms/Input'
+import { useWords } from '@/shared/hooks/useWords'
+import { useActivityHeartbeat } from '@/shared/hooks/useActivityHeartbeat'
+import { useFinishSession } from '@/shared/hooks/useFinishSession'
+import { useAppSelector } from '@/store/hooks'
+import { RewardModal } from '@/components/molecules/RewardModal'
+
+type AnswerState = 'pending' | 'correct' | 'incorrect'
+
+/**
+ * Creates a word with random letters replaced by underscores
+ * @param word - The original word
+ * @param gapRatio - Ratio of letters to hide (0-1)
+ * @returns Word with gaps (underscores)
+ */
+const createWordWithGaps = (word: string, gapRatio: number = 0.4): string => {
+  const letters = word.split('')
+  const letterIndices: number[] = []
+
+  letters.forEach((char, index) => {
+    if (/[a-zA-Z]/.test(char)) {
+      letterIndices.push(index)
+    }
+  })
+
+  const numGaps = Math.max(1, Math.floor(letterIndices.length * gapRatio))
+
+  const shuffled = [...letterIndices].sort(() => Math.random() - 0.5)
+  const indicesToHide = new Set(shuffled.slice(0, numGaps))
+
+  return letters.map((char, index) => (indicesToHide.has(index) ? '_' : char)).join('')
+}
+
+const normalizeAnswer = (str: string): string => {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:]+$/, '')
+}
+
+export const FillingGapsPage = () => {
+  const { subtopicId } = useParams<{ subtopicId: string }>()
+  const navigate = useNavigate()
+  const { finishSession, isCompleting } = useFinishSession()
+  const { words, isLoading, error } = useWords(Number(subtopicId))
+  const isGuest = useAppSelector((state) => state.auth.user?.is_guest ?? false)
+  useActivityHeartbeat()
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [userAnswer, setUserAnswer] = useState('')
+  const [answerState, setAnswerState] = useState<AnswerState>('pending')
+  const [showReward, setShowReward] = useState(false)
+  const [gemsEarned, setGemsEarned] = useState(0)
+
+  const word = words?.[currentIndex]
+  // Hoisted so hook deps match what the React Compiler infers.
+  const wordEn = word?.word_en
+  const isLast = currentIndex >= (words?.length ?? 0) - 1
+  const progress = words?.length ? ((currentIndex + 1) / words.length) * 100 : 0
+
+  const wordWithGaps = useMemo(() => {
+    if (!wordEn) return ''
+    return createWordWithGaps(wordEn)
+  }, [wordEn])
+
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setUserAnswer('')
+    setAnswerState('pending')
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [currentIndex])
+
+  const handleSpeak = useCallback(() => {
+    if ('speechSynthesis' in window && wordEn) {
+      const utterance = new SpeechSynthesisUtterance(wordEn)
+      utterance.lang = 'en-US'
+      speechSynthesis.speak(utterance)
+    }
+  }, [wordEn])
+
+  const handleReset = useCallback(() => {
+    setUserAnswer('')
+    setAnswerState('pending')
+  }, [])
+
+  const handleCheckAnswer = useCallback(() => {
+    if (!wordEn) return
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(wordEn)
+    setAnswerState(isCorrect ? 'correct' : 'incorrect')
+  }, [userAnswer, wordEn])
+
+  const handleNextWord = useCallback(() => {
+    if (!isLast) {
+      setCurrentIndex((prev) => prev + 1)
+    }
+  }, [isLast])
+
+  const handleComplete = useCallback(async () => {
+    if (isCompleting) return
+    try {
+      const result = await finishSession(Number(subtopicId), 'filling_gaps')
+      setGemsEarned(result.gemsEarned)
+      setShowReward(true)
+    } catch {
+      // TODO: show error toast
+    }
+  }, [finishSession, isCompleting, subtopicId])
+
+  const handleCollect = useCallback(() => {
+    setShowReward(false)
+    sessionStorage.setItem('sessionCompleted', 'true')
+    navigate(-1)
+  }, [navigate])
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUserAnswer(e.target.value)
+      if (answerState !== 'pending') {
+        setAnswerState('pending')
+      }
+    },
+    [answerState]
+  )
+
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
+  if (isLoading) {
+    return <div className={styles.centered}>Loading...</div>
+  }
+
+  if (error) {
+    return <div className={styles.centered}>Error: {error}</div>
+  }
+
+  if (!words || words.length === 0 || !word) {
+    return <div className={styles.centered}>No words found</div>
+  }
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack} aria-label="Go back">
+          <IconFont name="arrow-back" size={20} />
+        </button>
+        <div className={styles.progressContainer}>
+          <ProgressBar value={progress} color="purple" size="sm" />
+        </div>
+      </div>
+
+      <div className={styles.originalWord}>
+        <div className={styles.wordPlate}>
+          <span className={styles.wordWithGaps}>{wordWithGaps}</span>
+        </div>
+
+        <button
+          className={styles.speakerButton}
+          onClick={handleSpeak}
+          aria-label="Hear pronunciation"
+        >
+          <IconFont name="player" size={16} />
+          <span>Hear pronunciation</span>
+        </button>
+      </div>
+
+      <Input
+        value={userAnswer}
+        onChange={handleInputChange}
+        placeholder=""
+        className={styles.answerInput}
+      />
+      {answerState !== 'pending' && (
+        <div
+          className={`${styles.feedbackBanner} ${
+            answerState === 'correct' ? styles.correct : styles.incorrect
+          }`}
+        >
+          {answerState === 'correct' ? (
+            <>
+              <IconFont name="filled-tick" size={24} />
+              <span>Correct!</span>
+            </>
+          ) : (
+            <>
+              <IconFont name="cross" size={24} color="#fb2c36" />
+              <span>Try Again</span>
+            </>
+          )}
+        </div>
+      )}
+
+      <div className={styles.buttonsContainer}>
+        {answerState === 'correct' ? (
+          isLast ? (
+            <Button variant="gradient" onClick={handleComplete} disabled={isCompleting}>
+              {isCompleting ? 'Completing...' : 'Complete'}
+            </Button>
+          ) : (
+            <Button variant="gradient" onClick={handleNextWord}>
+              Next Word →
+            </Button>
+          )
+        ) : (
+          <>
+            <Button variant="secondary" onClick={handleReset}>
+              Reset
+            </Button>
+            <Button variant="gradient" onClick={handleCheckAnswer}>
+              Check Answer
+            </Button>
+          </>
+        )}
+      </div>
+
+      <RewardModal
+        isOpen={showReward}
+        onClose={() => setShowReward(false)}
+        onCollect={handleCollect}
+        completionTarget={Number(subtopicId) || 1}
+        reward={`+${gemsEarned} Gems`}
+        hideReward={isGuest}
+      />
+    </div>
+  )
+}

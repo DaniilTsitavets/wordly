@@ -1,0 +1,2069 @@
+openapi: 3.0.3
+info:
+  title: Word Learning App API
+  description: API for a language word learning application with spaced repetition
+  version: 1.1.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Topics
+  - name: Subtopics
+  - name: Learning
+  - name: Recall
+  - name: Vocabulary
+  - name: Admin
+  - name: Game
+  - name: AI Chat
+
+paths:
+
+  # ─── AUTH ───────────────────────────────────────────────
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, surname, email, password]
+              properties:
+                name:
+                  type: string
+                  example: Alex
+                surname:
+                  type: string
+                  example: Smith
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  example: secret123
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/guest:
+    post:
+      tags: [Auth]
+      summary: Create a guest session
+      description: Returns a guest token. Guest has access only to Level 0 and Level 1 of the first topic.
+      security: []
+      responses:
+        '201':
+          description: Guest session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current user
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logged out successfully
+
+  /auth/oauth/google:
+    post:
+      tags: [Auth]
+      summary: Sign in with Google
+      description: |
+        Exchanges an authorization code obtained by the frontend after the Google OAuth redirect
+        for a JWT token. Creates a new user if no account with the given email exists, or links
+        the Google identity to an existing email-password account.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, redirect_uri]
+              properties:
+                code:
+                  type: string
+                  description: Authorization code returned by Google after user consent
+                  example: 4/0AY0e-g6...
+                redirect_uri:
+                  type: string
+                  description: Must exactly match the redirect URI used when initiating the OAuth flow
+                  example: https://app.wordly.quest/oauth/callback
+      responses:
+        '200':
+          description: Sign-in successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Missing or invalid code / redirect_uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Google rejected the authorization code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ─── USERS ──────────────────────────────────────────────
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags: [Users]
+      summary: Update current user profile and settings
+      description: Updates name, surname, email, password, interface language, daily goal, notifications, color theme.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Alex
+                surname:
+                  type: string
+                  example: Smith
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                interface_language:
+                  type: string
+                  example: ru
+                daily_goal_min:
+                  type: integer
+                  example: 10
+                daily_goal_words:
+                  type: integer
+                  minimum: 5
+                  maximum: 20
+                  example: 10
+                notifications_enabled:
+                  type: boolean
+                color_theme:
+                  type: string
+                  enum: [light, dark, system]
+                onboarding_completed:
+                  type: boolean
+                  description: Set to true once the user finishes the initial onboarding flow.
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/daily-progress:
+    get:
+      tags: [Users]
+      summary: Get daily learning progress
+      description: >
+        Minutes studied today (across all learning mechanics, recall and AI chat). Study time is accumulated via POST /users/me/activity.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Minutes studied today vs daily goal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyProgress'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/daily-goal/claim:
+    post:
+      tags: [Users]
+      summary: Claim the daily-goal gem bonus
+      description: >
+        Awards the +10 daily-goal bonus the first time today's goal is reached; idempotent per local
+        day. Returns whether the goal is reached and the gems awarded by this call (0 if not reached or
+        already claimed today).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daily-goal claim result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reached:
+                    type: boolean
+                    example: true
+                  gems_awarded:
+                    type: integer
+                    example: 10
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/activity:
+    post:
+      tags: [Users]
+      summary: Report study time for the daily goal (heartbeat)
+      description: >
+        Adds study time to today's total. Send as a heartbeat (≤120s while a learning screen is
+        active), not once at the end: the server credits at most the real time elapsed since the last
+        report, capped at 120s per request. Returns the updated daily progress.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [seconds]
+              properties:
+                seconds:
+                  type: integer
+                  minimum: 1
+                  maximum: 86400
+                  example: 120
+      responses:
+        '200':
+          description: Updated daily progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyProgress'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── TOPICS ─────────────────────────────────────────────
+
+  /topics:
+    get:
+      tags: [Topics]
+      summary: Get all topics with user progress
+      description: For guests returns only the first topic.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  topics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TopicSummary'
+                  current_position:
+                    allOf:
+                      - $ref: '#/components/schemas/CurrentPosition'
+                    description: Computed from user_subtopic_level_mechanic_progress — last in_progress entry
+
+  /topics/{topicId}:
+    get:
+      tags: [Topics]
+      summary: Get topic with its subtopic IDs
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      responses:
+        '200':
+          description: Topic with subtopic IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── SUBTOPICS ──────────────────────────────────────────
+
+  /subtopics/batch:
+    post:
+      tags: [Subtopics]
+      summary: Get subtopics data by a list of IDs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  example: [1, 2, 3]
+      responses:
+        '200':
+          description: List of subtopics with progress status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubtopicSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /subtopics/{subtopicId}:
+    get:
+      tags: [Subtopics]
+      summary: Get subtopic with levels and their statuses
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '200':
+          description: Subtopic detail with levels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubtopicDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /subtopics/{subtopicId}/words:
+    get:
+      tags: [Subtopics]
+      summary: Get all words in subtopic (preview before learning starts)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '200':
+          description: List of words in subtopic
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WordPreview'
+
+  # ─── LEARNING SESSION ────────────────────────────────────
+
+  /subtopics/{subtopicId}/session:
+    get:
+      tags: [Learning]
+      summary: Get words for current mechanic session
+      description: |
+        Returns words and mechanic type for the current level. Mechanic order is fixed:
+        mnemonic_cards → flashcards → matching → filling_gaps → word_builder (mnemonic_cards skipped
+        if in disabled_mechanics).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '200':
+          description: Session data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionData'
+        '403':
+          description: Level is locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subtopics/{subtopicId}/session/answer:
+    post:
+      tags: [Learning]
+      summary: Submit answer for a word in current session
+      description: Used in matching, filling_gaps, word_builder mechanics. Updates user_word_state.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [word_id, mechanic_type, user_answer]
+              properties:
+                word_id:
+                  type: integer
+                  format: int64
+                mechanic_type:
+                  type: string
+                  enum: [matching, filling_gaps, word_builder]
+                user_answer:
+                  type: string
+                  example: plate
+      responses:
+        '200':
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /subtopics/{subtopicId}/session/complete:
+    post:
+      tags: [Learning]
+      summary: Complete current level
+      description: Marks level as completed, awards gems, unlocks next level. For flashcards and mnemonic_cards called when user taps "Complete" after viewing all cards.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mechanic_type]
+              properties:
+                mechanic_type:
+                  type: string
+                  enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+      responses:
+        '200':
+          description: Level completion result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelCompleteResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── RECALL ─────────────────────────────────────────────
+
+  /recall:
+    get:
+      tags: [Recall]
+      summary: Get words scheduled for recall today
+      description: Words where next_recall <= today from user_word_state.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Words due for recall today
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 12
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecallWord'
+
+  /recall/answer:
+    post:
+      tags: [Recall]
+      summary: Submit recall answer for a word
+      description: |
+        Updates user_word_state.
+        On success: recall_interval advances to next step (1→3→7→14→21→30 days), next_recall = today + interval.
+        On failure: recall_interval resets to 1, next_recall = tomorrow.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [word_id, user_answer]
+              properties:
+                word_id:
+                  type: integer
+                  format: int64
+                user_answer:
+                  type: string
+                  example: plate
+                recall_time_ms:
+                  type: integer
+                  format: int64
+                  nullable: true
+                  description: Optional recall time in milliseconds, backing best_recall_time; implausible values (too fast, too slow, or out of int range) are ignored.
+                  example: 3400
+      responses:
+        '200':
+          description: Recall answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /recall/complete:
+    post:
+      tags: [Recall]
+      summary: Complete recall session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Recall session summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_words:
+                    type: integer
+                    example: 12
+                  correct:
+                    type: integer
+                    example: 10
+                  failed:
+                    type: integer
+                    example: 2
+                  gems_earned:
+                    type: integer
+                    example: 5
+
+  # ─── VOCABULARY ─────────────────────────────────────────
+
+  /vocabulary:
+    get:
+      tags: [Vocabulary]
+      summary: Get user vocabulary
+      description: All words where user_word_state exists (user started learning them).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, learning, recalling, long_term_memory]
+          description: Filter by word status
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: User vocabulary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 120
+                  page:
+                    type: integer
+                    example: 1
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VocabularyWord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── AI CHAT ────────────────────────────────────────────────
+
+  /ai/chat:
+    post:
+      tags: [AI Chat]
+      summary: Send a message to the AI tutor
+      description: >
+        Stateless AI chat endpoint. The client maintains conversation history and sends
+        it with every request. The AI generates a reply, checks spelling of target words,
+        and evaluates their usage in context.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiChatRequest'
+            example:
+              subtopicId: 1
+              history:
+                - role: assistant
+                  content: "Let's practice words from 'Kitchen Utensils'! Imagine you're setting the table — what do you need?"
+                - role: user
+                  content: "I need a plate and a frok"
+              message: "Also a cup and a spoon"
+      responses:
+        '200':
+          description: AI reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiChatResponse'
+              example:
+                reply: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though, very natural! What would you put on the plate?"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── ADMIN: TOPICS ──────────────────────────────────────
+
+  /admin/topics:
+    get:
+      tags: [Admin]
+      summary: List all topics (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of topics with subtopic counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminTopic'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Admin]
+      summary: Create a topic (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTopicRequest'
+      responses:
+        '201':
+          description: Topic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/topics/{topicId}:
+    put:
+      tags: [Admin]
+      summary: Update a topic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTopicRequest'
+      responses:
+        '200':
+          description: Topic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Admin]
+      summary: Delete a topic (admin)
+      description: Fails with 400 if the topic still has subtopics.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      responses:
+        '204':
+          description: Topic deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── ADMIN: SUBTOPICS ───────────────────────────────────
+
+  /admin/subtopics:
+    get:
+      tags: [Admin]
+      summary: List subtopics for a topic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: topic_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of subtopics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminSubtopic'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [Admin]
+      summary: Create a subtopic (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSubtopicRequest'
+      responses:
+        '201':
+          description: Subtopic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSubtopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/subtopics/{subtopicId}:
+    put:
+      tags: [Admin]
+      summary: Update a subtopic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSubtopicRequest'
+      responses:
+        '200':
+          description: Subtopic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSubtopic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Admin]
+      summary: Delete a subtopic (admin)
+      description: Fails with 400 if the subtopic still has words.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/subtopicId'
+      responses:
+        '204':
+          description: Subtopic deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── ADMIN: WORDS ───────────────────────────────────────
+
+  /admin/words:
+    get:
+      tags: [Admin]
+      summary: List words for a subtopic (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: subtopic_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of words
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminWord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [Admin]
+      summary: Create a word (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminWordRequest'
+      responses:
+        '201':
+          description: Word created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/words/{wordId}:
+    put:
+      tags: [Admin]
+      summary: Update a word (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminWordRequest'
+      responses:
+        '200':
+          description: Word updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Admin]
+      summary: Delete a word (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Word deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/words/bulk:
+    post:
+      tags: [Admin]
+      summary: Bulk create words for a subtopic (admin)
+      description: Inserts an array of words under one subtopic in a single transaction. Fast initial content seeding.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminBulkWordsRequest'
+      responses:
+        '201':
+          description: Words created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminBulkWordsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─── ADMIN: USERS ───────────────────────────────────────
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: Paginated list of users (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+      responses:
+        '200':
+          description: Page of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/daily-games:
+    get:
+      tags: [Admin]
+      summary: List all daily games (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of daily games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminDailyGame'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin]
+      summary: Create a daily game (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDailyGameRequest'
+      responses:
+        '201':
+          description: Created daily game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDailyGame'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/daily-games/{id}:
+    put:
+      tags: [Admin]
+      summary: Update a daily game (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDailyGameRequest'
+      responses:
+        '200':
+          description: Updated daily game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDailyGame'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Admin]
+      summary: Delete a daily game (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /daily-game:
+    get:
+      tags: [Game]
+      summary: Get today's daily game
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Today's daily game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyGame'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /daily-game/answer:
+    post:
+      tags: [Game]
+      summary: Submit answer for today's daily game
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyGameAnswerRequest'
+      responses:
+        '200':
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyGameAnswerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ─── COMPONENTS ─────────────────────────────────────────────
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    topicId:
+      name: topicId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    subtopicId:
+      name: subtopicId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Caller is authenticated but lacks required authority
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Invalid request payload or business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+
+    AiChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          example: user
+        content:
+          type: string
+          example: "I need a plate and a fork"
+
+    AiChatRequest:
+      type: object
+      required: [subtopicId, history, message]
+      properties:
+        subtopicId:
+          type: integer
+          format: int64
+          example: 1
+        history:
+          type: array
+          description: Full conversation history (alternating assistant/user messages)
+          items:
+            $ref: '#/components/schemas/AiChatMessage'
+        message:
+          type: string
+          description: The user's current message
+          example: "Also a cup and a spoon"
+
+    AiChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+          example: "Nice! Small spelling note — it's 'fork', not 'frok'. Great use of 'plate' and 'cup' though!"
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: NOT_FOUND
+        message:
+          type: string
+          example: Resource not found
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9...
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: Alex
+        surname:
+          type: string
+          example: Smith
+        email:
+          type: string
+          format: email
+        is_guest:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/Role'
+        interface_language:
+          type: string
+          example: ru
+        daily_goal_min:
+          type: integer
+          example: 10
+        daily_goal_words:
+          type: integer
+          description: Target number of words to learn per day.
+          example: 10
+        notifications_enabled:
+          type: boolean
+        color_theme:
+          type: string
+          example: system
+          enum: [light, dark, system]
+        onboarding_completed:
+          type: boolean
+          description: True after the user has finished the initial onboarding flow (set daily goal).
+          example: false
+        streak:
+          type: integer
+          example: 7
+        longest_streak:
+          type: integer
+          description: >
+            All-time longest streak the user has ever reached. Unlike `streak` this never resets;
+            it only grows when the current streak surpasses it. Used by the stats screen.
+          example: 21
+        gems:
+          type: integer
+          example: 340
+        learned_words:
+          type: integer
+          nullable: true
+          description: >
+            Number of the user's "learned" words (status recalling or long_term_memory). Populated
+            on GET/PUT /users/me; null in auth responses.
+          example: 42
+        words_percentage:
+          type: integer
+          nullable: true
+          description: >
+            learned_words as a rounded percentage of all platform words (0 if none). Populated on
+            GET/PUT /users/me; null in auth responses.
+          example: 21
+        best_recall_time:
+          type: integer
+          nullable: true
+          description: >
+            Fastest recall time across the user's words, in milliseconds; null when none recorded
+            yet. Populated on GET/PUT /users/me; null in auth responses.
+          example: 3400
+        last_active_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+
+    DailyProgress:
+      type: object
+      description: Minutes studied today vs the time-based daily goal (BRD §9.1).
+      properties:
+        minutes_today:
+          type: integer
+          example: 9
+        daily_goal_min:
+          type: integer
+          example: 15
+
+    CurrentPosition:
+      type: object
+      description: Where the user currently is — computed from user_subtopic_level_mechanic_progress
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        mechanic_type:
+          type: string
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+
+    TopicSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: Food
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
+        subtopics_total:
+          type: integer
+          example: 6
+        subtopics_completed:
+          type: integer
+          example: 2
+
+    TopicDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        image_url:
+          type: string
+        subtopic_ids:
+          type: array
+          items:
+            type: integer
+            format: int64
+          example: [1, 2, 3]
+
+    SubtopicSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: Fruits
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
+        words_count:
+          type: integer
+          example: 15
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+            enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+          example: ["mnemonic_cards"]
+        status:
+          type: string
+          enum: [locked, unblocked, in_progress, completed]
+
+    SubtopicDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        image_url:
+          type: string
+        words_count:
+          type: integer
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+          example: ["mnemonic_cards"]
+        levels:
+          type: array
+          items:
+            $ref: '#/components/schemas/LevelProgress'
+
+    LevelProgress:
+      type: object
+      properties:
+        mechanic_type:
+          type: string
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+        status:
+          type: string
+          enum: [locked, unblocked, in_progress, completed]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Mnemonic:
+      type: object
+      nullable: true
+      properties:
+        image_url:
+          type: string
+          example: https://cdn.example.com/mnemonics/plate.jpg
+        mnemo_text:
+          type: string
+          example: Представьте тарелку, которая плетёт корзину...
+
+    WordPreview:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+          example: plate
+        transcription_en:
+          type: string
+          example: pleɪt
+        translation_ru:
+          type: string
+          example: тарелка
+        image_url:
+          type: string
+        has_mnemonic:
+          type: boolean
+        mnemonic_image_url:
+          type: string
+          nullable: true
+          description: Mnemonic image URL. Present only when has_mnemonic is true.
+        mnemonic_text:
+          type: string
+          nullable: true
+          description: Mnemonic memory hint text. Present only when has_mnemonic is true.
+          example: ПЛЕТЁТ — тарелка плетёт узоры
+
+    SessionData:
+      type: object
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        mechanic_type:
+          type: string
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionWord'
+
+    SessionWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+          example: plate
+        transcription_en:
+          type: string
+          example: pleɪt
+        translation_ru:
+          type: string
+          example: тарелка
+        image_url:
+          type: string
+          example: https://cdn.example.com/images/plate.jpg
+        usage_example_en:
+          type: string
+          example: Put the plate on the table.
+        usage_example_en_translation_ru:
+          type: string
+          example: Поставь тарелку на стол.
+        mnemonic:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/Mnemonic'
+          description: Only present when mechanic_type is mnemonic_cards
+          nullable: true
+
+    AnswerResult:
+      type: object
+      properties:
+        word_id:
+          type: integer
+          format: int64
+        is_correct:
+          type: boolean
+        correct_answer:
+          type: string
+          example: plate
+
+    LevelCompleteResult:
+      type: object
+      properties:
+        mechanic_type:
+          type: string
+        gems_earned:
+          type: integer
+          example: 10
+        next_mechanic:
+          type: string
+          nullable: true
+          enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+          description: Next available mechanic. null if subtopic is fully completed.
+        subtopic_completed:
+          type: boolean
+
+    RecallWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+          example: plate
+        translation_ru:
+          type: string
+          example: тарелка
+        transcription_en:
+          type: string
+          example: pleɪt
+        recall_interval:
+          type: integer
+          description: Current interval step in days (1/3/7/14/21/30)
+          example: 7
+
+    VocabularyWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+          example: plate
+        transcription_en:
+          type: string
+          example: pleɪt
+        translation_ru:
+          type: string
+          example: тарелка
+        image_url:
+          type: string
+        status:
+          type: string
+          enum: [new, learning, recalling, long_term_memory]
+        next_recall:
+          type: string
+          format: date
+          nullable: true
+
+    Role:
+      type: string
+      enum: [USER, ADMIN]
+      description: User authorization role. ADMIN unlocks /admin/** endpoints.
+
+    AdminTopic:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
+        subtopics_count:
+          type: integer
+          format: int64
+          example: 3
+
+    AdminTopicRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Food
+        description:
+          type: string
+          maxLength: 10000
+        image_url:
+          type: string
+          maxLength: 255
+        sort_order:
+          type: integer
+          minimum: 0
+          example: 1
+
+    AdminSubtopic:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        topic_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        image_url:
+          type: string
+        sort_order:
+          type: integer
+        words_count:
+          type: integer
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+            enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+
+    AdminSubtopicRequest:
+      type: object
+      required: [topic_id, name]
+      properties:
+        topic_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 10000
+        image_url:
+          type: string
+          maxLength: 255
+        sort_order:
+          type: integer
+          minimum: 0
+        disabled_mechanics:
+          type: array
+          items:
+            type: string
+            enum: [mnemonic_cards, flashcards, matching, filling_gaps, word_builder]
+
+    AdminWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        subtopic_id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+        transcription_en:
+          type: string
+        translation_ru:
+          type: string
+        image_url:
+          type: string
+        usage_example_en:
+          type: string
+        usage_example_en_translation_ru:
+          type: string
+        mnemonic_image_url:
+          type: string
+          nullable: true
+        mnemo_text:
+          type: string
+          nullable: true
+
+    AdminWordRequest:
+      type: object
+      required: [subtopic_id, word_en, translation_ru]
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        word_en:
+          type: string
+          maxLength: 255
+        transcription_en:
+          type: string
+          maxLength: 255
+        translation_ru:
+          type: string
+          maxLength: 255
+        image_url:
+          type: string
+          maxLength: 255
+        usage_example_en:
+          type: string
+        usage_example_en_translation_ru:
+          type: string
+        mnemonic_image_url:
+          type: string
+          maxLength: 255
+          nullable: true
+        mnemo_text:
+          type: string
+          nullable: true
+
+    AdminBulkWordItem:
+      type: object
+      required: [word_en, translation_ru]
+      properties:
+        word_en:
+          type: string
+          maxLength: 255
+        transcription_en:
+          type: string
+          maxLength: 255
+        translation_ru:
+          type: string
+          maxLength: 255
+        image_url:
+          type: string
+          maxLength: 255
+        usage_example_en:
+          type: string
+        usage_example_en_translation_ru:
+          type: string
+        mnemonic_image_url:
+          type: string
+          maxLength: 255
+          nullable: true
+        mnemo_text:
+          type: string
+          nullable: true
+
+    AdminBulkWordsRequest:
+      type: object
+      required: [subtopic_id, words]
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        words:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AdminBulkWordItem'
+
+    AdminBulkWordsResponse:
+      type: object
+      properties:
+        subtopic_id:
+          type: integer
+          format: int64
+        created:
+          type: integer
+          example: 12
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminWord'
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          nullable: true
+        surname:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+        is_guest:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/Role'
+        streak:
+          type: integer
+        gems:
+          type: integer
+        last_active_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    AdminUsersPage:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+          example: 137
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 50
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUser'
+
+    AdminDailyGameRequest:
+      type: object
+      required: [idiom, option_1, option_2, option_3, option_4, correct_option]
+      properties:
+        idiom:
+          type: string
+          maxLength: 500
+          example: Break a leg
+        option_1:
+          type: string
+          maxLength: 500
+        option_2:
+          type: string
+          maxLength: 500
+        option_3:
+          type: string
+          maxLength: 500
+        option_4:
+          type: string
+          maxLength: 500
+        correct_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+
+    AdminDailyGame:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        idiom:
+          type: string
+        option_1:
+          type: string
+        option_2:
+          type: string
+        option_3:
+          type: string
+        option_4:
+          type: string
+        correct_option:
+          type: integer
+        scheduled_date:
+          type: string
+          format: date
+          nullable: true
+
+    DailyGame:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        idiom:
+          type: string
+          example: Break a leg
+        options:
+          type: array
+          items:
+            type: string
+          minItems: 4
+          maxItems: 4
+
+    DailyGameAnswerRequest:
+      type: object
+      required: [daily_game_id, selected_option]
+      properties:
+        daily_game_id:
+          type: integer
+          format: int64
+        selected_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+
+    DailyGameAnswerResponse:
+      type: object
+      properties:
+        is_correct:
+          type: boolean
+        correct_option:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
+

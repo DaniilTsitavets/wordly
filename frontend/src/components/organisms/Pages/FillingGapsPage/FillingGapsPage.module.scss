@@ -1,0 +1,188 @@
+@use '../../../../styles/index' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 9.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  @include tablet {
+    padding: 1.75rem 3rem;
+  }
+
+  @include mobile {
+    padding: 1rem 1rem 2rem;
+    gap: 1rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: var(--border-subtle);
+  }
+
+  @include mobile {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.progressContainer {
+  flex: 1;
+}
+.originalWord {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3.17rem;
+  gap: 1rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
+}
+.wordPlate {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: var(--border-subtle);
+  border-radius: 1rem;
+  margin-top: 6.12rem;
+  min-width: 200px;
+
+  @include tablet {
+    margin-top: 3rem;
+  }
+
+  @include mobile {
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 18rem;
+  }
+}
+
+.wordWithGaps {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.1rem;
+
+  @include mobile {
+    font-size: 1.5rem;
+    letter-spacing: 0.05rem;
+  }
+}
+
+.speakerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: $color-neutral-icon;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+
+  &:hover {
+    background-color: var(--border-subtle);
+    color: var(--text-primary);
+  }
+}
+
+.answerInput {
+  width: 100%;
+  margin-bottom: 3.75rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.feedbackBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+
+  &.correct {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: $color-accent-emerald;
+  }
+
+  &.incorrect {
+    background-color: rgba(251, 44, 54, 0.1);
+    color: $color-status-error;
+  }
+
+  @include mobile {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+.buttonsContainer {
+  display: flex;
+  gap: 3.125rem;
+  justify-content: center;
+
+  @include tablet {
+    gap: 1.5rem;
+  }
+
+  @include mobile {
+    width: 100%;
+    gap: 0.75rem;
+
+    & > * {
+      flex: 1;
+    }
+  }
+}

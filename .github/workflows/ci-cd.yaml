@@ -1,0 +1,59 @@
+name: "CI/CD"
+
+on:
+  push:
+    branches:
+      - "develop"
+    paths-ignore:
+      - ".infra/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-backend:
+    name: Build Backend
+    uses: ./.github/workflows/build-docker.yaml
+    secrets: inherit
+    with:
+      runner: ubuntu-latest
+      registries: "381234267810"
+      repository: "wordly-app"
+      region: "us-east-1"
+      role-to-assume: "arn:aws:iam::381234267810:role/wordly-github-actions"
+      role-session-name: "wordly-github-actions-build-backend"
+      platforms: "linux/arm64"
+      context: "./backend"
+      prefix: "dev-"
+
+  release-backend:
+    name: Deploy Backend
+    needs: build-backend
+    uses: ./.github/workflows/deploy-ecs.yaml
+    with:
+      runner: ubuntu-latest
+      registries: "381234267810"
+      repository: "wordly-app"
+      region: "us-east-1"
+      role-to-assume: "arn:aws:iam::381234267810:role/wordly-github-actions"
+      role-session-name: "wordly-github-actions-deploy-backend"
+      service: "backend"
+      deploy-env: "Development"
+      iac-env: "dev"
+      prefix: "dev-"
+
+  release-frontend:
+    name: Deploy Frontend
+    needs: release-backend
+    uses: ./.github/workflows/deploy-frontend.yaml
+    with:
+      runner: ubuntu-latest
+      region: "us-east-1"
+      role-to-assume: "arn:aws:iam::381234267810:role/wordly-github-actions"
+      role-session-name: "wordly-github-actions-release-frontend"
+      deploy-env: "Development"

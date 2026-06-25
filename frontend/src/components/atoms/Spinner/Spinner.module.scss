@@ -1,0 +1,36 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.spinner {
+  animation: rotate 1.2s linear infinite;
+
+  circle {
+    fill: none;
+    stroke-linecap: round;
+  }
+}
+
+.label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// prefers-reduced-motion — AA
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

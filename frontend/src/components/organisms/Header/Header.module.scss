@@ -1,0 +1,316 @@
+@use '../../../styles/index' as *;
+
+.header {
+  width: 100%;
+  height: 105px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-subtle);
+
+  @include tablet {
+    height: 80px;
+    padding: 0 24px;
+  }
+
+  @include mobile {
+    height: 64px;
+    padding: 0 16px;
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  max-width: 4.37rem;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @include mobile {
+    gap: 4px;
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-subtle);
+  margin: 0 4px;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.navIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  @include mobile {
+    gap: 2px;
+  }
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+
+  &:hover .tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  // Stat buttons crowd the bar on phones — drop them on mobile.
+  @include mobile {
+    display: none;
+  }
+}
+
+.navBtn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  svg,
+  [class^='icon'] {
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+  }
+
+  &:hover {
+    background: var(--accent-surface);
+
+    .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-purple);
+    outline-offset: 2px;
+  }
+
+  @include mobile {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+
+    svg,
+    [class^='icon'] {
+      width: 22px;
+      height: 22px;
+      font-size: 22px;
+    }
+  }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+
+    svg,
+    [class^='icon'] {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+  }
+}
+
+.tooltip {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--text-primary);
+  color: var(--background);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  z-index: 10;
+
+  // No hover on touch devices — hide tooltips, they only flash on tap.
+  @include mobile {
+    display: none;
+  }
+}
+
+.statBtnFire {
+  background: transparent !important;
+
+  &:hover {
+    background: var(--warning-bg) !important;
+  }
+}
+
+.statBtnDiamond {
+  background: transparent !important;
+
+  &:hover {
+    background: var(--accent-surface) !important;
+  }
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  @include mobile {
+    gap: 8px;
+  }
+}
+
+.adminBtn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--brand-purple);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  svg,
+  [class^='icon'] {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brand-purple);
+  }
+
+  &:hover {
+    background: var(--accent-surface);
+
+    .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-purple);
+    outline-offset: 2px;
+  }
+
+  @include mobile {
+    width: 36px;
+    height: 36px;
+
+    svg,
+    [class^='icon'] {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+
+  @include mobile-sm {
+    width: 32px;
+    height: 32px;
+    border-width: 1.5px;
+
+    svg,
+    [class^='icon'] {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+
+.loginBtn {
+  height: 44px;
+  min-width: 110px;
+  border-radius: 3rem !important;
+
+  @include mobile {
+    height: 36px;
+    min-width: 0;
+    padding: 0 1rem !important;
+    font-size: 14px;
+  }
+}
+
+.avatarWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--popover-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--accent-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-purple);
+    outline-offset: -2px;
+  }
+}
+
+.dropdownItemDanger {
+  color: var(--error);
+
+  &:hover {
+    background: var(--error-bg);
+  }
+}

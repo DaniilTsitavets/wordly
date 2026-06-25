@@ -1,0 +1,206 @@
+@use '../../../styles/index' as *;
+
+// ── Overlay ───────────────────────────────────────────────────────────────────
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// ── Card ─────────────────────────────────────────────────────────────────────
+
+.card {
+  background: var(--surface);
+  border-radius: 1.5rem;
+  padding: 2rem 1.75rem 1.5rem;
+  width: 100%;
+  max-width: 37.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// ── Icon ─────────────────────────────────────────────────────────────────────
+
+.iconWrap {
+  margin-bottom: 1rem;
+}
+
+// ── Text group ────────────────────────────────────────────────────────────────
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+// ── Score box ─────────────────────────────────────────────────────────────────
+
+.scoreBox {
+  width: 100%;
+  background: rgba(34, 197, 62, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.scoreNumber {
+  font-size: 2rem;
+  font-weight: 800;
+  color: $color-accent-green;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+
+.actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 2rem;
+  background: $gradient-primary;
+  color: $color-white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.btnSecondary {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 2rem;
+  background: transparent;
+  color: $color-primary-500;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $color-overlay-primary-light;
+  }
+}
+
+// ── Inline idiom list drawer ──────────────────────────────────────────────────
+
+.listDrawer {
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.listDrawerOpen {
+  max-height: 30rem;
+}
+
+.listPanel {
+  margin-top: 0.75rem;
+  background: var(--surface-elevated);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.9rem 1.25rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.listItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.85rem 1.25rem;
+
+  & + & {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+.listIdiom {
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: $gradient-idiom-text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.listAnswer {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}

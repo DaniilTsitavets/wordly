@@ -1,0 +1,212 @@
+@use '../../../styles/index' as *;
+
+// Perspective container (does NOT rotate)
+.card {
+  perspective: 1000px;
+  max-width: 41.9rem;
+  width: 100%;
+  min-height: 32rem;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 0.125rem solid $color-primary;
+    outline-offset: 1rem;
+    border-radius: 1.25rem;
+  }
+
+  @include tablet {
+    min-height: 28rem;
+  }
+
+  @include mobile {
+    min-height: 24rem;
+
+    &:focus-visible {
+      outline-offset: 0.5rem;
+    }
+  }
+}
+
+// Inner element that actually flips
+.cardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+
+  &--flipped {
+    transform: rotateY(180deg);
+  }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1.5rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--surface);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  @include mobile {
+    padding: 1.25rem 1rem 1rem;
+  }
+}
+
+.faceBack {
+  transform: rotateY(180deg);
+}
+
+.imageWrapper {
+  display: flex;
+  max-width: 26rem;
+  width: 100%;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  @include mobile {
+    max-width: 18rem;
+  }
+}
+
+.image {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  padding-top: 1rem;
+}
+
+.word {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
+  text-align: center;
+
+  @include mobile {
+    font-size: 1.25rem;
+  }
+}
+
+.pronunciation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audioButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  color: $color-neutral-icon;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: $color-primary;
+  }
+}
+
+.transcription {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.mnemonic {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: $color-primary;
+  text-align: center;
+  font-style: italic;
+}
+
+.flipHint {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.translationWord {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
+  text-align: center;
+
+  @include mobile {
+    font-size: 1.375rem;
+  }
+}
+
+.backWordEn {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.exampleBlock {
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.625rem;
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+
+  &--default {
+    background: var(--yellow-bg);
+  }
+
+  &--mnemonic {
+    background: var(--accent-surface);
+  }
+
+  @include mobile {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+.exampleEn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.exampleRu {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}

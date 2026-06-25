@@ -1,0 +1,104 @@
+import type { JSX } from 'react'
+import { HomePage } from '@/components/organisms/Pages/HomePage'
+import { SubTopicPage } from '@/components/organisms/Pages/SubTopicPage/SubTopicPage'
+import { OnboardingPage } from '@/components/organisms/Pages/OnboardingPage'
+import { ProfilePage } from '@/components/organisms/Pages/ProfilePage'
+import { VocabularyPage } from '@/components/organisms/Pages/VocabularyPage'
+import { RecallPage } from '@/components/organisms/Pages/RecallPage'
+import { FlashCardsPage } from '@/components/organisms/Pages/FlashCardsPage'
+import { MnemonicCardsPage } from '@/components/organisms/Pages/MnemonicCardsPage'
+import { WordsMatchingPage } from '@/components/organisms/Pages/WordsMatchingPage/WordsMatchingPage'
+import { WordBuilderPage } from '@/components/organisms/Pages/WordBuilderPage/WordBuilderPage'
+import { FillingGapsPage } from '@/components/organisms/Pages/FillingGapsPage/FillingGapsPage'
+import { RecallMechanicPage } from '@/components/organisms/Pages/RecallMechanicPage/RecallMechanicPage'
+import { OAuthCallbackPage } from '@/components/organisms/Pages/OAuthCallbackPage'
+import { AiChatPage } from '@/components/organisms/Pages/AiChatPage'
+import { DailyChallengePage } from '@/components/organisms/Pages/DailyChallengePage/DailyChallengePage'
+
+export type RouteAccess = 'public' | 'protected' | 'game'
+
+interface IRoute {
+  path: string
+  element: JSX.Element
+  access: RouteAccess
+}
+
+export const routesConfig: IRoute[] = [
+  {
+    path: '/',
+    element: <HomePage />,
+    access: 'public',
+  },
+  {
+    path: '/onboarding/daily-goal',
+    element: <OnboardingPage />,
+    access: 'public',
+  },
+  {
+    path: '/oauth/callback',
+    element: <OAuthCallbackPage />,
+    access: 'public',
+  },
+  {
+    path: '/:topic/:subtopic/:subtopicId',
+    element: <SubTopicPage />,
+    access: 'public',
+  },
+  {
+    path: '/profile',
+    element: <ProfilePage />,
+    access: 'protected',
+  },
+  {
+    path: '/vocabulary',
+    element: <VocabularyPage />,
+    access: 'protected',
+  },
+  {
+    path: '/recall',
+    element: <RecallPage />,
+    access: 'protected',
+  },
+  {
+    path: '/recall/practice',
+    element: <RecallMechanicPage />,
+    access: 'protected',
+  },
+  {
+    path: '/ai-chat',
+    element: <AiChatPage />,
+    access: 'protected',
+  },
+  {
+    path: '/subtopics/:subtopicId/matching',
+    element: <WordsMatchingPage />,
+    access: 'game',
+  },
+  {
+    path: '/subtopics/:subtopicId/flashcards',
+    element: <FlashCardsPage />,
+    access: 'game',
+  },
+  {
+    path: '/subtopics/:subtopicId/mnemonic-cards',
+    element: <MnemonicCardsPage />,
+    access: 'game',
+  },
+  {
+    path: '/subtopics/:subtopicId/word-builder',
+    element: <WordBuilderPage />,
+    access: 'game',
+  },
+  {
+    path: '/subtopics/:subtopicId/filling-gaps',
+    element: <FillingGapsPage />,
+    access: 'game',
+  },
+  {
+    path: '/daily-challenge',
+    element: <DailyChallengePage />,
+    access: 'public',
+  },
+]
+
+export type { IRoute }

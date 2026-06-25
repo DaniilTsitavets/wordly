@@ -1,0 +1,25 @@
+.button {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--accent-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-purple);
+    outline-offset: 2px;
+  }
+
+  &.active {
+    border: 1.6px solid var(--brand-purple);
+  }
+}

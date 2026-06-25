@@ -1,0 +1,78 @@
+package com.wordly.backend.service;
+
+import com.wordly.backend.entity.enums.Role;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class JwtServiceTest {
+
+    private JwtService jwtService;
+
+    @BeforeEach
+    void setUp() {
+        // same default secret as application.yaml
+        jwtService = new JwtService(
+                "dev-secret-change-in-production-min-32-chars",
+                86400000L
+        );
+    }
+
+    @Test
+    void generateAndValidate_regularUser() {
+        String token = jwtService.generateToken(42L, false, Role.USER);
+        System.out.println("USER token: " + token);
+
+        assertThat(jwtService.isTokenValid(token)).isTrue();
+        assertThat(jwtService.extractUserId(token)).isEqualTo(42L);
+        assertThat(jwtService.extractIsGuest(token)).isFalse();
+        assertThat(jwtService.extractRole(token)).isEqualTo(Role.USER);
+    }
+
+    @Test
+    void generateAndValidate_guest() {
+        String token = jwtService.generateToken(99L, true, Role.USER);
+        System.out.println("GUEST token: " + token);
+
+        assertThat(jwtService.isTokenValid(token)).isTrue();
+        assertThat(jwtService.extractUserId(token)).isEqualTo(99L);
+        assertThat(jwtService.extractIsGuest(token)).isTrue();
+    }
+
+    @Test
+    void generateAndValidate_admin() {
+        String token = jwtService.generateToken(7L, false, Role.ADMIN);
+
+        assertThat(jwtService.isTokenValid(token)).isTrue();
+        assertThat(jwtService.extractUserId(token)).isEqualTo(7L);
+        assertThat(jwtService.extractIsGuest(token)).isFalse();
+        assertThat(jwtService.extractRole(token)).isEqualTo(Role.ADMIN);
+    }
+
+    @Test
+    void invalidToken_returnsFalse() {
+        assertThat(jwtService.isTokenValid("not.a.token")).isFalse();
+        assertThat(jwtService.isTokenValid("")).isFalse();
+    }
+
+    @Test
+    void expiredToken_returnsFalse() {
+        JwtService shortLived = new JwtService(
+                "dev-secret-change-in-production-min-32-chars",
+                -1000L
+        );
+        String token = shortLived.generateToken(1L, false, Role.USER);
+        assertThat(shortLived.isTokenValid(token)).isFalse();
+    }
+
+    @Test
+    @DisplayName("should throw IllegalStateException when secret is shorter than 32 characters")
+    void shouldRejectShortSecret() {
+        assertThatThrownBy(() -> new JwtService("short-secret", 86400000L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("32");
+    }
+}
