@@ -61,11 +61,11 @@ public class AdminWordService {
 
         word.setSubtopic(targetSubtopic);
         word.setWordEn(request.wordEn().trim());
-        word.setTranscriptionEn(blankToNull(request.transcriptionEn()));
+        word.setTranscriptionEn(safe(request.transcriptionEn()));
         word.setTranslationRu(request.translationRu().trim());
-        word.setImageUrl(blankToNull(request.imageUrl()));
-        word.setUsageExampleEn(blankToNull(request.usageExampleEn()));
-        word.setUsageExampleEnTranslationRu(blankToNull(request.usageExampleEnTranslationRu()));
+        word.setImageUrl(safe(request.imageUrl()));
+        word.setUsageExampleEn(safe(request.usageExampleEn()));
+        word.setUsageExampleEnTranslationRu(safe(request.usageExampleEnTranslationRu()));
         word.setMnemonicImageUrl(blankToNull(request.mnemonicImageUrl()));
         word.setMnemoText(blankToNull(request.mnemoText()));
 
@@ -93,11 +93,11 @@ public class AdminWordService {
             toSave.add(Word.builder()
                     .subtopic(subtopic)
                     .wordEn(item.wordEn().trim())
-                    .transcriptionEn(blankToNull(item.transcriptionEn()))
+                    .transcriptionEn(safe(item.transcriptionEn()))
                     .translationRu(item.translationRu().trim())
                     .imageUrl(safe(item.imageUrl()))
-                    .usageExampleEn(blankToNull(item.usageExampleEn()))
-                    .usageExampleEnTranslationRu(blankToNull(item.usageExampleEnTranslationRu()))
+                    .usageExampleEn(safe(item.usageExampleEn()))
+                    .usageExampleEnTranslationRu(safe(item.usageExampleEnTranslationRu()))
                     .mnemonicImageUrl(blankToNull(item.mnemonicImageUrl()))
                     .mnemoText(blankToNull(item.mnemoText()))
                     .build());
@@ -117,11 +117,11 @@ public class AdminWordService {
         return Word.builder()
                 .subtopic(subtopic)
                 .wordEn(request.wordEn().trim())
-                .transcriptionEn(blankToNull(request.transcriptionEn()))
+                .transcriptionEn(safe(request.transcriptionEn()))
                 .translationRu(request.translationRu().trim())
-                .imageUrl(blankToNull(request.imageUrl()))
-                .usageExampleEn(blankToNull(request.usageExampleEn()))
-                .usageExampleEnTranslationRu(blankToNull(request.usageExampleEnTranslationRu()))
+                .imageUrl(safe(request.imageUrl()))
+                .usageExampleEn(safe(request.usageExampleEn()))
+                .usageExampleEnTranslationRu(safe(request.usageExampleEnTranslationRu()))
                 .mnemonicImageUrl(blankToNull(request.mnemonicImageUrl()))
                 .mnemoText(blankToNull(request.mnemoText()))
                 .build();
