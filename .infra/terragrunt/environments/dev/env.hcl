@@ -30,7 +30,8 @@ locals {
         "OPENROUTER_MODEL",
         "OPENROUTER_BASE_URL",
         "GOOGLE_CLIENT_ID",
-        "GOOGLE_CLIENT_SECRET"
+        "GOOGLE_CLIENT_SECRET",
+        "ADMIN_PASSWORD"
       ]
       env_vars = [
         {
