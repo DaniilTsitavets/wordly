@@ -29,7 +29,7 @@ jwt:
 
 admin:
   email: ${ADMIN_EMAIL:admin@wordly.local}
-  password: ${ADMIN_PASSWORD:admin12345}
+  password: ${ADMIN_PASSWORD}
   name: ${ADMIN_NAME:Admin}
   surname: ${ADMIN_SURNAME:User}
 
