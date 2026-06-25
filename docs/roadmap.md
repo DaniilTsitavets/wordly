@@ -1,145 +1,145 @@
 # Wordly. Roadmap
 
-**Версия:** 1.0 | **Дата:** 2026-05-28 | **Статус:** Draft
+**Version:** 1.0 | **Date:** 2026-05-28 | **Status:** Draft
 
-**Аудитория документа:** Product · Design · Development
+**Document audience:** Product · Design · Development
 
-Дорожная карта продукта Wordly. Привязана к этапам курса (M1–M4, недели 1–10) и продолжается v1.1 после релиза MVP. Каждый пункт MVP и пост-MVP отсылает к соответствующей user story в [`user-stories.md`](./user-stories.md).
-
----
-
-## Этапы курса (Недели 1–10)
-
-### M1: Старт (Недели 1–2)
-
-- [x] Команда сформирована (4 человека)
-- [x] Team Lead назначен (Polina Trybialustava)
-- [x] Тема проекта выбрана и утверждена — Wordly: изучение слов с мнемониками и spaced repetition
-- [x] Репозиторий создан на GitHub
-- [x] Канал команды в MS Teams настроен
-- **Checkpoint (конец недели 2):** встреча с руководителем — тема и состав подтверждены ✅
-
-### M2: Требования (Недели 3–4)
-
-- [x] Описание предметной области ([`requirements.md` §2](./requirements.md#2-предметная-область))
-- [x] Анализ целевой аудитории ([`requirements.md` §3](./requirements.md#3-целевая-аудитория))
-- [x] Список функциональных требований ([`user-stories.md`](./user-stories.md))
-- [x] Приоритизация требований по MoSCoW (Must / Should / Could / Won't)
-- [x] Roadmap проекта (этот документ)
-- **Checkpoint (конец недели 4):** Демо #1 — презентация требований ✅
-
-### M3: Проектирование (Недели 5–6)
-
-- [x] Архитектурная диаграмма (Spring Boot + React + PostgreSQL)
-- [x] Схема базы данных (Flyway-миграции `V1–V10`)
-- [x] Описание API endpoints (`openapi.yaml` — 33 endpoint)
-- [x] UI/UX макеты в Figma
-- [x] Технический стек зафиксирован: Java 21 + Spring Boot 4 (backend), React 19 + TS + Vite (frontend), PostgreSQL 17, Docker, GitHub Actions
-- **Checkpoint (конец недели 6):** Демо #2 — архитектура и дизайн ✅
-
-### M4: Разработка MVP (Недели 7–10)
-
-- [x] Backend API: аутентификация (JWT + Google OAuth), контент CRUD, обучение, recall, AI chat
-- [x] Frontend подключён к API — все основные экраны
-- [x] База данных наполнена тестовыми данными (`V2__test_data.sql`)
-- [x] Основные user stories реализованы (см. MVP ниже)
-- [x] Админ-панель для управления контентом (backend + frontend)
-- [x] Код покрыт unit-тестами (минимум 50%) — в работе
-- **Checkpoint (неделя 8):** промежуточный статус — daily standup с руководителем
-- **Checkpoint (конец недели 10):** Демо #3 — MVP
+Product roadmap for Wordly. Tied to the course milestones (M1–M4, weeks 1–10) and continuing with v1.1 after the MVP release. Each MVP and post-MVP item links to the corresponding user story in [`user-stories.md`](./user-stories.md).
 
 ---
 
-## MVP (v1.0, к неделе 10)
+## Course milestones (Weeks 1–10)
 
-Реализованная и проверенная функциональность. Соответствует **Must Have** в [`user-stories.md`](./user-stories.md), плюс Google OAuth и AI Chat из Should Have, реализованные сразу.
+### M1: Kickoff (Weeks 1–2)
 
-### Аутентификация и профиль
+- [x] Team formed (4 members)
+- [x] Team Lead assigned (Polina Trybialustava)
+- [x] Project topic chosen and approved — Wordly: word learning with mnemonics and spaced repetition
+- [x] Repository created on GitHub
+- [x] Team channel set up in MS Teams
+- **Checkpoint (end of week 2):** meeting with the supervisor — topic and team confirmed ✅
 
-- [x] Регистрация по email + паролю (US-001)
-- [x] Авторизация по email + паролю (US-002)
-- [x] Гостевой вход (US-003)
-- [x] Выход из аккаунта (US-004)
-- [x] Просмотр и редактирование профиля (US-005)
-- [x] Вход через Google OAuth (US-024)
+### M2: Requirements (Weeks 3–4)
 
-### Контент и навигация
+- [x] Domain description ([`requirements-en.md` §2](./requirements-en.md#2-domain))
+- [x] Target audience analysis ([`requirements-en.md` §3](./requirements-en.md#3-target-audience))
+- [x] List of functional requirements ([`user-stories.md`](./user-stories.md))
+- [x] Requirements prioritized with MoSCoW (Must / Should / Could / Won't)
+- [x] Project roadmap (this document)
+- **Checkpoint (end of week 4):** Demo #1 — requirements presentation ✅
 
-- [x] Просмотр списка тем и подтем (US-006)
-- [x] Просмотр всех слов темы перед началом (US-007)
-- [x] Просмотр уровней подтемы (US-008)
+### M3: Design (Weeks 5–6)
 
-### Обучающие механики
+- [x] Architecture diagram (Spring Boot + React + PostgreSQL)
+- [x] Database schema (Flyway migrations `V1–V10`)
+- [x] API endpoints description (`openapi.yaml` — 33 endpoints)
+- [x] UI/UX mockups in Figma
+- [x] Tech stack locked in: Java 21 + Spring Boot 4 (backend), React 19 + TS + Vite (frontend), PostgreSQL 17, Docker, GitHub Actions
+- **Checkpoint (end of week 6):** Demo #2 — architecture and design ✅
 
-- [x] Level 0: Мнемоники (US-009)
+### M4: MVP development (Weeks 7–10)
+
+- [x] Backend API: authentication (JWT + Google OAuth), content CRUD, learning, recall, AI chat
+- [x] Frontend connected to the API — all core screens
+- [x] Database seeded with test data (`V2__test_data.sql`)
+- [x] Core user stories implemented (see MVP below)
+- [x] Admin panel for content management (backend + frontend)
+- [x] Code covered with unit tests (at least 50%) — in progress
+- **Checkpoint (week 8):** interim status — daily standup with the supervisor
+- **Checkpoint (end of week 10):** Demo #3 — MVP
+
+---
+
+## MVP (v1.0, by week 10)
+
+Implemented and verified functionality. Covers **Must Have** in [`user-stories.md`](./user-stories.md), plus Google OAuth and AI Chat from Should Have, delivered early.
+
+### Authentication and profile
+
+- [x] Sign up with email + password (US-001)
+- [x] Sign in with email + password (US-002)
+- [x] Guest sign-in (US-003)
+- [x] Sign out (US-004)
+- [x] View and edit profile (US-005)
+- [x] Sign in with Google OAuth (US-024)
+
+### Content and navigation
+
+- [x] Browse the list of topics and subtopics (US-006)
+- [x] View all words of a topic before starting (US-007)
+- [x] View subtopic levels (US-008)
+
+### Learning mechanics
+
+- [x] Level 0: Mnemonics (US-009)
 - [x] Level 1: Flashcards (US-010)
 - [x] Level 2: Matching (US-011)
 - [x] Level 3: Filling Gaps (US-012)
 - [x] Level 4: Word Builder (US-013)
 
-### Повторение (Spaced Repetition)
+### Recall (Spaced Repetition)
 
-- [x] Просмотр слов для повторения сегодня (US-014)
-- [x] Recall-сессия с интервалами 1/3/7/14/21/30 дней (US-015)
+- [x] View words due for recall today (US-014)
+- [x] Recall session with 1/3/7/14/21/30-day intervals (US-015)
 
-### Дневная цель и геймификация
+### Daily goal and gamification
 
-- [x] Установка дневной цели при онбординге (US-016)
-- [x] Изменение дневной цели в профиле (US-017)
-- [x] Gems за прохождение уровня +5 (US-018)
-- [x] Gems за прохождение темы +15 (US-019)
-- [x] Gems за выполнение дневной цели +10 (US-020)
-- [x] Gems за recall-сессию (+10 / +5) (US-021)
+- [x] Set the daily goal during onboarding (US-016)
+- [x] Change the daily goal in the profile (US-017)
+- [x] Gems for completing a level +5 (US-018)
+- [x] Gems for completing a topic +15 (US-019)
+- [x] Gems for reaching the daily goal +10 (US-020)
+- [x] Gems for a recall session (+10 / +5) (US-021)
+- [x] Streak update and reset logic (US-028)
+- [x] Game of the day (US-032)
 
-### Словарь и статистика
+### Vocabulary and statistics
 
-- [x] Просмотр изученных слов в словаре (US-022)
-- [x] Базовая статистика профиля (US-023)
+- [x] View learned words in the vocabulary (US-022)
+- [x] Basic profile statistics (US-023)
 
-### AI-практика
+### AI practice
 
-- [x] Разговорная практика с AI-ассистентом (US-025)
+- [x] Conversational practice with the AI assistant (US-025)
 
-### Управление контентом (админ-инфраструктура)
+### Content management (admin infrastructure)
 
-- [x] Админ-роль и защищённые `/admin/**` endpoint
-- [x] CRUD тем, подтем, слов
-- [x] Bulk-загрузка слов (`POST /admin/words/bulk`)
-- [x] Просмотр списка пользователей с пагинацией
+- [x] Admin role and protected `/admin/**` endpoints
+- [x] CRUD for topics, subtopics, words
+- [x] Bulk word upload (`POST /admin/words/bulk`)
+- [x] Paginated user list
 
 ---
 
-## v1.1 (после курса)
+## v1.1 (after the course)
 
-Доводка MVP до соответствия BRD и закрытие **Should Have** / приоритетных **Could Have**.
+Refining the MVP to match the BRD and closing out **Should Have** / priority **Could Have** items.
 
-### Доводка существующих фич
+### Polishing existing features
 
-- [ ] Логика обновления и сброса Streak (US-028)
-- [ ] Расширенная карточка слова в словаре: дата изучения, кол-во повторений, пример (US-029)
-- [ ] Перенос гостевого прогресса в аккаунт после регистрации (US-035)
+- [ ] Extended word card in the vocabulary: date learned, recall count, usage example (US-029)
+- [ ] Migrate guest progress to an account after sign-up (US-035)
 
-### Новые метрики
+### New metrics
 
-- [ ] Метрики времени Recall: среднее время, личный рекорд (US-033)
-- [ ] % «помню» по интервалам в Stats (US-030)
+- [ ] Recall time metrics: average time, personal best (US-033)
+- [ ] "Remembered" % per interval in Stats (US-030)
 
 ---
 
 ## v1.2+ (in the future)
 
-**Could Have**: фичи второй очереди, поднимающие вовлечённость.
+**Could Have**: second-wave features that boost engagement.
 
-- [ ] Тамагочи на главном экране (US-031)
-- [ ] Игра дня (US-032)
-- [ ] Контекстный режим Recall — предложение с пропуском (US-034)
+- [ ] Tamagotchi on the home screen (US-031)
+- [ ] Contextual Recall mode — sentence with a gap (US-034)
 
 ---
 
-## Вне скоупа (Won't Have)
+## Out of scope (Won't Have)
 
-Не планируется в обозримой перспективе — требует отдельной проработки или меняет позиционирование продукта.
+Not planned for the foreseeable future — requires separate research or shifts the product's positioning.
 
-- [ ] Адаптивный список слов — исключение знакомых слов перед стартом (US-036)
-- [ ] Социальные функции — рейтинги, сравнение с друзьями (US-037)
-- [ ] Адаптация сложности — автоматическое изменение на основе ошибок (US-038)
+- [ ] Adaptive word list — excluding familiar words before starting (US-036)
+- [ ] Social features — leaderboards, comparison with friends (US-037)
+- [ ] Difficulty adaptation — automatic adjustment based on mistakes (US-038)
